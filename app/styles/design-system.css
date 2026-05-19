@@ -1,0 +1,297 @@
+/* Design tokens, base reset, typography rules, and reusable primitives */
+:root {
+  --color-ink: #1d2522;
+  --color-muted: #66736d;
+  --color-line: #dfe7e2;
+  --color-surface: #ffffff;
+  --color-soft: #f7f7f9;
+  --color-primary: #236f55;
+  --color-primary-50: #F2FAF7;
+  --color-primary-100: #DFF3EA;
+  --color-primary-200: #BFE7D5;
+  --color-primary-300: #91D2B8;
+  --color-primary-400: #58AF8B;
+  --color-primary-500: #236F55;
+  --color-primary-600: #1F634C;
+  --color-primary-700: #1A533F;
+  --color-primary-800: #164534;
+  --color-primary-900: #103428; 
+  --color-primary-dark: var(--color-primary-900);
+  --color-coral: #e8634d;
+  --color-blue: #3868b2;
+  --color-yellow: #f1b940;
+  --color-red: #cf4d45;
+  --color-badge-sale: var(--color-primary);
+  --color-badge-urgent: #bb62f2;
+  --color-badge-stock: var(--color-red);
+  --color-badge-ongoing: #169b76;
+  --color-badge-booking: #e8634d;
+  --color-badge-neutral: #4c5a54;
+  --shadow-soft: 0 18px 44px rgba(35, 60, 48, 0.12);
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-size-xs: clamp(13px, 0.78vw, 13px);
+  --font-size-sm: clamp(13px, 0.9vw, 14px);
+  --font-size-md: clamp(14px, 0.96vw, 15px);
+  --font-size-base: clamp(15px, 1.04vw, 16px);
+  --font-size-base-lg: clamp(16px, 1.1vw, 17px);
+  --font-size-lg: clamp(17px, 1.18vw, 18px);
+  --font-size-xl: clamp(18px, 1.24vw, 19px);
+  --font-size-2xl: clamp(19px, 1.36vw, 20px);
+  --font-size-3xl: clamp(20px, 1.48vw, 22px);
+  --font-size-4xl: clamp(22px, 1.62vw, 24px);
+  --font-size-5xl: clamp(23px, 1.72vw, 25px);
+  --font-size-6xl: clamp(24px, 1.82vw, 26px);
+  --font-size-7xl: clamp(26px, 1.96vw, 28px);
+  --font-size-section-sm: clamp(28px, 2.35vw, 34px);
+  --font-size-section: clamp(30px, 2.5vw, 36px);
+  --font-size-page: clamp(34px, 2.78vw, 40px);
+  --font-size-display-sm: clamp(38px, 3.48vw, 50px);
+  --font-size-display-md: clamp(38px, 3.34vw, 48px);
+  --font-size-display-lg: clamp(42px, 3.75vw, 54px);
+  --space-0: 0;
+  --space-1: 1px;
+  --space-2: 2px;
+  --space-3: 3px;
+  --space-4: 4px;
+  --space-5: 5px;
+  --space-6: 6px;
+  --space-7: 7px;
+  --space-8: 8px;
+  --space-9: 9px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-13: 13px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-17: 17px;
+  --space-18: 18px;
+  --space-20: 20px;
+  --space-22: 22px;
+  --space-24: 24px;
+  --space-26: 26px;
+  --space-28: 28px;
+  --space-30: 30px;
+  --space-32: 32px;
+  --space-34: 34px;
+  --space-36: 36px;
+  --space-38: 38px;
+  --space-42: 42px;
+  --space-54: 54px;
+  --space-58: 58px;
+  --space-72: 72px;
+  --space-96: 96px;
+  --space-110: 110px;
+  --space-140: 140px;
+  --radius-xs: 3px;
+  --radius-sm: 4px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
+  --radius-4xl: 18px;
+  --radius-5xl: 20px;
+  --radius-pill: 999px;
+  --control-height-sm: 36px;
+  --control-height-md: 44px;
+  --button-height-sm: 36px;
+  --button-height-md: 44px;
+  --button-height-lg: 50px;
+  --button-padding-x-sm: var(--space-12);
+  --button-padding-x-md: var(--space-16);
+  --button-padding-x-lg: var(--space-20);
+  --button-gap: var(--space-8);
+  --button-font-size: var(--font-size-md);
+  --icon-button-size: var(--control-height-md);
+  --field-height: 46px;
+  --radius-card: 8px;
+  --radius-control: 8px;
+  --container: 1180px;
+  --header-height: 72px;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --font-size-xs: clamp(13px, 3.15vw, 13px);
+    --font-size-sm: clamp(13px, 3.35vw, 13px);
+    --font-size-md: clamp(13px, 3.55vw, 14px);
+    --font-size-base: clamp(14px, 3.75vw, 15px);
+    --font-size-base-lg: clamp(15px, 4vw, 16px);
+    --font-size-lg: clamp(15px, 4.2vw, 17px);
+    --font-size-xl: clamp(16px, 4.45vw, 18px);
+    --font-size-2xl: clamp(17px, 4.75vw, 19px);
+    --font-size-3xl: clamp(18px, 5vw, 20px);
+    --font-size-4xl: clamp(20px, 5.55vw, 22px);
+    --font-size-5xl: clamp(21px, 5.9vw, 23px);
+    --font-size-6xl: clamp(22px, 6.2vw, 24px);
+    --font-size-7xl: clamp(24px, 6.7vw, 26px);
+    --font-size-section-sm: clamp(23px, 7.2vw, 28px);
+    --font-size-section: clamp(24px, 7.5vw, 30px);
+    --font-size-page: clamp(26px, 8.2vw, 32px);
+    --font-size-display-sm: clamp(28px, 8.8vw, 36px);
+    --font-size-display-md: clamp(30px, 9.2vw, 38px);
+    --font-size-display-lg: clamp(30px, 9.6vw, 40px);
+    --control-height-sm: 34px;
+    --control-height-md: 44px;
+    --button-height-sm: 34px;
+    --button-height-md: 44px;
+    --button-height-lg: 48px;
+    --button-padding-x-sm: var(--space-10);
+    --button-padding-x-md: var(--space-14);
+    --button-padding-x-lg: var(--space-18);
+    --button-gap: var(--space-6);
+    --button-font-size: var(--font-size-xs);
+    --field-height: 44px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  word-break: keep-all;
+}
+
+html {
+  scroll-padding-top: calc(var(--header-height) + var(--space-58));
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  overflow-x: clip; 
+  color: var(--color-ink);
+  font-family:
+    Pretendard,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: 0;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+strong,
+b {
+  font-weight: var(--font-weight-bold);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+main {
+  min-height: 72vh;
+}
+
+.container {
+  width: min(var(--container), calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.icon-button,
+.text-button,
+.primary-button,
+.ghost-button,
+.link-button {
+  display: inline-flex;
+  min-height: var(--button-height-md);
+  align-items: center;
+  justify-content: center;
+  gap: var(--button-gap);
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-line);
+  background: #fff;
+  color: var(--color-ink);
+  font-size: var(--button-font-size);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.icon-button {
+  width: var(--icon-button-size);
+  height: var(--icon-button-size);
+}
+
+.text-button {
+  padding: 0 var(--button-padding-x-md);
+}
+
+.primary-button {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: #fff;
+  padding: 0 var(--button-padding-x-lg);
+}
+
+.primary-button:hover {
+  background: var(--color-primary-dark);
+}
+
+.primary-button:disabled {
+  border-color: #b9c3bd;
+  background: #b9c3bd;
+  cursor: not-allowed;
+}
+
+.primary-button.full {
+  width: 100%;
+}
+
+.ghost-button {
+  border-color: rgba(255, 255, 255, 0.65);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  padding: 0 var(--button-padding-x-md);
+}
+
+.link-button {
+  min-height: var(--button-height-sm);
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.mobile-only {
+  display: none;
+}
+
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

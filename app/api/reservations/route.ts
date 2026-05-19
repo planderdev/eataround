@@ -1,0 +1,106 @@
+import { NextResponse } from "next/server";
+import type { RowDataPacket } from "mysql2";
+import { getPool, hasDatabaseConfig } from "@/lib/db";
+
+type ScheduleReservationRow = RowDataPacket & {
+  id: number;
+  product_id: number;
+  capacity: number;
+  booked: number;
+  max_teams: number;
+  reserved_teams: number;
+  reservation_type: "instant" | "approval" | "inquiry";
+  approval_required: number;
+};
+
+export async function POST(request: Request) {
+  const payload = (await request.json()) as {
+    productSlug?: string;
+    date?: string;
+    timeLabel?: string;
+    people?: number;
+    totalAmount?: number;
+    reservationType?: "instant" | "approval" | "inquiry";
+    approvalRequired?: boolean;
+  };
+
+  if (hasDatabaseConfig()) {
+    const pool = getPool();
+    const people = Math.max(Number(payload.people ?? 1), 1);
+    const connection = await pool.getConnection();
+
+    try {
+      await connection.beginTransaction();
+
+      const [scheduleRows] = await connection.query<ScheduleReservationRow[]>(
+        `select ps.id, ps.product_id, ps.capacity, ps.booked, ps.max_teams, ps.reserved_teams,
+                ps.reservation_type, ps.approval_required
+           from product_schedules ps
+           join products p on p.id = ps.product_id
+          where p.slug = ?
+            and ps.schedule_date = ?
+            and ps.schedule_label = ?
+            and ps.status = 'open'
+          limit 1
+          for update`,
+        [payload.productSlug ?? null, payload.date ?? null, payload.timeLabel ?? null],
+      );
+
+      const schedule = scheduleRows[0];
+      if (schedule && schedule.capacity - schedule.booked < people) {
+        await connection.rollback();
+        return NextResponse.json({ ok: false, message: "선택한 회차의 남은 좌석이 부족합니다." }, { status: 409 });
+      }
+
+      if (schedule && schedule.max_teams - schedule.reserved_teams < 1) {
+        await connection.rollback();
+        return NextResponse.json({ ok: false, message: "선택한 회차의 팀 재고가 마감되었습니다." }, { status: 409 });
+      }
+
+      await connection.execute(
+        `insert into reservations
+          (product_id, product_slug, schedule_id, schedule_date, schedule_label, people, total_amount, reservation_type, approval_required, status)
+         values (?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested')`,
+        [
+          schedule?.product_id ?? null,
+          payload.productSlug ?? null,
+          schedule?.id ?? null,
+          payload.date ?? null,
+          payload.timeLabel ?? null,
+          people,
+          payload.totalAmount ?? 0,
+          schedule?.reservation_type ?? payload.reservationType ?? "approval",
+          schedule ? schedule.approval_required : (payload.approvalRequired ?? true) ? 1 : 0,
+        ],
+      );
+
+      if (schedule) {
+        await connection.execute(
+          `update product_schedules
+              set booked = booked + ?,
+                  reserved_teams = least(max_teams, reserved_teams + 1)
+            where id = ?`,
+          [people, schedule.id],
+        );
+      }
+
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+
+      if ((error as { code?: string }).code !== "ER_BAD_FIELD_ERROR") throw error;
+      await pool.execute(
+        `insert into reservations (product_slug, schedule_date, schedule_label, people, total_amount, status)
+         values (?, ?, ?, ?, ?, 'requested')`,
+        [payload.productSlug ?? null, payload.date ?? null, payload.timeLabel ?? null, people, payload.totalAmount ?? 0],
+      );
+    } finally {
+      connection.release();
+    }
+  }
+
+  return NextResponse.json({
+    ok: true,
+    message: "예약 요청이 접수되었습니다.",
+  });
+}

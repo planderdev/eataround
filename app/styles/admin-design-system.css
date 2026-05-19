@@ -1,0 +1,183 @@
+/* Admin design tokens. Copied from the site system, then namespaced for admin-only maintenance. */
+:root {
+  --admin-color-ink: #1d2522;
+  --admin-color-muted: #66736d;
+  --admin-color-line: #dfe7e2;
+  --admin-color-surface: #ffffff;
+  --admin-color-soft: #f7f7f9;
+  --admin-color-primary: #236f55;
+  --admin-color-primary-50: #f2faf7;
+  --admin-color-primary-100: #dff3ea;
+  --admin-color-primary-200: #bfe7d5;
+  --admin-color-primary-300: #91d2b8;
+  --admin-color-primary-400: #58af8b;
+  --admin-color-primary-500: #236f55;
+  --admin-color-primary-600: #1f634c;
+  --admin-color-primary-700: #1a533f;
+  --admin-color-primary-800: #164534;
+  --admin-color-primary-900: #103428;
+  --admin-color-primary-dark: var(--admin-color-primary-900);
+  --admin-color-coral: #e8634d;
+  --admin-color-blue: #3868b2;
+  --admin-color-yellow: #f1b940;
+  --admin-color-red: #cf4d45;
+  --admin-shadow-soft: 0 18px 44px rgba(35, 60, 48, 0.12);
+
+  --admin-font-weight-regular: 400;
+  --admin-font-weight-medium: 500;
+  --admin-font-weight-semibold: 600;
+  --admin-font-weight-bold: 700;
+  --admin-font-size-xs: clamp(13px, 0.78vw, 13px);
+  --admin-font-size-sm: clamp(13px, 0.9vw, 14px);
+  --admin-font-size-md: clamp(14px, 0.96vw, 15px);
+  --admin-font-size-base: clamp(15px, 1.04vw, 16px);
+  --admin-font-size-base-lg: clamp(16px, 1.1vw, 17px);
+  --admin-font-size-lg: clamp(17px, 1.18vw, 18px);
+  --admin-font-size-xl: clamp(18px, 1.24vw, 19px);
+  --admin-font-size-2xl: clamp(19px, 1.36vw, 20px);
+  --admin-font-size-3xl: clamp(20px, 1.48vw, 22px);
+  --admin-font-size-4xl: clamp(22px, 1.62vw, 24px);
+  --admin-font-size-5xl: clamp(23px, 1.72vw, 25px);
+  --admin-font-size-6xl: clamp(24px, 1.82vw, 26px);
+  --admin-font-size-7xl: clamp(26px, 1.96vw, 28px);
+  --admin-font-size-section-sm: clamp(28px, 2.35vw, 34px);
+  --admin-font-size-section: clamp(30px, 2.5vw, 36px);
+  --admin-font-size-page: clamp(34px, 2.78vw, 40px);
+
+  --admin-space-0: 0;
+  --admin-space-1: 1px;
+  --admin-space-2: 2px;
+  --admin-space-3: 3px;
+  --admin-space-4: 4px;
+  --admin-space-5: 5px;
+  --admin-space-6: 6px;
+  --admin-space-7: 7px;
+  --admin-space-8: 8px;
+  --admin-space-9: 9px;
+  --admin-space-10: 10px;
+  --admin-space-12: 12px;
+  --admin-space-13: 13px;
+  --admin-space-14: 14px;
+  --admin-space-16: 16px;
+  --admin-space-17: 17px;
+  --admin-space-18: 18px;
+  --admin-space-20: 20px;
+  --admin-space-22: 22px;
+  --admin-space-24: 24px;
+  --admin-space-26: 26px;
+  --admin-space-28: 28px;
+  --admin-space-30: 30px;
+  --admin-space-32: 32px;
+  --admin-space-34: 34px;
+  --admin-space-36: 36px;
+  --admin-space-38: 38px;
+  --admin-space-42: 42px;
+  --admin-space-54: 54px;
+  --admin-space-58: 58px;
+  --admin-space-72: 72px;
+  --admin-space-96: 96px;
+  --admin-space-110: 110px;
+  --admin-space-140: 140px;
+
+  --admin-radius-xs: 3px;
+  --admin-radius-sm: 4px;
+  --admin-radius-md: 5px;
+  --admin-radius-lg: 7px;
+  --admin-radius-xl: 10px;
+  --admin-radius-2xl: 12px;
+  --admin-radius-3xl: 16px;
+  --admin-radius-4xl: 18px;
+  --admin-radius-5xl: 20px;
+  --admin-radius-pill: 999px;
+  --admin-radius-card: 8px;
+  --admin-radius-control: 8px;
+
+  --admin-control-height-sm: 36px;
+  --admin-control-height-md: 44px;
+  --admin-button-height-sm: 36px;
+  --admin-button-height-md: 44px;
+  --admin-button-height-lg: 50px;
+  --admin-button-padding-x-sm: var(--admin-space-12);
+  --admin-button-padding-x-md: var(--admin-space-16);
+  --admin-button-padding-x-lg: var(--admin-space-20);
+  --admin-button-gap: var(--admin-space-8);
+  --admin-button-font-size: var(--admin-font-size-md);
+  --admin-field-height: 46px;
+
+  --admin-bg: #f4f6f5;
+  --admin-surface: #ffffff;
+  --admin-surface-soft: #f8faf9;
+  --admin-surface-field: #f7f7f9;
+  --admin-line: #dde6e1;
+  --admin-line-soft: #e9ecef;
+  --admin-line-strong: #d8e6df;
+  --admin-primary-soft: #edf6f1;
+  --admin-primary-gradient: linear-gradient(135deg, rgba(237, 246, 241, 0.9), rgba(255, 255, 255, 0.88));
+  --admin-muted: #8a9690;
+  --admin-disabled: #b9c3bd;
+  --admin-danger-soft: #fff0ea;
+  --admin-toast-line: #cbe2d8;
+  --admin-topbar-bg: rgba(255, 255, 255, 0.94);
+  --admin-backdrop: rgba(17, 24, 21, 0.34);
+  --admin-sidebar-width: 240px;
+  --admin-sidebar-drawer-width: min(304px, calc(100vw - 52px));
+  --admin-topbar-height: 56px;
+  --admin-header-height: var(--admin-topbar-height);
+  --admin-main-width: 1280px;
+  --admin-content-nav-width: 230px;
+  --admin-search-max-width: 440px;
+  --admin-drawer-width: min(390px, calc(100vw - 28px));
+  --admin-dashboard-aside-min: 320px;
+  --admin-overview-aside-min: 280px;
+  --admin-metric-min: 150px;
+  --admin-filter-min: 170px;
+  --admin-section-min: 190px;
+  --admin-icon-size: 36px;
+  --admin-icon-button-size: 34px;
+  --admin-nav-item-height: 40px;
+  --admin-quick-action-height: 58px;
+  --admin-overview-card-min-height: 126px;
+  --admin-step-size: 24px;
+  --admin-card-shadow: 0 12px 28px rgba(36, 54, 45, 0.06);
+  --admin-drawer-shadow: -18px 0 40px rgba(29, 37, 34, 0.16);
+  --admin-mobile-drawer-shadow: 18px 0 42px rgba(29, 37, 34, 0.16);
+  --admin-ease: 0.24s ease;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --admin-font-size-xs: clamp(13px, 3.15vw, 13px);
+    --admin-font-size-sm: clamp(13px, 3.35vw, 13px);
+    --admin-font-size-md: clamp(13px, 3.55vw, 14px);
+    --admin-font-size-base: clamp(14px, 3.75vw, 15px);
+    --admin-font-size-base-lg: clamp(15px, 4vw, 16px);
+    --admin-font-size-lg: clamp(15px, 4.2vw, 17px);
+    --admin-font-size-xl: clamp(16px, 4.45vw, 18px);
+    --admin-font-size-2xl: clamp(17px, 4.75vw, 19px);
+    --admin-font-size-3xl: clamp(18px, 5vw, 20px);
+    --admin-font-size-4xl: clamp(20px, 5.55vw, 22px);
+    --admin-font-size-5xl: clamp(21px, 5.9vw, 23px);
+    --admin-font-size-6xl: clamp(22px, 6.2vw, 24px);
+    --admin-font-size-7xl: clamp(24px, 6.7vw, 26px);
+    --admin-font-size-section-sm: clamp(23px, 7.2vw, 28px);
+    --admin-font-size-section: clamp(24px, 7.5vw, 30px);
+    --admin-font-size-page: clamp(26px, 8.2vw, 32px);
+    --admin-control-height-sm: 34px;
+    --admin-control-height-md: 44px;
+    --admin-button-height-sm: 34px;
+    --admin-button-height-md: 44px;
+    --admin-button-height-lg: 48px;
+    --admin-button-padding-x-sm: var(--admin-space-10);
+    --admin-button-padding-x-md: var(--admin-space-14);
+    --admin-button-padding-x-lg: var(--admin-space-18);
+    --admin-button-gap: var(--admin-space-6);
+    --admin-button-font-size: var(--admin-font-size-xs);
+    --admin-field-height: 44px;
+  }
+}
+
+@media (max-width: 980px) {
+  :root {
+    --admin-sidebar-width: var(--admin-sidebar-drawer-width);
+  }
+}

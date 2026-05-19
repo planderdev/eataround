@@ -1,0 +1,3 @@
+/* Admin style entrypoint. Keep separate from front site styles. */
+@import "./admin-design-system.css";
+@import "./admin.css";
