@@ -84,21 +84,21 @@ const fontSizes = [
 ];
 
 const spacings = [
-  { name: "--space-4", px: "4px" },
   { name: "--space-8", px: "8px" },
-  { name: "--space-12", px: "12px" },
   { name: "--space-16", px: "16px" },
-  { name: "--space-20", px: "20px" },
   { name: "--space-24", px: "24px" },
-  { name: "--space-28", px: "28px" },
   { name: "--space-32", px: "32px" },
-  { name: "--space-36", px: "36px" },
-  { name: "--space-42", px: "42px" },
-  { name: "--space-54", px: "54px" },
+  { name: "--space-40", px: "40px" },
+  { name: "--space-48", px: "48px" },
+  { name: "--space-56", px: "56px" },
+  { name: "--space-64", px: "64px" },
   { name: "--space-72", px: "72px" },
+  { name: "--space-80", px: "80px" },
+  { name: "--space-88", px: "88px" },
   { name: "--space-96", px: "96px" },
-  { name: "--space-110", px: "110px" },
-  { name: "--space-140", px: "140px" },
+  { name: "--space-112", px: "112px" },
+  { name: "--space-128", px: "128px" },
+  { name: "--space-144", px: "144px" },
 ];
 
 const radii = [
