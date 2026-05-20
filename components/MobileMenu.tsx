@@ -14,6 +14,7 @@ import {
 } from "@remixicon/react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { useModal } from "@/lib/useModal";
 import { withBasePath } from "@/lib/paths";
 import { userRoutes } from "@/lib/routes";
 
@@ -25,39 +26,25 @@ const menuItems = [
 ];
 
 export function MobileMenu() {
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, open, close } = useModal();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
-    document.body.style.overflow = isOpen ? "hidden" : "";
-
-    function closeWithEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setIsOpen(false);
-    }
-
-    window.addEventListener("keydown", closeWithEscape);
-    return () => {
-      document.body.style.overflow = "";
-      window.removeEventListener("keydown", closeWithEscape);
-    };
-  }, [isOpen]);
-
   const menuLayer = (
     <div className="mobile-menu-layer" data-open={isOpen}>
-      <button className="mobile-menu-backdrop" onClick={() => setIsOpen(false)} tabIndex={isOpen ? 0 : -1} type="button">
+      <button className="mobile-menu-backdrop" onClick={close} tabIndex={isOpen ? 0 : -1} type="button">
         <span className="sr-only">메뉴 닫기</span>
       </button>
 
       <aside aria-hidden={!isOpen} aria-label="모바일 메뉴" className="mobile-menu-panel" id="mobile-menu-panel">
         <div className="mobile-menu-top">
-          <Link className="quick-reserve" href={userRoutes.experiences} onClick={() => setIsOpen(false)}>
+          <Link className="quick-reserve" href={userRoutes.experiences} onClick={close}>
             빠른 예약
           </Link>
-          <button aria-label="메뉴 닫기" className="mobile-menu-close" onClick={() => setIsOpen(false)} type="button">
+          <button aria-label="메뉴 닫기" className="mobile-menu-close" onClick={close} type="button">
             <RiCloseLine size={22} />
           </button>
         </div>
@@ -70,7 +57,7 @@ export function MobileMenu() {
             <small>로컬 탐험러</small>
             <strong>
               닉네임 1234
-              <Link href={userRoutes.login} onClick={() => setIsOpen(false)}>
+              <Link href={userRoutes.login} onClick={close}>
                 로그인
               </Link>
             </strong>
@@ -78,7 +65,7 @@ export function MobileMenu() {
           </span>
         </div>
 
-        <Link className="mobile-menu-mypage" href={userRoutes.me} onClick={() => setIsOpen(false)}>
+        <Link className="mobile-menu-mypage" href={userRoutes.me} onClick={close}>
           마이페이지
         </Link>
 
@@ -87,7 +74,7 @@ export function MobileMenu() {
             const Icon = item.icon;
 
             return (
-              <Link href={item.href} key={item.label} onClick={() => setIsOpen(false)}>
+              <Link href={item.href} key={item.label} onClick={close}>
                 <Icon size={21} />
                 <span>{item.label}</span>
                 {item.hasMore ? <RiArrowDownSLine size={18} /> : null}
@@ -97,14 +84,14 @@ export function MobileMenu() {
         </nav>
 
         <div className="mobile-menu-promos">
-          <Link className="mobile-menu-promo host" href={userRoutes.b2b} onClick={() => setIsOpen(false)}>
+          <Link className="mobile-menu-promo host" href={userRoutes.b2b} onClick={close}>
             <span>
               <strong>당신의 공간을 공유의 공간으로,</strong>
               <small>호스트 신청하기</small>
             </span>
             <RiCursorLine size={46} />
           </Link>
-          <Link className="mobile-menu-promo help" href={userRoutes.b2bQuote} onClick={() => setIsOpen(false)}>
+          <Link className="mobile-menu-promo help" href={userRoutes.b2bQuote} onClick={close}>
             <span>
               <strong>궁금한 점이 있다면?</strong>
               <small>지금 바로 1:1 상담 문의하기</small>
@@ -115,11 +102,11 @@ export function MobileMenu() {
 
         <div className="mobile-menu-footer">
           <p>
-            <Link href={userRoutes.terms} onClick={() => setIsOpen(false)}>
+            <Link href={userRoutes.terms} onClick={close}>
               이용약관
             </Link>
             <span />
-            <Link href={userRoutes.privacy} onClick={() => setIsOpen(false)}>
+            <Link href={userRoutes.privacy} onClick={close}>
               개인정보 처리방침
             </Link>
           </p>
@@ -144,7 +131,7 @@ export function MobileMenu() {
         aria-expanded={isOpen}
         aria-label="메뉴 열기"
         className="icon-button mobile-only"
-        onClick={() => setIsOpen(true)}
+        onClick={open}
         type="button"
       >
         <RiMenuLine size={20} />

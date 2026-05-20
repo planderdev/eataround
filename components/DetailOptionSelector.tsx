@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { useModal } from "@/lib/useModal";
 import { RiAddLine, RiArrowLeftLine, RiArrowLeftSLine, RiArrowRightSLine, RiSubtractLine } from "@remixicon/react";
 import type { Experience, ScheduleStock } from "@/lib/data";
 import { formatWon, getStockText, getTeamStockText } from "@/lib/format";
@@ -42,7 +43,7 @@ const recommendedOptions = [
 
 export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) {
   const firstSchedule = experience.schedules[0];
-  const [open, setOpen] = useState(false);
+  const { isOpen: open, open: openModal, close: closeModal } = useModal();
   const [selectedDate, setSelectedDate] = useState(firstSchedule?.date ?? "");
   const [selectedSchedule, setSelectedSchedule] = useState<ScheduleStock | undefined>(firstSchedule);
   const [monthDate, setMonthDate] = useState(() => parseDate(firstSchedule?.date) ?? new Date());
@@ -71,23 +72,6 @@ export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) 
   const total = totalOptionAmount + totalRecommendedAmount;
   const canReserve = Boolean(selectedSchedule) && totalPeople > 0;
 
-  useEffect(() => {
-    if (!open) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setOpen(false);
-    }
-
-    window.addEventListener("keydown", closeOnEscape);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [open]);
 
   function chooseDate(date: string) {
     const nextSchedule = schedulesByDate[date]?.find((schedule) => isScheduleAvailable(schedule));
@@ -137,7 +121,7 @@ export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) 
     <>
       <div className="detail-option-bar" id="reserve">
         <strong>{formatWon(selectedPrice)}~</strong>
-        <button type="button" onClick={() => setOpen(true)}>
+        <button type="button" onClick={() => openModal()}>
           옵션 선택
         </button>
       </div>
@@ -146,7 +130,7 @@ export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) 
         <div className="option-modal" role="dialog" aria-modal="true" aria-label="옵션 선택">
           <div className="option-modal-shell">
             <header className="option-modal-header">
-              <button type="button" onClick={() => setOpen(false)} aria-label="닫기">
+              <button type="button" onClick={() => closeModal()} aria-label="닫기">
                 <RiArrowLeftLine size={24} />
               </button>
               <strong>옵션 선택</strong>

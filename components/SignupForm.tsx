@@ -9,6 +9,7 @@ import {
   RiShieldCheckLine,
   RiUser3Line,
 } from "@remixicon/react";
+import { FormField } from "@/components/FormField";
 import { withBasePath } from "@/lib/paths";
 
 type MemberType = "personal" | "company";
@@ -173,24 +174,20 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
       </div>
 
       <div className="signup-form-grid">
-        <label className="field">
-          <span>이름</span>
+        <FormField label="이름" required>
           <input autoComplete="name" name="name" placeholder="홍길동" required />
-        </label>
-        <label className="field">
-          <span>휴대폰 번호</span>
+        </FormField>
+        <FormField label="휴대폰 번호">
           <input autoComplete="tel" inputMode="tel" name="phone" placeholder="010-0000-0000" />
-        </label>
+        </FormField>
       </div>
 
-      <label className="field">
-        <span>이메일</span>
+      <FormField label="이메일" required>
         <input autoComplete="email" name="email" placeholder="hello@eataround.co.kr" required type="email" />
-      </label>
+      </FormField>
 
       <div className="signup-form-grid">
-        <label className="field">
-          <span>비밀번호</span>
+        <FormField label="비밀번호" required>
           <input
             autoComplete="new-password"
             minLength={10}
@@ -201,9 +198,8 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
             type="password"
             value={password}
           />
-        </label>
-        <label className="field">
-          <span>비밀번호 확인</span>
+        </FormField>
+        <FormField label="비밀번호 확인" required>
           <input
             autoComplete="new-password"
             name="passwordConfirm"
@@ -213,7 +209,7 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
             type="password"
             value={passwordConfirm}
           />
-        </label>
+        </FormField>
       </div>
 
       <ul className="signup-rule-list" aria-label="비밀번호 규칙">
@@ -235,14 +231,12 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
         <fieldset className="signup-company-fields">
           <legend>기업·기관 정보</legend>
           <div className="signup-form-grid">
-            <label className="field">
-              <span>기관명</span>
+            <FormField label="기관명" required>
               <input name="organizationName" placeholder="기관 또는 회사명" required />
-            </label>
-            <label className="field">
-              <span>사업자등록번호</span>
+            </FormField>
+            <FormField label="사업자등록번호" required>
               <input inputMode="numeric" name="businessNumber" placeholder="000-00-00000" required />
-            </label>
+            </FormField>
           </div>
           <p>
             <RiShieldCheckLine size={16} />

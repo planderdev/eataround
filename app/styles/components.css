@@ -2669,21 +2669,21 @@
   color: var(--color-primary);
 }
 
-.legal-modal-layer {
+.modal-layer {
   position: fixed;
   inset: 0;
-  z-index: var(--z-modal-top);
   display: grid;
   place-items: center;
   padding: var(--space-24);
 }
 
-.legal-modal-backdrop {
+.modal-backdrop {
   position: absolute;
   inset: 0;
   border: 0;
   background: rgba(18, 22, 20, 0.58);
 }
+
 
 .legal-modal-panel {
   position: relative;
@@ -2956,21 +2956,6 @@
   pointer-events: none;
 }
 
-.filter-modal-layer {
-  position: fixed;
-  inset: 0;
-  z-index: var(--z-modal);
-  display: grid;
-  place-items: center;
-  padding: var(--space-24);
-}
-
-.filter-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  border: 0;
-  background: rgba(18, 22, 20, 0.58);
-}
 
 .filter-modal-panel {
   position: relative;
@@ -8359,7 +8344,7 @@ color:var(--color-muted);
     display: none;
   }
 
-  .filter-modal-layer {
+  .modal-layer {
     padding: var(--space-16);
   }
 
@@ -8495,9 +8480,6 @@ color:var(--color-muted);
     flex: 1 1 auto;
   }
 
-  .legal-modal-layer {
-    padding: var(--space-16);
-  }
 
   .legal-modal-panel {
     max-height: min(620px, calc(100dvh - 28px));
