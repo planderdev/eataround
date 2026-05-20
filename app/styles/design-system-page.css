@@ -4,12 +4,12 @@
 
 /* Page wrapper */
 .ds-page {
-  padding-bottom: var(--space-140);
+  padding-bottom: var(--space-144);
 }
 
 /* Hero header */
 .ds-header {
-  padding: var(--space-72) 0 var(--space-54);
+  padding: var(--space-72) 0 var(--space-56);
   border-bottom: 1px solid var(--color-line);
   background: var(--color-soft);
 }
@@ -24,7 +24,7 @@
 }
 
 .ds-header-title {
-  margin: 0 0 var(--space-12);
+  margin: 0 0 var(--space-16);
   font-size: var(--font-size-display-sm);
   font-weight: var(--font-weight-bold);
   line-height: 1.15;
@@ -86,7 +86,7 @@
 
 .ds-token-info {
   display: flex;
-  gap: var(--space-12);
+  gap: var(--space-16);
   align-items: baseline;
 }
 
@@ -112,7 +112,7 @@
 
 .ds-color-swatch {
   display: grid;
-  gap: var(--space-6);
+  gap: var(--space-8);
   min-width: 120px;
 }
 
@@ -153,8 +153,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  padding: var(--space-16) var(--space-12);
+  gap: var(--space-8);
+  padding: var(--space-16) var(--space-16);
 }
 
 .ds-primary-chip-name {
@@ -174,7 +174,7 @@
   border-radius: var(--radius-card);
   background: var(--color-soft);
   display: grid;
-  gap: var(--space-12);
+  gap: var(--space-16);
 }
 
 .ds-font-sample {
@@ -186,7 +186,7 @@
 
 .ds-weight-row {
   display: grid;
-  gap: var(--space-12);
+  gap: var(--space-16);
   padding: var(--space-24);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);
@@ -195,7 +195,7 @@
 
 .ds-type-scale {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-8);
   border: 1px solid var(--color-line);
   border-radius: var(--radius-card);
   overflow: hidden;
@@ -205,7 +205,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-24);
-  padding: var(--space-12) var(--space-20);
+  padding: var(--space-16) var(--space-24);
   border-bottom: 1px solid var(--color-line);
 }
 
@@ -218,7 +218,7 @@
   width: 220px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-8);
 }
 
 .ds-type-sample {
@@ -232,7 +232,7 @@
 /* Spacing */
 .ds-spacing-list {
   display: grid;
-  gap: var(--space-10);
+  gap: var(--space-8);
 }
 
 .ds-spacing-bar-wrap {
@@ -275,26 +275,107 @@
   display: flex;
   gap: var(--space-32);
   flex-wrap: wrap;
+  align-items: flex-end;
 }
 
 .ds-shadow-item {
   display: grid;
-  gap: var(--space-12);
+  gap: var(--space-8);
 }
 
 .ds-shadow-box {
-  width: 160px;
-  height: 100px;
+  width: 120px;
+  height: 80px;
   border-radius: var(--radius-card);
   background: #fff;
-  border: 1px solid var(--color-line);
+}
+
+/* Transition demo */
+.ds-transition-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-24);
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.ds-transition-row:last-child {
+  border-bottom: none;
+}
+
+.ds-transition-demo {
+  flex-shrink: 0;
+  width: 180px;
+  height: 32px;
+  background: var(--color-soft);
+  border-radius: var(--radius-pill);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.ds-transition-dot {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  transition: left var(--transition-base);
+}
+
+.ds-transition-demo:hover .ds-transition-dot {
+  left: calc(180px - 28px);
+}
+
+.ds-token-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+}
+
+/* Z-index */
+.ds-z-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--space-8);
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-200);
+  min-width: 40px;
+}
+
+.ds-z-bar span {
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-700);
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+}
+
+/* Line-height */
+
+/* Component sections */
+.ds-narrow {
+  max-width: 400px;
+}
+
+.ds-schedule-list {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.ds-form-message-list {
+  display: grid;
+  gap: var(--space-16);
 }
 
 /* Buttons */
 .ds-button-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-12);
+  gap: var(--space-16);
   align-items: center;
 }
 
@@ -361,7 +442,7 @@
 .ds-demo-card-body {
   display: grid;
   gap: var(--space-8);
-  padding: var(--space-18);
+  padding: var(--space-16);
 }
 
 .ds-demo-card-body small {
@@ -385,12 +466,12 @@
 /* Responsive */
 @media (max-width: 640px) {
   .ds-header {
-    padding: var(--space-42) 0 var(--space-36);
+    padding: var(--space-40) 0 var(--space-40);
   }
 
   .ds-body {
     gap: var(--space-72);
-    padding-top: var(--space-42);
+    padding-top: var(--space-40);
   }
 
   .ds-primary-scale {
@@ -402,7 +483,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-10) var(--space-16);
+    padding: var(--space-8) var(--space-16);
   }
 
   .ds-type-row {

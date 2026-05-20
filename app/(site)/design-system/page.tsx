@@ -257,16 +257,95 @@ export default function DesignSystemPage() {
           {/* Shadow */}
           <Section title="Shadow">
             <div className="ds-shadow-grid">
-              <div className="ds-shadow-item">
-                <div className="ds-shadow-box" style={{ boxShadow: "0 18px 44px rgba(35, 60, 48, 0.12)" }} />
-                <code className="ds-token-name">--shadow-soft</code>
-                <span className="ds-token-value">0 18px 44px rgba(35,60,48,0.12)</span>
-              </div>
-              <div className="ds-shadow-item">
-                <div className="ds-shadow-box" style={{ boxShadow: "0 10px 28px rgba(36, 54, 45, 0.06)" }} />
-                <code className="ds-token-name">Card shadow</code>
-                <span className="ds-token-value">0 10px 28px rgba(36,54,45,0.06)</span>
-              </div>
+              {[
+                { name: "--shadow-xs", value: "0 6px 18px rgba(35,60,48,0.08)", shadow: "0 6px 18px rgba(35,60,48,0.08)" },
+                { name: "--shadow-sm", value: "0 10px 28px rgba(36,54,45,0.06)", shadow: "0 10px 28px rgba(36,54,45,0.06)" },
+                { name: "--shadow-soft", value: "0 18px 44px rgba(35,60,48,0.12)", shadow: "0 18px 44px rgba(35,60,48,0.12)" },
+                { name: "--shadow-lg", value: "0 24px 52px rgba(18,30,24,0.12)", shadow: "0 24px 52px rgba(18,30,24,0.12)" },
+                { name: "--shadow-xl", value: "0 26px 70px rgba(16,24,20,0.24)", shadow: "0 26px 70px rgba(16,24,20,0.24)" },
+                { name: "--shadow-focus", value: "0 0 0 3px rgba(35,111,85,0.08)", shadow: "0 0 0 3px rgba(35,111,85,0.08), 0 0 0 1px var(--color-primary)" },
+              ].map((s) => (
+                <div key={s.name} className="ds-shadow-item">
+                  <div className="ds-shadow-box" style={{ boxShadow: s.shadow }} />
+                  <code className="ds-token-name">{s.name}</code>
+                  <span className="ds-token-value">{s.value}</span>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Transitions */}
+          <Section title="Transition">
+            <div className="ds-token-list">
+              {[
+                { name: "--transition-fast", value: "0.18s ease", label: "빠름 — hover 즉각 반응" },
+                { name: "--transition-base", value: "0.2s ease", label: "기본 — 대부분의 인터랙션" },
+                { name: "--transition-moderate", value: "0.24s ease", label: "중간 — 패널·드롭다운" },
+                { name: "--transition-slow", value: "0.35s ease", label: "느림 — 진행 바·펼침" },
+              ].map((t) => (
+                <div key={t.name} className="ds-transition-row">
+                  <div className="ds-transition-demo" style={{ transitionDuration: t.value.split("s")[0] + "s" }}>
+                    <div className="ds-transition-dot" />
+                  </div>
+                  <div className="ds-token-info">
+                    <code className="ds-token-name">{t.name}</code>
+                    <span className="ds-token-value">{t.value}</span>
+                    <span className="ds-token-desc">{t.label}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Z-index */}
+          <Section title="Z-index">
+            <div className="ds-token-list">
+              {[
+                { name: "--z-dropdown", value: "20", desc: "드롭다운 · 플로팅 메뉴" },
+                { name: "--z-floating", value: "25", desc: "플로팅 CTA · 고정 패널" },
+                { name: "--z-header", value: "40", desc: "사이트 헤더" },
+                { name: "--z-mega-menu", value: "45", desc: "메가 네비게이션" },
+                { name: "--z-overlay", value: "50", desc: "부킹 패널 오버레이" },
+                { name: "--z-date-picker", value: "60", desc: "캘린더 피커" },
+                { name: "--z-tooltip", value: "80", desc: "툴팁" },
+                { name: "--z-nav-mobile", value: "90", desc: "모바일 네비게이션" },
+                { name: "--z-modal", value: "120", desc: "모달 · 필터 시트" },
+                { name: "--z-modal-top", value: "130", desc: "최상위 모달(약관·알림)" },
+              ].map((z) => (
+                <div key={z.name} className="ds-token-row">
+                  <div className="ds-token-preview">
+                    <div className="ds-z-bar" style={{ width: `${(parseInt(z.value) / 130) * 100}%` }}>
+                      <span>{z.value}</span>
+                    </div>
+                  </div>
+                  <div className="ds-token-info">
+                    <code className="ds-token-name">{z.name}</code>
+                    <span className="ds-token-desc">{z.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          {/* Line Height */}
+          <Section title="Line Height">
+            <div className="ds-type-scale">
+              {[
+                { name: "--leading-tight", value: "1.2", sample: "제목처럼 촘촘하게 / 짧은 헤드라인에 적합합니다" },
+                { name: "--leading-snug", value: "1.35", sample: "카드 제목이나 섹션 헤더처럼 / 적당히 숨쉬는 행간입니다" },
+                { name: "--leading-body", value: "1.6", sample: "본문 텍스트의 기본값입니다 / 눈이 편하게 읽히는 행간으로 / 긴 문장에 사용합니다" },
+                { name: "--leading-relaxed", value: "1.8", sample: "긴 글 본문이나 안내 문구처럼 / 넉넉한 행간이 필요할 때 / 사용하는 값입니다" },
+              ].map((lh) => (
+                <div key={lh.name} className="ds-type-row">
+                  <div className="ds-type-meta">
+                    <code className="ds-token-name">{lh.name}</code>
+                    <span className="ds-token-value">{lh.value}</span>
+                  </div>
+                  <p className="ds-type-sample" style={{ lineHeight: lh.value, fontSize: "var(--font-size-base)" }}>
+                    {lh.sample}
+                  </p>
+                </div>
+              ))}
             </div>
           </Section>
 
@@ -323,6 +402,102 @@ export default function DesignSystemPage() {
             <h3 className="ds-subsection-title">Text Input</h3>
             <div className="ds-form-row">
               <input className="ds-input" type="text" placeholder="입력하세요" />
+            </div>
+          </Section>
+
+          {/* Filter Chip */}
+          <Section title="Filter Chip">
+            <h3 className="ds-subsection-title">Default · Active</h3>
+            <div className="filter-chip-row">
+              <button className="filter-chip">전체 지역</button>
+              <button className="filter-chip" data-active="true">제주시</button>
+              <button className="filter-chip">서귀포</button>
+              <button className="filter-chip" data-active="true">쿠킹·베이킹</button>
+              <button className="filter-chip">웰니스</button>
+              <button className="filter-chip">아이와함께</button>
+            </div>
+          </Section>
+
+          {/* Segmented Control */}
+          <Section title="Segmented Control">
+            <h3 className="ds-subsection-title">Label variant (input)</h3>
+            <div className="ds-narrow">
+              <div className="segmented">
+                <label>
+                  <input type="radio" name="ds-seg-1" defaultChecked />
+                  즉시예약
+                </label>
+                <label>
+                  <input type="radio" name="ds-seg-1" />
+                  승인예약
+                </label>
+              </div>
+            </div>
+            <h3 className="ds-subsection-title">Button variant</h3>
+            <div className="ds-narrow">
+              <div className="segmented">
+                <button data-active="true">개인</button>
+                <button>기업·기관</button>
+              </div>
+            </div>
+          </Section>
+
+          {/* Tabs */}
+          <Section title="Tabs">
+            <div className="tabs">
+              <button className="tab" data-active="true">전체</button>
+              <button className="tab">로컬체험</button>
+              <button className="tab">이벤트</button>
+              <button className="tab">큐레이션</button>
+            </div>
+          </Section>
+
+          {/* Form Message */}
+          <Section title="Form Message">
+            <div className="ds-form-message-list">
+              <p className="form-message" data-tone="success">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+                저장되었습니다
+              </p>
+              <p className="form-message" data-tone="error">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                이메일 형식이 올바르지 않습니다
+              </p>
+            </div>
+          </Section>
+
+          {/* Schedule Option */}
+          <Section title="Schedule Option">
+            <div className="ds-narrow">
+              <div className="ds-schedule-list">
+                <button className="schedule-option" data-active="true">
+                  <span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <b>5월 24일 (토) 오전 10:00</b>
+                    <span className="schedule-seat-status">잔여 3</span>
+                  </span>
+                  <span className="stock-line"><i style={{ width: "60%" }} /></span>
+                  <small>성인 1인 · 65,000원</small>
+                </button>
+                <button className="schedule-option">
+                  <span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <b>5월 25일 (일) 오후 2:00</b>
+                    <span className="schedule-seat-status">잔여 1</span>
+                  </span>
+                  <span className="stock-line"><i style={{ width: "10%" }} /></span>
+                  <small>성인 1인 · 65,000원</small>
+                </button>
+                <button className="schedule-option" disabled>
+                  <span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <b>5월 31일 (토) 오전 10:00</b>
+                    <span className="schedule-seat-status">마감</span>
+                  </span>
+                  <span className="stock-line"><i style={{ width: "100%" }} /></span>
+                  <small>예약 마감</small>
+                </button>
+              </div>
             </div>
           </Section>
 
