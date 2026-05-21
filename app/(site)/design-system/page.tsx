@@ -102,15 +102,10 @@ const spacings = [
 ];
 
 const radii = [
-  { name: "--radius-xs", px: "3px", label: "xs" },
-  { name: "--radius-sm", px: "4px", label: "sm" },
-  { name: "--radius-md", px: "5px", label: "md" },
-  { name: "--radius-lg", px: "7px", label: "lg" },
-  { name: "--radius-xl", px: "10px", label: "xl" },
-  { name: "--radius-2xl", px: "12px", label: "2xl" },
-  { name: "--radius-3xl", px: "16px", label: "3xl" },
-  { name: "--radius-4xl", px: "18px", label: "4xl" },
-  { name: "--radius-5xl", px: "20px", label: "5xl" },
+  { name: "--radius-sm", px: "8px", label: "sm" },
+  { name: "--radius-md", px: "16px", label: "md" },
+  { name: "--radius-lg", px: "24px", label: "lg" },
+  { name: "--radius-xl", px: "32px", label: "xl" },
   { name: "--radius-pill", px: "999px", label: "pill" },
 ];
 
@@ -349,6 +344,54 @@ export default function DesignSystemPage() {
             </div>
           </Section>
 
+          {/* Focus */}
+          <Section title="Focus">
+            <p className="ds-section-desc">키보드 탐색 시 <code>:focus-visible</code>로만 포커스 링을 표시합니다. 마우스 클릭에는 나타나지 않습니다.</p>
+            <h3 className="ds-subsection-title">Outline — 버튼 · 링크 (Tab으로 탐색)</h3>
+            <div className="ds-button-row">
+              <button className="primary-button">Primary</button>
+              <button className="secondary-button">Secondary</button>
+              <button className="text-button">Text</button>
+              <a className="link-button" href="#focus">Link</a>
+            </div>
+            <h3 className="ds-subsection-title">Box Shadow — 입력 필드</h3>
+            <div className="ds-form-row">
+              <input className="ds-input ds-input--focus-demo" type="text" placeholder="클릭하거나 Tab으로 포커스" />
+            </div>
+            <h3 className="ds-subsection-title">Tokens</h3>
+            <div className="ds-token-list">
+              <TokenRow name="--shadow-focus" value="0 0 0 3px rgba(35,111,85,0.08)" />
+              <TokenRow name=":focus-visible outline" value="2px solid --color-primary · offset 2px" />
+              <TokenRow name=".focus-ring" value="border-color + --shadow-focus (input 스타일 포커스)" />
+            </div>
+          </Section>
+
+          {/* Motion */}
+          <Section title="Motion">
+            <p className="ds-section-desc"><code>prefers-reduced-motion: reduce</code> 환경에서 모든 애니메이션과 트랜지션이 자동 비활성화됩니다.</p>
+            <h3 className="ds-subsection-title">Keyframes</h3>
+            <div className="ds-token-list">
+              <TokenRow name="fade-in" value="opacity 0 → 1" />
+              <TokenRow name="slide-up" value="opacity+translateY(8px) → 1+0" />
+              <TokenRow name="skeleton-pulse" value="opacity 1 → 0.4 → 1 · 1.6s · infinite" />
+            </div>
+            <h3 className="ds-subsection-title">Skeleton</h3>
+            <div className="ds-skeleton-demo">
+              <div className="ds-skeleton-card">
+                <div className="skeleton ds-sk-img" />
+                <div className="ds-sk-body">
+                  <div className="skeleton ds-sk-title" />
+                  <div className="skeleton ds-sk-text" />
+                  <div className="skeleton ds-sk-text ds-sk-short" />
+                </div>
+              </div>
+            </div>
+            <h3 className="ds-subsection-title">Utility class</h3>
+            <div className="ds-token-list">
+              <TokenRow name=".skeleton" value="background: --color-line · skeleton-pulse 1.6s infinite" />
+            </div>
+          </Section>
+
           {/* Buttons */}
           <Section title="Buttons">
             <h3 className="ds-subsection-title">Variants</h3>
@@ -381,6 +424,93 @@ export default function DesignSystemPage() {
                   {b.label}
                 </span>
               ))}
+            </div>
+          </Section>
+
+          {/* Toast */}
+          <Section title="Toast">
+            <p className="ds-section-desc">화면 우하단에 고정 표시됩니다. <code>addToast(message, tone)</code>를 호출해 전역으로 사용합니다.</p>
+            <div className="ds-toast-preview">
+              <div className="toast" data-tone="info"><span>일반 알림 메시지입니다</span></div>
+              <div className="toast" data-tone="success"><span>저장이 완료되었습니다</span></div>
+              <div className="toast" data-tone="error"><span>오류가 발생했습니다. 다시 시도해 주세요.</span></div>
+            </div>
+            <div className="ds-token-list">
+              <TokenRow name="addToast(message, tone?, duration?)" value="import { addToast } from '@/lib/toast'" />
+              <TokenRow name="tone" value='"info" | "success" | "error"' />
+              <TokenRow name="duration" value="기본값 4000ms" />
+              <TokenRow name="<Toaster />" value="app/(site)/layout.tsx 에 등록됨" />
+            </div>
+          </Section>
+
+          {/* Empty State */}
+          <Section title="Empty State">
+            <p className="ds-section-desc">검색 결과 없음, 리스트 비어있음 등 데이터가 없을 때 사용합니다.</p>
+            <div className="ds-empty-demo">
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <strong className="empty-state-title">검색 결과가 없습니다</strong>
+                <p className="empty-state-desc">다른 키워드로 다시 검색하거나 필터를 초기화해 보세요.</p>
+                <div className="empty-state-action">
+                  <button className="secondary-button">필터 초기화</button>
+                </div>
+              </div>
+            </div>
+            <div className="ds-token-list">
+              <TokenRow name=".empty-state" value="grid · place-items-center · padding 64px 32px" />
+              <TokenRow name=".empty-state-icon" value="color-muted · opacity 0.45" />
+              <TokenRow name=".empty-state-title" value="font-size-lg · semibold" />
+              <TokenRow name=".empty-state-desc" value="max-width 320px · color-muted · leading-body" />
+            </div>
+          </Section>
+
+          {/* Avatar */}
+          <Section title="Avatar">
+            <p className="ds-section-desc">이미지가 있으면 img, 없으면 이니셜 placeholder를 렌더링합니다.</p>
+            <h3 className="ds-subsection-title">Sizes</h3>
+            <div className="ds-avatar-row">
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-sm">김</span>
+                <code className="ds-token-name">sm · 32px</code>
+              </div>
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-md">이</span>
+                <code className="ds-token-name">md · 40px</code>
+              </div>
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-lg">박</span>
+                <code className="ds-token-name">lg · 56px</code>
+              </div>
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-xl">최</span>
+                <code className="ds-token-name">xl · 72px</code>
+              </div>
+            </div>
+            <h3 className="ds-subsection-title">With image</h3>
+            <div className="ds-avatar-row">
+              <div className="ds-avatar-item">
+                <div className="avatar avatar-md" style={{ background: "linear-gradient(135deg, var(--color-primary-300), var(--color-primary-500))" }} />
+                <code className="ds-token-name">md</code>
+              </div>
+              <div className="ds-avatar-item">
+                <div className="avatar avatar-lg" style={{ background: "linear-gradient(135deg, var(--color-coral), #f5a887)" }} />
+                <code className="ds-token-name">lg</code>
+              </div>
+            </div>
+          </Section>
+
+          {/* Divider */}
+          <Section title="Divider">
+            <h3 className="ds-subsection-title">Default</h3>
+            <hr className="divider" />
+            <h3 className="ds-subsection-title">With label</h3>
+            <div className="divider--label">또는</div>
+            <div className="divider--label">소셜 로그인으로 계속하기</div>
+            <div className="ds-token-list">
+              <TokenRow name=".divider" value="height 1px · background --color-line" />
+              <TokenRow name=".divider--label" value="flex · ::before/after lines · color-muted" />
             </div>
           </Section>
 
