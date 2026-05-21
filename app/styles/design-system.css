@@ -27,6 +27,9 @@
   --color-badge-ongoing: #169b76;
   --color-badge-booking: #e8634d;
   --color-badge-neutral: #4c5a54;
+  --color-error: var(--color-red);
+  --color-warning: var(--color-yellow);
+  --color-success: var(--color-primary);
   --shadow-xs: 0 6px 18px rgba(35, 60, 48, 0.08);
   --shadow-sm: 0 10px 28px rgba(36, 54, 45, 0.06);
   --shadow-soft: 0 18px 44px rgba(35, 60, 48, 0.12);
@@ -270,6 +273,7 @@ main {
 
 .icon-button,
 .text-button,
+.secondary-button,
 .primary-button,
 .ghost-button,
 .link-button {
@@ -324,11 +328,48 @@ main {
   padding: 0 var(--button-padding-x-md);
 }
 
+.secondary-button {
+  padding: 0 var(--button-padding-x-md);
+}
+
+.secondary-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
 .link-button {
   min-height: var(--button-height-sm);
   border: 0;
   background: transparent;
   color: var(--color-primary);
+}
+
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + var(--space-8));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-tooltip);
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-ink);
+  color: #fff;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+[data-tooltip]:hover::after,
+[data-tooltip]:focus-visible::after {
+  opacity: 1;
 }
 
 .mobile-only {
