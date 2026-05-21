@@ -4,6 +4,7 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from "@remixicon/react";
 type SearchParams = Record<string, string | string[] | undefined>;
 
 type PaginationProps = {
+  alwaysShow?: boolean;
   basePath: string;
   currentPage: number;
   pageSize: number;
@@ -34,9 +35,9 @@ function pageNumbers(totalPages: number) {
   return Array.from({ length: totalPages }, (_, index) => index + 1);
 }
 
-export function Pagination({ basePath, currentPage, pageSize, searchParams, totalItems }: PaginationProps) {
+export function Pagination({ alwaysShow = false, basePath, currentPage, pageSize, searchParams, totalItems }: PaginationProps) {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
-  if (totalPages <= 1) return null;
+  if (totalPages <= 1 && !alwaysShow) return null;
 
   const safePage = Math.min(Math.max(currentPage, 1), totalPages);
   const pages = pageNumbers(totalPages);

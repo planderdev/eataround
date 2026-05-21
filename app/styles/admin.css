@@ -16,7 +16,7 @@
   align-content: start;
   gap: var(--admin-space-22);
   border-right: 1px solid var(--admin-line);
-  background: linear-gradient(180deg, #ffffff 0%, #f8fbf9 100%);
+  background: var(--admin-surface-gradient);
   padding: var(--admin-space-20);
   box-shadow: 12px 0 30px rgba(29, 37, 34, 0.04);
 }
@@ -182,9 +182,9 @@
 
 .admin-search:focus-within,
 .admin-search[data-active="true"] {
-  border-color: rgba(35, 111, 85, 0.42);
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(35, 111, 85, 0.08);
+  border-color: var(--admin-primary-ring-strong);
+  background: var(--admin-surface);
+  box-shadow: 0 0 0 4px var(--admin-primary-ring);
 }
 
 .admin-search input {
@@ -477,22 +477,22 @@
 }
 
 .admin-status-badge[data-tone="warning"] {
-  background: #fff5df;
-  color: #a56408;
+  background: var(--admin-warning-soft);
+  color: var(--admin-warning-text);
 }
 
 .admin-status-badge[data-tone="danger"] {
-  background: #fff0ea;
+  background: var(--admin-danger-soft);
   color: var(--admin-color-coral);
 }
 
 .admin-status-badge[data-tone="info"] {
-  background: #edf3ff;
+  background: var(--admin-info-soft);
   color: var(--admin-color-blue);
 }
 
 .admin-status-badge[data-tone="neutral"] {
-  background: #f2f4f3;
+  background: var(--admin-neutral-soft);
   color: var(--admin-color-muted);
 }
 
@@ -533,8 +533,8 @@
 .admin-table-check input:checked + span {
   border-color: var(--admin-color-primary);
   background:
-    linear-gradient(135deg, transparent 0 42%, #fff 42% 52%, transparent 52%),
-    linear-gradient(45deg, transparent 0 43%, #fff 43% 53%, transparent 53%),
+    linear-gradient(135deg, transparent 0 42%, var(--admin-on-primary) 42% 52%, transparent 52%),
+    linear-gradient(45deg, transparent 0 43%, var(--admin-on-primary) 43% 53%, transparent 53%),
     var(--admin-color-primary);
   box-shadow: 0 0 0 3px rgba(35, 111, 85, 0.12);
 }

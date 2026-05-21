@@ -523,14 +523,6 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-related-section" aria-label="관련 상품">
-            <div>
-              <span className="eyebrow">인기 상품</span>
-              <h2>함께 보면 좋은 로컬체험</h2>
-            </div>
-            <DetailRelatedExperiences items={related} />
-          </section>
-
           <section className="experience-detail-section" id="included">
             <h2>포함·불포함 사항</h2>
             <div className="experience-include-grid">
@@ -620,6 +612,14 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
 
           <section className="experience-detail-section" id="review">
             <DetailReviewSliders images={galleryImages} rating={displayExperience.rating} reviewCount={displayExperience.reviewCount} reviews={reviews} />
+          </section>
+
+          <section className="experience-related-section" aria-label="관련 상품">
+            <div>
+              <span className="eyebrow">인기 상품</span>
+              <h2>함께 보면 좋은 로컬체험</h2>
+            </div>
+            <DetailRelatedExperiences items={related} />
           </section>
         </main>
 

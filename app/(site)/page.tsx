@@ -7,6 +7,7 @@ import { LastSeatSection, type LastSeatItem } from "@/components/LastSeatSection
 import { MobileExperienceCarousel } from "@/components/MobileExperienceCarousel";
 import { MobileSwipeCarousel, type MobileSwipeItem } from "@/components/MobileSwipeCarousel";
 import { PackageCtaCarousel } from "@/components/PackageCtaCarousel";
+import { PromoBanner } from "@/components/PromoBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getCategories, getCollections, getEvents, getExperiences, getHeroSlides, getJournals, getPackageCtas } from "@/lib/content";
 import { userRoutes } from "@/lib/routes";
@@ -51,6 +52,8 @@ export default async function HomePage() {
       <CategoryStrip items={categoryItems} />
 
       <LastSeatSection items={lastSeatItems} />
+
+      <PromoBanner />
 
       <section className="page-section featured-experience-section" data-aos="fade-up">
         <SectionHeader

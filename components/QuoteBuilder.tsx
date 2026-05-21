@@ -28,6 +28,25 @@ type QuoteBuilderProps = {
 
 const quoteSteps = ["기간 선택", "인원 입력", "프로그램 선택", "옵션 선택", "요청 정보 확인"];
 
+type DiscountRow = {
+  label: string;
+  rate: string;
+  min: number;
+  max?: number;
+};
+
+const discountRows: DiscountRow[] = [
+  { label: "1~9명", rate: "정상", min: 1, max: 9 },
+  { label: "10~19명", rate: "5%", min: 10, max: 19 },
+  { label: "20~29명", rate: "10%", min: 20, max: 29 },
+  { label: "30~49명", rate: "15%", min: 30, max: 49 },
+  { label: "50+명", rate: "별도 문의", min: 50 },
+];
+
+function isDiscountRowActive(row: DiscountRow, people: number) {
+  return people >= row.min && (row.max === undefined || people <= row.max);
+}
+
 export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fallbackPackageOptions, tiers = fallbackDiscountTiers }: QuoteBuilderProps) {
   const initialPrograms = programs.length ? programs : fallbackPackagePrograms;
   const initialOptions = options.length ? options : fallbackPackageOptions;
@@ -305,6 +324,17 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
             <dd>{formatWon(total)}</dd>
           </div>
         </dl>
+        <div className="quote-discount-table" aria-label="인원 구간별 할인율">
+          <strong>인원 구간별 할인율</strong>
+          <div>
+            {discountRows.map((row) => (
+              <span data-active={isDiscountRowActive(row, people)} key={row.label}>
+                <b>{row.label}</b>
+                <em>{row.rate}</em>
+              </span>
+            ))}
+          </div>
+        </div>
         <div className="quote-process" aria-label="견적 진행 단계">
           <span data-active="true">요청 접수</span>
           <span>관리자 검토</span>
