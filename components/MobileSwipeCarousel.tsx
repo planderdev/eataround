@@ -43,24 +43,24 @@ export function MobileSwipeCarousel({ items, ctaHref, ctaLabel, variant = "mobil
         modules={showDots ? [Pagination] : undefined}
         pagination={showDots ? { clickable: true } : undefined}
         slidesPerView={1.32}
-        spaceBetween={12}
+        spaceBetween={16}
         breakpoints={
           isResponsive
             ? {
                 641: {
                   centeredSlides: false,
                   slidesPerView: 2.05,
-                  spaceBetween: 14,
+                  spaceBetween: 16,
                 },
                 981: {
                   centeredSlides: false,
                   slidesPerView: 2.45,
-                  spaceBetween: 14,
+                  spaceBetween: 16,
                 },
                 1180: {
                   centeredSlides: false,
                   slidesPerView: 2.65,
-                  spaceBetween: 14,
+                  spaceBetween: 16,
                 },
               }
             : undefined

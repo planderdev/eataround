@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FocusEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -76,15 +76,15 @@ const navItems = [
     href: userRoutes.b2b,
     eyebrow: "Business",
     title: "단체 워크숍과 교육 패키지",
-    description: "기간, 인원, 프로그램을 선택해 기관 전용 견적을 확인하세요.",
+    description: "기간, 인원, 프로그램을 선택해 단체 견적을 요청하세요.",
     image: "https://cdn.imweb.me/thumbnail/20230831/c0504b329b735.jpg",
     links: [
       { label: "패키지 소개", description: "기업·기관 전용 프로그램", href: userRoutes.b2bPackages, icon: RiBuilding2Line },
-      { label: "프로그램 선택", description: "체험·강의 조합하기", href: userRoutes.b2bQuote, icon: RiFileList3Line },
-      { label: "견적 요청", description: "인원별 할인 견적", href: userRoutes.b2bQuote, icon: RiTeamLine },
+      { label: "프로그램 선택", description: "체험·강의·투어 조합", href: userRoutes.b2bQuote, icon: RiFileList3Line },
+      { label: "견적 요청", description: "인원별 할인 기준 확인", href: userRoutes.b2bQuote, icon: RiTeamLine },
       { label: "상담 문의", description: "hello@eataround.co.kr", href: userRoutes.b2b, icon: RiQuestionAnswerLine },
     ],
-    featured: { label: "B2B", title: "10명·20명·30명 단위 견적 설계", href: userRoutes.b2bQuote },
+    featured: { label: "단체 견적", title: "10명 이상 단체 프로그램 요청", href: userRoutes.b2bQuote },
   },
   {
     label: "저널",
@@ -106,12 +106,36 @@ const navItems = [
 export function Header() {
   const pathname = usePathname();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const closeTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    clearCloseTimer();
     setOpenIndex(null);
   }, [pathname]);
 
+  useEffect(() => () => clearCloseTimer(), []);
+
+  function clearCloseTimer() {
+    if (closeTimerRef.current === null) return;
+    window.clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = null;
+  }
+
+  function openMegaMenu(index: number) {
+    clearCloseTimer();
+    setOpenIndex(index);
+  }
+
+  function scheduleMegaMenuClose() {
+    clearCloseTimer();
+    closeTimerRef.current = window.setTimeout(() => {
+      setOpenIndex(null);
+      closeTimerRef.current = null;
+    }, 180);
+  }
+
   function closeMegaMenu() {
+    clearCloseTimer();
     setOpenIndex(null);
     window.requestAnimationFrame(() => {
       if (document.activeElement instanceof HTMLElement) {
@@ -122,6 +146,7 @@ export function Header() {
 
   function closeOnBlur(event: FocusEvent<HTMLDivElement>) {
     if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+      clearCloseTimer();
       setOpenIndex(null);
     }
   }
@@ -140,9 +165,9 @@ export function Header() {
               data-open={openIndex === index ? "true" : "false"}
               key={item.href}
               onBlur={closeOnBlur}
-              onFocus={() => setOpenIndex(index)}
-              onMouseEnter={() => setOpenIndex(index)}
-              onMouseLeave={() => setOpenIndex(null)}
+              onFocus={() => openMegaMenu(index)}
+              onMouseEnter={() => openMegaMenu(index)}
+              onMouseLeave={scheduleMegaMenuClose}
             >
               <Link
                 aria-expanded={openIndex === index}
@@ -152,7 +177,12 @@ export function Header() {
               >
                 {item.label}
               </Link>
-              <div className="mega-menu" aria-label={`${item.label} 메가메뉴`}>
+              <div
+                className="mega-menu"
+                aria-label={`${item.label} 메가메뉴`}
+                onMouseEnter={() => openMegaMenu(index)}
+                onMouseLeave={scheduleMegaMenuClose}
+              >
                 <div className="mega-menu-inner">
                   <div
                     className="mega-menu-intro"

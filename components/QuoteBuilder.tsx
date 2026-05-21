@@ -94,11 +94,11 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
 
   async function submitQuote() {
     if (!canRequestQuote) {
-      setMessage("기업·기관 회원으로 전환하면 견적 요청을 보낼 수 있습니다.");
+      setMessage("기업·기관회원으로 로그인하면 단체 견적 요청을 접수할 수 있습니다.");
       return;
     }
 
-    setMessage("견적 요청을 접수하는 중입니다.");
+    setMessage("단체 견적 요청을 접수하고 있습니다.");
     const response = await fetch(withBasePath("/api/quotes"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -118,7 +118,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
       }),
     });
     const result = (await response.json()) as { message?: string };
-    setMessage(result.message ?? "견적 요청이 접수되었습니다.");
+    setMessage(result.message ?? "견적 요청이 접수되었습니다. 운영팀이 검토 후 안내드립니다.");
   }
 
   return (
@@ -127,14 +127,18 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
         <div className="quote-login-note">
           {canRequestQuote ? <RiBuilding2Line size={20} /> : <RiLock2Line size={20} />}
           <span>
-            <strong>기관 회원 전용 견적</strong>
-            <small>{canRequestQuote ? "일정과 예산을 남겨주시면 담당자가 맞춤 프로그램을 안내합니다." : "일반회원은 상담 요청까지만 가능하고 견적 요청은 제한됩니다."}</small>
+            <strong>기업·기관회원 전용 단체 견적</strong>
+            <small>
+              {canRequestQuote
+                ? "기간·인원·프로그램을 선택하면 운영팀이 가능 여부와 최종 견적을 안내합니다."
+                : "일반회원은 체험 예약과 상담 요청을 이용할 수 있으며, 단체 견적 접수는 기업·기관회원에게 제공됩니다."}
+            </small>
           </span>
         </div>
 
         <div className="quote-access-toggle" role="radiogroup" aria-label="견적 요청 권한">
           <button data-active={memberMode === "company"} onClick={() => setMemberMode("company")} type="button">
-            기업·기관 로그인
+            기업·기관회원
           </button>
           <button data-active={memberMode === "personal"} onClick={() => setMemberMode("personal")} type="button">
             일반회원 보기
@@ -170,7 +174,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
             <FormField label={<><RiGroupLine size={18} />인원수</>}>
               <input min={1} onChange={(event) => setPeople(Number(event.target.value))} type="number" value={people} />
             </FormField>
-            {people >= 50 ? <p className="quote-step-note">50인 이상은 담당자 별도 상담으로 최종 견적을 안내합니다.</p> : null}
+            {people >= 50 ? <p className="quote-step-note">50명 이상은 운영 조건 확인 후 별도 견적으로 안내합니다.</p> : null}
           </section>
         ) : null}
 
@@ -226,7 +230,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
           <section className="quote-step-panel" aria-label="요청 정보 확인">
             <div className="form-grid">
               <FormField label={<><RiBuilding2Line size={18} />기관명</>}>
-                <input onChange={(event) => setOrganizationName(event.target.value)} placeholder="기관·기업명을 입력하세요" value={organizationName} />
+                <input onChange={(event) => setOrganizationName(event.target.value)} placeholder="기관 또는 회사명을 입력하세요" value={organizationName} />
               </FormField>
               <FormField label={<><RiGroupLine size={18} />담당자</>}>
                 <input onChange={(event) => setContactName(event.target.value)} placeholder="담당자명" value={contactName} />
@@ -245,7 +249,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
             <FormField label={<><RiFileTextLine size={18} />요청사항</>}>
               <textarea
                 onChange={(event) => setRequestMemo(event.target.value)}
-                placeholder="희망 지역, 식사 방식, 이동 조건 등 필요한 내용을 남겨주세요."
+                placeholder="희망 지역, 행사 목적, 식사 방식, 이동 조건 등 필요한 내용을 남겨주세요."
                 value={requestMemo}
               />
             </FormField>
@@ -262,9 +266,10 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
         </div>
       </section>
 
-      <aside className="quote-summary">
-        <span className="eyebrow">견적 미리보기</span>
-        <h2>예상 견적서</h2>
+      <div className="quote-summary-column">
+        <aside className="quote-summary">
+        <span className="eyebrow">견적 요약</span>
+        <h2>단체 견적 미리보기</h2>
         <dl>
           <div>
             <dt>기간</dt>
@@ -293,7 +298,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
           {people >= 50 ? (
             <div>
               <dt>안내</dt>
-              <dd>담당자 별도 상담</dd>
+              <dd>별도 상담 후 안내</dd>
             </div>
           ) : null}
           <div className="summary-total">
@@ -302,7 +307,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
           </div>
         </dl>
         <div className="quote-discount-table" aria-label="인원 구간별 할인율">
-          <strong>인원 구간별 할인율</strong>
+          <strong>인원별 할인 기준</strong>
           <div>
             {discountRows.map((row) => (
               <span data-active={isDiscountRowActive(row, people)} key={row.label}>
@@ -314,12 +319,12 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
         </div>
         <div className="quote-process" aria-label="견적 진행 단계">
           <span data-active="true">요청 접수</span>
-          <span>관리자 검토</span>
-          <span>최종 견적서 발송</span>
+          <span>운영팀 검토</span>
+          <span>최종 견적 안내</span>
         </div>
         <button className="primary-button full" disabled={!canRequestQuote} onClick={submitQuote} type="button">
           <RiFileTextLine size={18} />
-          {canRequestQuote ? "견적 요청하기" : "기업·기관 회원 전용"}
+          {canRequestQuote ? "단체 견적 요청하기" : "기업·기관회원 전용"}
         </button>
         {message ? (
           <p className="form-message">
@@ -327,7 +332,8 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
             {message}
           </p>
         ) : null}
-      </aside>
+        </aside>
+      </div>
     </div>
   );
 }

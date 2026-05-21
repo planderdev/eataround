@@ -13,9 +13,9 @@ export default async function PackagesPage() {
   return (
     <section className="page-section">
       <SectionHeader
-        eyebrow="B2B Package"
-        title="기업·기관 패키지"
-        description="기간, 인원수, 프로그램을 선택하면 단체 일정에 맞춘 예상 견적을 확인할 수 있습니다."
+        eyebrow="Group Quote"
+        title="기업·기관 단체 견적"
+        description="기간, 인원, 프로그램, 옵션을 선택해 제주 로컬 체험 단체 견적을 요청할 수 있습니다."
         level="h1"
       />
       <QuoteBuilder options={options} programs={programs} tiers={tiers} />

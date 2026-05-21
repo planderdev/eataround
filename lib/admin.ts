@@ -151,7 +151,7 @@ export const adminRouteConfigs: AdminRouteConfig[] = [
   {
     key: "packages",
     title: "패키지관리",
-    eyebrow: "B2B Packages",
+    eyebrow: "기업·기관 패키지",
     description: "B2B 견적 단위가 되는 묶음 상품, 옵션, 인원 구간별 할인율을 관리합니다.",
     primaryAction: "패키지 등록",
     mode: "form",

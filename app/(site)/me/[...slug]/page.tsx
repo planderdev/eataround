@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import type { ReactNode } from "react";
 import type { RemixiconComponentType } from "@remixicon/react";
 import {
   RiArrowLeftLine,
-  RiArrowRightLine,
+  RiArrowRightSLine,
   RiCalendarCheckLine,
   RiEdit2Line,
   RiFileTextLine,
@@ -18,7 +17,11 @@ import {
   RiTimeLine,
   RiUserSettingsLine,
 } from "@remixicon/react";
+import { StatusBadge } from "@/components/Badge";
+import { ExperienceCard } from "@/components/ExperienceCard";
+import { MyReviewList, type MyReviewItem } from "@/components/MyReviewList";
 import { SectionHeader } from "@/components/SectionHeader";
+import { getExperiences } from "@/lib/content";
 import {
   consentRows,
   myProfile,
@@ -27,15 +30,15 @@ import {
   reservationHistory,
   reviewHistory,
   wishlistItems,
-  type HistoryTone,
 } from "@/lib/mypage-data";
-import { userRoutes } from "@/lib/routes";
+import { experiencePath, userRoutes } from "@/lib/routes";
 
 type PageProps = {
   params: Promise<{ slug: string[] }>;
 };
 
 type PageKey = "reservations" | "quotes" | "wishlist" | "reviews" | "profile";
+type ExperienceList = Awaited<ReturnType<typeof getExperiences>>;
 
 const pageMap: Record<PageKey, { title: string; description: string; icon: RemixiconComponentType }> = {
   reservations: {
@@ -71,6 +74,42 @@ const tabs = Object.entries(pageMap).map(([key, page]) => ({
   label: page.title,
 }));
 
+const sectionActions: Record<PageKey, { href: string; label: string }> = {
+  reservations: { href: userRoutes.experiences, label: "새 체험 찾기" },
+  quotes: { href: userRoutes.b2bQuote, label: "새 견적 요청" },
+  wishlist: { href: userRoutes.experiences, label: "체험 더보기" },
+  reviews: { href: `${userRoutes.me}/reservations`, label: "이용 내역 보기" },
+  profile: { href: userRoutes.help, label: "고객센터 문의" },
+};
+
+const sectionStats: Record<PageKey, { label: string; value: string; note: string }[]> = {
+  reservations: [
+    { label: "전체 예약", value: `${reservationHistory.length}건`, note: "최근 예약순" },
+    { label: "다가오는 일정", value: `${reservationHistory.filter((item) => item.statusTone !== "done").length}건`, note: "확정/승인 대기 포함" },
+    { label: "후기 가능", value: `${reservationHistory.filter((item) => item.statusTone === "done").length}건`, note: "쿠폰 지급 대상" },
+  ],
+  quotes: [
+    { label: "전체 견적", value: `${quoteHistory.length}건`, note: "요청 기준" },
+    { label: "검토 중", value: `${quoteHistory.filter((item) => item.statusTone === "pending").length}건`, note: "담당자 확인 중" },
+    { label: "견적서 수신", value: `${quoteHistory.filter((item) => item.statusTone === "received").length}건`, note: "승인 대기" },
+  ],
+  wishlist: [
+    { label: "관심 체험", value: `${wishlistItems.length}개`, note: "저장된 체험" },
+    { label: "가족 추천", value: "1개", note: "아이 동반 가능" },
+    { label: "프리미엄", value: "1개", note: "호스트 특화" },
+  ],
+  reviews: [
+    { label: "전체 후기", value: `${reviewHistory.length}건`, note: "작성 가능 포함" },
+    { label: "작성 가능", value: `${reviewHistory.filter((item) => item.statusTone === "pending").length}건`, note: "쿠폰 지급 대상" },
+    { label: "평균 별점", value: "5.0", note: "작성 완료 기준" },
+  ],
+  profile: [
+    { label: "회원 유형", value: myProfile.memberType, note: "B2B 견적 가능" },
+    { label: "쿠폰", value: `${myProfile.couponCount}장`, note: "보유 쿠폰" },
+    { label: "포인트", value: myProfile.point, note: "결제 사용 가능" },
+  ],
+};
+
 export function generateStaticParams() {
   return [
     ...tabs.map((item) => ({ slug: [item.key] })),
@@ -93,10 +132,11 @@ export default async function MeSectionPage({ params }: PageProps) {
   const page = pageMap[sectionKey];
   const Icon = page.icon;
   const detailId = slug[1];
+  const experiences = sectionKey === "wishlist" || sectionKey === "reviews" ? await getExperiences() : [];
 
   return (
     <section className="page-section me-page">
-      <Link className="journal-detail-back" href={userRoutes.me}>
+      <Link className="me-back-link" href={userRoutes.me}>
         <RiArrowLeftLine size={18} />
         마이페이지
       </Link>
@@ -108,22 +148,42 @@ export default async function MeSectionPage({ params }: PageProps) {
         level="h1"
       />
 
-      <nav className="me-section-tabs" aria-label="마이페이지 메뉴">
+      <nav className="tabs" aria-label="마이페이지 메뉴">
         {tabs.map((item) => (
-          <Link aria-current={item.key === sectionKey ? "page" : undefined} data-active={item.key === sectionKey} href={item.href} key={item.key}>
+          <Link aria-current={item.key === sectionKey ? "page" : undefined} className="tab" data-active={item.key === sectionKey} href={item.href} key={item.key}>
             {item.label}
           </Link>
         ))}
       </nav>
 
-      <div className="me-section-panel">
-        <span className="me-section-icon">
-          <Icon size={26} />
-        </span>
-        <div className="me-section-list">
-          {detailId ? renderDetail(sectionKey, detailId) : renderSection(sectionKey)}
+      <section className="me-section-overview" aria-label={`${page.title} 요약`}>
+        <div className="me-section-overview-main">
+          <span className="me-section-icon">
+            <Icon size={26} />
+          </span>
+          <div>
+            <span className="eyebrow">{detailId ? "Detail View" : "Overview"}</span>
+            <h2>{detailId ? `${page.title} 상세 확인` : page.title}</h2>
+            <p>{detailId ? "상세 정보와 진행 단계를 확인하고 필요한 다음 액션으로 이동하세요." : page.description}</p>
+          </div>
         </div>
+        <Link className="secondary-button" href={sectionActions[sectionKey].href}>
+          {sectionActions[sectionKey].label}
+          <RiArrowRightSLine size={16} />
+        </Link>
+      </section>
+
+      <div className="me-section-stat-grid">
+        {sectionStats[sectionKey].map((item) => (
+          <article className="me-section-stat-card" key={item.label}>
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
+            <small>{item.note}</small>
+          </article>
+        ))}
       </div>
+
+      <div className="me-section-list">{detailId ? renderDetail(sectionKey, detailId, experiences) : renderSection(sectionKey, experiences)}</div>
     </section>
   );
 }
@@ -133,15 +193,15 @@ function toPageKey(value?: string): PageKey | null {
   return null;
 }
 
-function renderSection(sectionKey: PageKey) {
+function renderSection(sectionKey: PageKey, experiences: ExperienceList = []) {
   if (sectionKey === "reservations") return reservationHistory.map((card) => <ReservationCard card={card} key={card.id} />);
   if (sectionKey === "quotes") return quoteHistory.map((card) => <QuoteCard card={card} key={card.id} />);
-  if (sectionKey === "wishlist") return <WishlistSection />;
-  if (sectionKey === "reviews") return <ReviewSection />;
+  if (sectionKey === "wishlist") return <WishlistSection experiences={experiences} />;
+  if (sectionKey === "reviews") return <ReviewSection experiences={experiences} />;
   return <ProfileSection />;
 }
 
-function renderDetail(sectionKey: PageKey, detailId: string) {
+function renderDetail(sectionKey: PageKey, detailId: string, experiences: ExperienceList = []) {
   if (sectionKey === "reservations") {
     const reservation = reservationHistory.find((item) => item.id === detailId);
     if (!reservation) notFound();
@@ -154,12 +214,12 @@ function renderDetail(sectionKey: PageKey, detailId: string) {
     return <QuoteDetail quote={quote} />;
   }
 
-  return renderSection(sectionKey);
+  return renderSection(sectionKey, experiences);
 }
 
 function ReservationCard({ card }: { card: (typeof reservationHistory)[number] }) {
   return (
-    <article className="me-history-card">
+    <article className="me-history-card" data-tone={card.statusTone}>
       <header>
         <div>
           <small>{card.id}</small>
@@ -173,6 +233,7 @@ function ReservationCard({ card }: { card: (typeof reservationHistory)[number] }
         <MetaItem label="예약방식" value={card.reservationType} />
         <MetaItem label="금액" value={card.amount} />
       </dl>
+      <p className="me-history-note">{card.nextAction}</p>
       <div className="me-history-actions">
         <Link className="secondary-button" href={`${userRoutes.me}/reservations/${card.id}`}>
           상세보기
@@ -187,7 +248,7 @@ function ReservationCard({ card }: { card: (typeof reservationHistory)[number] }
 
 function QuoteCard({ card }: { card: (typeof quoteHistory)[number] }) {
   return (
-    <article className="me-history-card">
+    <article className="me-history-card" data-tone={card.statusTone}>
       <header>
         <div>
           <small>{card.id}</small>
@@ -201,6 +262,7 @@ function QuoteCard({ card }: { card: (typeof quoteHistory)[number] }) {
         <MetaItem label="인원" value={card.people} />
         <MetaItem label="예상견적" value={card.estimatedTotal} />
       </dl>
+      <p className="me-history-note">{card.manager} · {card.lastUpdated}</p>
       <div className="me-history-actions">
         <Link className="secondary-button" href={`${userRoutes.me}/quotes/${card.id}`}>
           상세보기
@@ -233,6 +295,7 @@ function ReservationDetail({ reservation }: { reservation: (typeof reservationHi
         <MetaItem label="금액" value={reservation.amount} />
         <MetaItem label="다음 액션" value={reservation.nextAction} />
       </dl>
+      <p className="me-detail-alert">{reservation.nextAction}</p>
       <Timeline items={reservation.timeline} activeIndex={reservation.statusTone === "pending" ? 1 : reservation.statusTone === "done" ? 3 : 2} />
       <div className="me-history-actions">
         <Link className="secondary-button" href={`${userRoutes.me}/reservations`}>
@@ -264,6 +327,7 @@ function QuoteDetail({ quote }: { quote: (typeof quoteHistory)[number] }) {
         <MetaItem label="담당자" value={quote.manager} />
         <MetaItem label="최근 업데이트" value={quote.lastUpdated} />
       </dl>
+      <p className="me-detail-alert">{quote.manager}가 최근 {quote.lastUpdated}에 상태를 업데이트했습니다.</p>
       <Timeline items={quote.timeline} activeIndex={quote.statusTone === "pending" ? 1 : quote.statusTone === "received" ? 2 : 2} />
       <div className="me-history-actions">
         <Link className="secondary-button" href={`${userRoutes.me}/quotes`}>
@@ -277,53 +341,49 @@ function QuoteDetail({ quote }: { quote: (typeof quoteHistory)[number] }) {
   );
 }
 
-function WishlistSection() {
+function WishlistSection({ experiences }: { experiences: ExperienceList }) {
+  const wishlistProducts = wishlistItems
+    .map((item) => item.href.split("?")[0].split("/").filter(Boolean).at(-1))
+    .map((slug) => experiences.find((experience) => experience.slug === slug))
+    .filter((experience): experience is ExperienceList[number] => Boolean(experience));
+
   return (
-    <div className="me-wishlist-grid">
-      {wishlistItems.map((item) => (
-        <article className="me-wishlist-card" key={item.title}>
-          <Link href={item.href}>
-            <img alt={item.title} src={item.image} />
-          </Link>
-          <div>
-            <span className="last-seat-badge" data-tone="stock">
-              {item.badge}
-            </span>
-            <strong>{item.title}</strong>
-            <small>{item.region} · {item.price}</small>
-          </div>
-          <Link className="primary-button full" href={item.href}>
-            예약하러 가기
-          </Link>
-        </article>
+    <div className="card-grid">
+      {wishlistProducts.map((experience) => (
+        <ExperienceCard experience={experience} key={experience.slug} />
       ))}
     </div>
   );
 }
 
-function ReviewSection() {
+function ReviewSection({ experiences }: { experiences: ExperienceList }) {
+  const items: MyReviewItem[] = reviewHistory.map((item) => {
+    const product = findReviewProduct(experiences, item);
+    const productHref = product ? experiencePath(product.slug) : item.href;
+
+    return {
+      ...item,
+      product: product
+        ? {
+            href: productHref,
+            image: product.image,
+            title: product.title,
+          }
+        : undefined,
+      productHref,
+    };
+  });
+
+  return <MyReviewList items={items} />;
+}
+
+function findReviewProduct(experiences: ExperienceList, item: (typeof reviewHistory)[number]) {
+  const slug = item.href.split("?")[0].split("/").filter(Boolean).at(-1);
+
   return (
-    <div className="me-review-list">
-      {reviewHistory.map((item) => (
-        <article className="me-review-card" key={item.title}>
-          <header>
-            <div>
-              <small>{item.date}</small>
-              <strong>{item.title}</strong>
-            </div>
-            <StatusBadge tone={item.statusTone}>{item.status}</StatusBadge>
-          </header>
-          <p>{item.text}</p>
-          <div className="me-review-bottom">
-            <span>{item.rating ? `별점 ${item.rating}.0` : "후기 미작성"}</span>
-            <Link href={item.href}>
-              {item.rating ? "후기 보기" : "후기 작성"}
-              <RiArrowRightLine size={16} />
-            </Link>
-          </div>
-        </article>
-      ))}
-    </div>
+    experiences.find((experience) => experience.slug === slug) ??
+    experiences.find((experience) => experience.title === item.title) ??
+    experiences.find((experience) => experience.title.includes(item.title) || item.title.includes(experience.title))
   );
 }
 
@@ -336,19 +396,25 @@ function ProfileSection() {
             <span className="eyebrow">Basic</span>
             <h2>기본 정보</h2>
           </div>
+          <StatusBadge tone="confirmed">인증 완료</StatusBadge>
+        </header>
+        <div className="me-profile-form">
+          <dl className="me-profile-fields">
+            {profileRows.map((row) => (
+              <div key={row.label}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
           <button className="secondary-button" type="button">
             <RiEdit2Line size={16} />
-            수정
+            변경 요청
           </button>
-        </header>
-        <dl>
-          {profileRows.map((row) => (
-            <MetaItem key={row.label} label={row.label} value={row.value} />
-          ))}
-        </dl>
+        </div>
       </article>
 
-      <article className="me-profile-card">
+      <article className="me-profile-card me-profile-security-card">
         <header>
           <div>
             <span className="eyebrow">Security</span>
@@ -379,21 +445,13 @@ function ProfileSection() {
             <h2>수신 및 개인정보 동의</h2>
           </div>
         </header>
-        <dl>
+        <dl className="me-profile-consent-list">
           {consentRows.map((row) => (
             <MetaItem key={row.label} label={row.label} value={row.value} />
           ))}
         </dl>
       </article>
     </div>
-  );
-}
-
-function StatusBadge({ children, tone }: { children: ReactNode; tone: HistoryTone }) {
-  return (
-    <span className="me-status-badge" data-tone={tone}>
-      {children}
-    </span>
   );
 }
 

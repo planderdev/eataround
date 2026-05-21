@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
-import { RiArrowDownSLine } from "@remixicon/react";
+import { EmptyState } from "@/components/EmptyState";
 import { ExperienceCard } from "@/components/ExperienceCard";
 import { ExperienceFilterModal, type FilterOption, type FilterTab } from "@/components/ExperienceFilterModal";
+import { ListToolbar } from "@/components/ListToolbar";
 import { Pagination } from "@/components/Pagination";
 import { SectionHeader } from "@/components/SectionHeader";
+import { SortSelect } from "@/components/SortSelect";
 import { getExperiences } from "@/lib/content";
 import type { Experience } from "@/lib/data";
 import { userRoutes } from "@/lib/routes";
@@ -27,25 +29,16 @@ const tags = ["쿠킹", "막걸리", "가족", "시음", "농장", "프라이빗
 const activeFilterKeys = ["region", "category", "tag", "badge", "seat", "price", "duration", "date", "people", "reservation", "target", "weather"];
 const pageSize = 4;
 
+const sortOptions = [
+  { label: "추천순", value: "recommended" },
+  { label: "예약 많은순", value: "popular" },
+  { label: "낮은 가격순", value: "price-low" },
+  { label: "리뷰 높은순", value: "review-high" },
+];
+
 function valueOf(params: SearchParams, key: string) {
   const value = params[key];
   return Array.isArray(value) ? value[0] : value;
-}
-
-function filterHref(params: SearchParams, key: string, value: string) {
-  const query = new URLSearchParams();
-
-  for (const [paramKey, paramValue] of Object.entries(params)) {
-    if (paramKey === "page") continue;
-    const normalized = Array.isArray(paramValue) ? paramValue[0] : paramValue;
-    if (normalized) query.set(paramKey, normalized);
-  }
-
-  if (value) query.set(key, value);
-  else query.delete(key);
-
-  const search = query.toString();
-  return search ? `${userRoutes.experiences}?${search}` : userRoutes.experiences;
 }
 
 function filterOption(params: SearchParams, key: string, value: string, label: string, note?: string): FilterOption {
@@ -54,7 +47,8 @@ function filterOption(params: SearchParams, key: string, value: string, label: s
   return {
     label,
     note,
-    href: filterHref(params, key, value),
+    filterKey: key,
+    value,
     active: value ? current === value : !current,
   };
 }
@@ -128,6 +122,29 @@ function parsePage(value?: string) {
   return Number.isFinite(parsed) ? Math.max(1, Math.floor(parsed)) : 1;
 }
 
+function normalizeSort(value?: string) {
+  if (value && sortOptions.some((option) => option.value === value)) return value;
+  return "recommended";
+}
+
+function sortExperiences(experiences: Experience[], sort: string) {
+  const sorted = [...experiences];
+
+  if (sort === "popular") {
+    return sorted.sort((a, b) => b.reviewCount - a.reviewCount || b.rating - a.rating);
+  }
+
+  if (sort === "price-low") {
+    return sorted.sort((a, b) => a.price - b.price);
+  }
+
+  if (sort === "review-high") {
+    return sorted.sort((a, b) => b.rating - a.rating || b.reviewCount - a.reviewCount);
+  }
+
+  return sorted;
+}
+
 export default async function ExperiencesPage({ searchParams }: { searchParams?: Promise<SearchParams> }) {
   const params = searchParams ? await searchParams : {};
   const experiences = await getExperiences();
@@ -143,6 +160,7 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
   const reservation = valueOf(params, "reservation");
   const target = valueOf(params, "target");
   const weather = valueOf(params, "weather");
+  const sort = normalizeSort(valueOf(params, "sort"));
   const requestedPage = parsePage(valueOf(params, "page"));
 
   const filtered = experiences.filter((experience) => {
@@ -165,10 +183,11 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
     if (!matchesWeather(experience, weather)) return false;
     return true;
   });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const sorted = sortExperiences(filtered, sort);
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const currentPage = Math.min(requestedPage, totalPages);
   const pageStart = (currentPage - 1) * pageSize;
-  const paginated = filtered.slice(pageStart, pageStart + pageSize);
+  const paginated = sorted.slice(pageStart, pageStart + pageSize);
   const activeCount = activeFilterKeys.filter((key) => valueOf(params, key)).length;
   const initialTabId = badge || seat ? "recommended" : region ? "region" : category ? "category" : tag ? "tag" : price ? "price" : duration ? "duration" : date ? "date" : people ? "people" : reservation ? "reservation" : target ? "target" : weather ? "weather" : "recommended";
   const filterTabs: FilterTab[] = [
@@ -283,27 +302,21 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
 
       <div className="listing-layout">
         <div>
-          <div className="list-toolbar">
-            <div className="list-toolbar-main">
-              <strong>{filtered.length}개 체험</strong>
-              <ExperienceFilterModal
-                activeCount={activeCount}
-                initialTabId={initialTabId}
-                resultCount={filtered.length}
-                tabs={filterTabs}
-              />
-            </div>
-            <label className="select-control">
-              <span className="sr-only">정렬</span>
-              <select aria-label="정렬" defaultValue="recommended">
-                <option value="recommended">추천순</option>
-                <option value="popular">예약 많은순</option>
-                <option value="price-low">낮은 가격순</option>
-                <option value="review-high">리뷰 높은순</option>
-              </select>
-              <RiArrowDownSLine size={18} />
-            </label>
-          </div>
+          <ListToolbar
+            summary={
+              <>
+                <strong>{sorted.length}개 체험</strong>
+                <ExperienceFilterModal
+                  activeCount={activeCount}
+                  initialTabId={initialTabId}
+                  resultCount={sorted.length}
+                  tabs={filterTabs}
+                />
+              </>
+            }
+          >
+            <SortSelect label="정렬" options={sortOptions} value={sort} />
+          </ListToolbar>
 
           {filtered.length ? (
             <div className="card-grid">
@@ -312,12 +325,9 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
               ))}
             </div>
           ) : (
-            <div className="empty-state">
-              <strong>조건에 맞는 체험이 없습니다.</strong>
-              <p>필터를 다시 선택해 주세요.</p>
-            </div>
+            <EmptyState title="조건에 맞는 체험이 없습니다." description="필터를 다시 선택해 주세요." />
           )}
-          <Pagination basePath={userRoutes.experiences} currentPage={currentPage} pageSize={pageSize} searchParams={params} totalItems={filtered.length} />
+          <Pagination basePath={userRoutes.experiences} currentPage={currentPage} pageSize={pageSize} searchParams={params} totalItems={sorted.length} />
         </div>
       </div>
     </section>

@@ -3,12 +3,10 @@ import Link from "next/link";
 import {
   RiArrowRightLine,
   RiBuilding2Line,
-  RiCheckboxCircleLine,
-  RiFileList3Line,
-  RiShieldCheckLine,
   RiUser3Line,
 } from "@remixicon/react";
 import { SectionHeader } from "@/components/SectionHeader";
+import { userRoutes } from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: "회원가입",
@@ -47,28 +45,10 @@ export default function AuthSignupPage() {
         </Link>
       </div>
 
-      <div className="auth-step-strip" aria-label="회원가입 절차">
-        <article>
-          <RiFileList3Line size={18} />
-          <span>
-            <strong>유형 선택</strong>
-            <small>일반회원 또는 기업·기관</small>
-          </span>
-        </article>
-        <article>
-          <RiShieldCheckLine size={18} />
-          <span>
-            <strong>정보 입력</strong>
-            <small>이메일, 비밀번호, 약관 동의</small>
-          </span>
-        </article>
-        <article>
-          <RiCheckboxCircleLine size={18} />
-          <span>
-            <strong>서비스 이용</strong>
-            <small>예약 또는 견적 요청 시작</small>
-          </span>
-        </article>
+      <div className="auth-bottom-action">
+        <Link className="secondary-button" href={userRoutes.login}>
+          가입된 아이디가 있어요
+        </Link>
       </div>
     </section>
   );

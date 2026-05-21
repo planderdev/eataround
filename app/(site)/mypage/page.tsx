@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  RiArrowRightLine,
+  RiArrowRightSLine,
   RiCalendarCheckLine,
   RiCoupon3Line,
   RiFileTextLine,
@@ -11,6 +11,7 @@ import {
   RiStarLine,
   RiUser3Line,
 } from "@remixicon/react";
+import { MypageHistoryCarousel, type MypageHistoryCardItem } from "@/components/MypageHistoryCarousel";
 import { SectionHeader } from "@/components/SectionHeader";
 import { myProfile, quoteHistory, reservationHistory, reviewHistory, wishlistItems } from "@/lib/mypage-data";
 import { userRoutes } from "@/lib/routes";
@@ -58,15 +59,39 @@ const dashboardItems = [
 ];
 
 const summaryItems = [
-  { label: "다가오는 예약", value: "2건", note: "가장 가까운 일정 06.12" },
-  { label: "진행 중 견적", value: "3건", note: "1건은 견적서 수신" },
+  { label: "다가오는 예약", value: `${reservationHistory.filter((item) => item.statusTone !== "done").length}건`, note: "가장 가까운 일정 06.12" },
+  { label: "진행 중 견적", value: `${quoteHistory.length}건`, note: "1건은 견적서 수신" },
   { label: "쿠폰", value: `${myProfile.couponCount}장`, note: "후기 작성 시 추가 지급" },
   { label: "포인트", value: myProfile.point, note: "예약 결제에 사용 가능" },
 ];
 
 export default function MyPage() {
-  const upcomingReservation = reservationHistory[0];
-  const activeQuote = quoteHistory[0];
+  const reservationPreviewItems: MypageHistoryCardItem[] = reservationHistory.map((item) => ({
+    actionHref: `${userRoutes.me}/reservations/${item.id}`,
+    actionLabel: "예약 상세",
+    meta: [
+      ["일정", item.schedule],
+      ["인원", item.people],
+      ["예약방식", item.reservationType],
+    ],
+    note: item.nextAction,
+    status: item.status,
+    title: item.title,
+    tone: item.statusTone,
+  }));
+  const quotePreviewItems: MypageHistoryCardItem[] = quoteHistory.map((item) => ({
+    actionHref: `${userRoutes.me}/quotes/${item.id}`,
+    actionLabel: "견적 상세",
+    meta: [
+      ["프로그램", item.program],
+      ["인원", item.people],
+      ["예상견적", item.estimatedTotal],
+    ],
+    note: `${item.manager} · ${item.lastUpdated}`,
+    status: item.status,
+    title: item.title,
+    tone: item.statusTone,
+  }));
 
   return (
     <section className="page-section mypage-dashboard">
@@ -94,11 +119,27 @@ export default function MyPage() {
           </div>
         </div>
         <aside className="mypage-account-card">
-          <span className="mypage-avatar">{myProfile.name.slice(0, 1)}</span>
-          <div>
-            <strong>{myProfile.organization}</strong>
-            <small>{myProfile.memberType}</small>
+          <div className="mypage-account-main">
+            <span className="mypage-avatar">{myProfile.organization.slice(0, 1)}</span>
+            <span>
+              <small>현재 계정</small>
+              <strong>{myProfile.organization}</strong>
+            </span>
           </div>
+          <dl className="mypage-account-list">
+            <div>
+              <dt>회원 유형</dt>
+              <dd>{myProfile.memberType}</dd>
+            </div>
+            <div>
+              <dt>담당자</dt>
+              <dd>{myProfile.name}</dd>
+            </div>
+            <div>
+              <dt>이메일</dt>
+              <dd>{myProfile.email}</dd>
+            </div>
+          </dl>
           <span className="mypage-verified">
             <RiShieldCheckLine size={16} />
             본인인증 완료
@@ -116,67 +157,37 @@ export default function MyPage() {
         ))}
       </div>
 
-      <div className="mypage-content-grid">
-        <section className="mypage-panel" aria-labelledby="mypage-upcoming-title">
-          <header className="mypage-panel-head">
-            <div>
-              <span className="eyebrow">Upcoming</span>
-              <h2 id="mypage-upcoming-title">다가오는 예약</h2>
-            </div>
-            <Link href={`${userRoutes.me}/reservations`}>
-              전체보기
-              <RiArrowRightLine size={16} />
-            </Link>
-          </header>
-          <div className="mypage-info-list">
-            <strong>{upcomingReservation.title}</strong>
-            <dl>
+      <section className="mypage-content-band" aria-label="진행 중인 이용 내역">
+        <div className="mypage-content-grid">
+          <section className="mypage-panel" aria-labelledby="mypage-upcoming-title">
+            <header className="mypage-panel-head">
               <div>
-                <dt>일정</dt>
-                <dd>{upcomingReservation.schedule}</dd>
+                <span className="eyebrow">Upcoming</span>
+                <h2 id="mypage-upcoming-title">다가오는 예약</h2>
               </div>
-              <div>
-                <dt>인원</dt>
-                <dd>{upcomingReservation.people}</dd>
-              </div>
-              <div>
-                <dt>상태</dt>
-                <dd>{upcomingReservation.status}</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
+              <Link href={`${userRoutes.me}/reservations`}>
+                전체보기
+                <RiArrowRightSLine size={16} />
+              </Link>
+            </header>
+            <MypageHistoryCarousel items={reservationPreviewItems} label="다가오는 예약 내역 슬라이드" />
+          </section>
 
-        <section className="mypage-panel" aria-labelledby="mypage-quote-title">
-          <header className="mypage-panel-head">
-            <div>
-              <span className="eyebrow">B2B Quote</span>
-              <h2 id="mypage-quote-title">진행 중 견적</h2>
-            </div>
-            <Link href={`${userRoutes.me}/quotes`}>
-              전체보기
-              <RiArrowRightLine size={16} />
-            </Link>
-          </header>
-          <div className="mypage-info-list">
-            <strong>{activeQuote.title}</strong>
-            <dl>
+          <section className="mypage-panel" aria-labelledby="mypage-quote-title">
+            <header className="mypage-panel-head">
               <div>
-                <dt>프로그램</dt>
-                <dd>{activeQuote.program}</dd>
+                <span className="eyebrow">B2B Quote</span>
+                <h2 id="mypage-quote-title">진행 중 견적</h2>
               </div>
-              <div>
-                <dt>인원</dt>
-                <dd>{activeQuote.people}</dd>
-              </div>
-              <div>
-                <dt>상태</dt>
-                <dd>{activeQuote.status}</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
-      </div>
+              <Link href={`${userRoutes.me}/quotes`}>
+                전체보기
+                <RiArrowRightSLine size={16} />
+              </Link>
+            </header>
+            <MypageHistoryCarousel items={quotePreviewItems} label="진행 중 견적 내역 슬라이드" />
+          </section>
+        </div>
+      </section>
 
       <section className="mypage-nav-grid" aria-label="마이페이지 메뉴">
         {dashboardItems.map((item) => {
@@ -189,7 +200,7 @@ export default function MyPage() {
               <strong>{item.title}</strong>
               <small>{item.description}</small>
               <b>{item.value}</b>
-              <RiArrowRightLine aria-hidden size={18} />
+              <RiArrowRightSLine aria-hidden size={18} />
             </Link>
           );
         })}

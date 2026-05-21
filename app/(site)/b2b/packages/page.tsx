@@ -17,8 +17,8 @@ import { formatWon } from "@/lib/format";
 import { userRoutes } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: "패키지 목록",
-  description: "기업·기관 담당자를 위한 이더라운드 패키지 목록입니다.",
+  title: "기업·기관 프로그램",
+  description: "기업·기관 단체 행사에 맞춘 제주 로컬 체험 프로그램을 확인하세요.",
 };
 
 type ProgramMeta = {
@@ -62,7 +62,7 @@ const programMeta: Record<string, ProgramMeta> = {
 
 function programView(program: PackageProgram) {
   return programMeta[program.id] ?? {
-    description: "기관 목적과 인원에 맞춰 일정과 옵션을 조합할 수 있는 패키지입니다.",
+    description: "행사 목적과 참여 인원에 맞춰 일정과 옵션을 조합할 수 있는 단체 프로그램입니다.",
     icon: RiBuilding2Line,
     outcome: program.type,
     title: program.title,
@@ -89,9 +89,9 @@ export default async function B2BPackagesPage() {
   return (
     <section className="page-section b2b-packages-page">
       <SectionHeader
-        eyebrow="B2B Packages"
-        title="패키지 목록"
-        description="비로그인 상태에서도 프로그램은 확인할 수 있고, 견적 요청은 기업·기관 회원 승인 후 진행됩니다."
+        eyebrow="Group Programs"
+        title="기업·기관 프로그램"
+        description="제주 로컬 체험 프로그램을 확인하고, 기업·기관회원 승인 후 단체 견적을 요청할 수 있습니다."
         level="h1"
       />
 
@@ -99,14 +99,14 @@ export default async function B2BPackagesPage() {
         <div className="package-list-state">
           <RiLock2Line size={22} />
           <span>
-            <strong>기업회원 로그인 후 견적 요청 가능</strong>
-            <small>승인 대기 중인 회원은 담당자 확인 후 요청 권한이 활성화됩니다.</small>
+            <strong>기업·기관회원 승인 후 견적 요청 가능</strong>
+            <small>가입 신청이 승인되면 단체 견적 요청과 기관 전용 상담을 이용할 수 있습니다.</small>
           </span>
         </div>
         <div className="package-list-summary" aria-label="패키지 이용 요약">
           <span>프로그램 확인</span>
           <span>인원별 할인</span>
-          <span>담당자 견적</span>
+          <span>운영팀 견적 안내</span>
         </div>
       </div>
 
@@ -134,8 +134,8 @@ export default async function B2BPackagesPage() {
       <section className="package-tier-panel">
         <div>
           <RiShieldCheckLine size={22} />
-          <h2>인원 구간별 할인율</h2>
-          <p>RFP 기준에 따라 10명, 20명, 30명 단위로 체험 상품 할인율을 적용하고 50명 이상은 별도 상담으로 전환합니다.</p>
+          <h2>인원별 할인 기준</h2>
+          <p>10명 이상 단체부터 인원 구간별 할인율을 적용하고, 50명 이상은 별도 상담으로 최종 조건을 안내합니다.</p>
         </div>
         <div className="b2b-discount-table">
           {tiers.map((tier) => (
@@ -146,7 +146,7 @@ export default async function B2BPackagesPage() {
           ))}
         </div>
         <Link className="primary-button full" href={userRoutes.b2bQuote}>
-          정식 견적 요청
+          단체 견적 요청
         </Link>
       </section>
     </section>

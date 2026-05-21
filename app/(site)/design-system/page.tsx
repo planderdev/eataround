@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { RiCheckboxCircleLine, RiErrorWarningLine, RiInbox2Line } from "@remixicon/react";
+import { ProductBadge, type BadgeTone } from "@/components/Badge";
 import { DsSidebar } from "@/components/DsSidebar";
 
 export const metadata: Metadata = {
@@ -114,7 +116,7 @@ const radii = [
   { name: "--radius-pill", px: "999px", label: "pill" },
 ];
 
-const badgeTones = [
+const badgeTones: { tone: BadgeTone; label: string }[] = [
   { tone: "sale", label: "특가" },
   { tone: "urgent", label: "마감임박" },
   { tone: "stock", label: "잔여1" },
@@ -449,9 +451,9 @@ export default function DesignSystemPage() {
           <Section title="Badges">
             <div className="ds-badge-row">
               {badgeTones.map((b) => (
-                <span key={b.tone} className="last-seat-badge" data-tone={b.tone}>
+                <ProductBadge key={b.tone} tone={b.tone}>
                   {b.label}
-                </span>
+                </ProductBadge>
               ))}
             </div>
           </Section>
@@ -478,7 +480,7 @@ export default function DesignSystemPage() {
             <div className="ds-empty-demo">
               <div className="empty-state">
                 <div className="empty-state-icon">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                  <RiInbox2Line size={32} aria-hidden />
                 </div>
                 <strong className="empty-state-title">검색 결과가 없습니다</strong>
                 <p className="empty-state-desc">다른 키워드로 다시 검색하거나 필터를 초기화해 보세요.</p>
@@ -489,7 +491,7 @@ export default function DesignSystemPage() {
             </div>
             <div className="ds-token-list">
               <TokenRow name=".empty-state" value="grid · place-items-center · padding 64px 32px" />
-              <TokenRow name=".empty-state-icon" value="color-muted · opacity 0.45" />
+              <TokenRow name=".empty-state-icon" value="56px · primary-50 bg · primary icon" />
               <TokenRow name=".empty-state-title" value="font-size-lg · semibold" />
               <TokenRow name=".empty-state-desc" value="max-width 320px · color-muted · leading-body" />
             </div>
@@ -634,11 +636,11 @@ export default function DesignSystemPage() {
           <Section title="Form Message">
             <div className="ds-form-message-list">
               <p className="form-message" data-tone="success">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5" /></svg>
+                <RiCheckboxCircleLine size={16} />
                 저장되었습니다
               </p>
               <p className="form-message" data-tone="error">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <RiErrorWarningLine size={16} />
                 이메일 형식이 올바르지 않습니다
               </p>
             </div>

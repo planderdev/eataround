@@ -2,13 +2,12 @@
 
 import Link from "next/link";
 import {
-  RiArrowDownSLine,
+  RiBuilding4Line,
   RiCalendarCheckLine,
   RiCloseLine,
-  RiCursorLine,
-  RiLeafLine,
   RiMapPinLine,
   RiMenuLine,
+  RiNewspaperLine,
   RiQuestionAnswerLine,
   RiSparkling2Line,
 } from "@remixicon/react";
@@ -19,10 +18,12 @@ import { withBasePath } from "@/lib/paths";
 import { userRoutes } from "@/lib/routes";
 
 const menuItems = [
-  { label: "이더라운드 소개", href: "/journal/how-to-meet-jeju-hosts", icon: RiLeafLine },
-  { label: "플레이스", href: `${userRoutes.experiences}?region=제주시`, icon: RiMapPinLine },
-  { label: "로컬 PICK", href: userRoutes.experiences, icon: RiSparkling2Line },
-  { label: "고객센터", href: userRoutes.help, icon: RiQuestionAnswerLine, hasMore: true },
+  { label: "로컬체험", href: userRoutes.experiences, icon: RiMapPinLine },
+  { label: "기획전", href: userRoutes.curations, icon: RiSparkling2Line },
+  { label: "진행중인 행사", href: userRoutes.events, icon: RiCalendarCheckLine },
+  { label: "기업·기관 패키지", href: userRoutes.b2b, icon: RiBuilding4Line },
+  { label: "이더라운드 저널", href: userRoutes.journal, icon: RiNewspaperLine },
+  { label: "고객센터", href: userRoutes.help, icon: RiQuestionAnswerLine },
 ];
 
 export function MobileMenu() {
@@ -42,7 +43,7 @@ export function MobileMenu() {
       <aside aria-hidden={!isOpen} aria-label="모바일 메뉴" className="mobile-menu-panel" id="mobile-menu-panel">
         <div className="mobile-menu-top">
           <Link className="quick-reserve" href={userRoutes.experiences} onClick={close}>
-            빠른 예약
+            로컬체험 보기
           </Link>
           <button aria-label="메뉴 닫기" className="mobile-menu-close" onClick={close} type="button">
             <RiCloseLine size={22} />
@@ -54,14 +55,13 @@ export function MobileMenu() {
             <img src={withBasePath("/assets/images/symbol.png")} alt="이더라운드" />
           </span>
           <span>
-            <small>로컬 탐험러</small>
+            <small>이더라운드 멤버</small>
             <strong>
-              닉네임 1234
+              로그인하고 예약을 관리하세요
               <Link href={userRoutes.login} onClick={close}>
                 로그인
               </Link>
-            </strong>
-            <span className="mobile-menu-coupon">사용 가능한 쿠폰 1개</span>
+            </strong> 
           </span>
         </div>
 
@@ -77,24 +77,16 @@ export function MobileMenu() {
               <Link href={item.href} key={item.label} onClick={close}>
                 <Icon size={21} />
                 <span>{item.label}</span>
-                {item.hasMore ? <RiArrowDownSLine size={18} /> : null}
               </Link>
             );
           })}
         </nav>
 
         <div className="mobile-menu-promos">
-          <Link className="mobile-menu-promo host" href={userRoutes.b2b} onClick={close}>
-            <span>
-              <strong>당신의 공간을 공유의 공간으로,</strong>
-              <small>호스트 신청하기</small>
-            </span>
-            <RiCursorLine size={46} />
-          </Link>
           <Link className="mobile-menu-promo help" href={userRoutes.b2bQuote} onClick={close}>
             <span>
-              <strong>궁금한 점이 있다면?</strong>
-              <small>지금 바로 1:1 상담 문의하기</small>
+              <strong>단체·기업 프로그램이 필요하다면</strong>
+              <small>B2B 견적 요청하기</small>
             </span>
             <RiCalendarCheckLine size={42} />
           </Link>
@@ -111,13 +103,11 @@ export function MobileMenu() {
             </Link>
           </p>
           <small>
-            지붕뚫은친구들 ㅣ 대표 : 김선재
+            이더라운드
             <br />
-            고객센터 : 070-8825-0227
+            제주 로컬체험 큐레이션 플랫폼
             <br />
-            사업자등록번호 : 867-23-01167
-            <br />
-            통신판매업 신고번호 : 2024-제주대륜-30
+            예약, 견적, 행사는 고객센터에서 안내받을 수 있습니다.
           </small>
         </div>
       </aside>

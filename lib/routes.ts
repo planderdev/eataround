@@ -9,6 +9,8 @@ export const userRoutes = {
   b2bQuote: "/b2b/quote",
   login: "/auth/login",
   signup: "/auth/signup",
+  signupGeneral: "/auth/signup/general",
+  signupCorporate: "/auth/signup/corporate",
   me: "/me",
   search: "/search",
   help: "/help",

@@ -2,6 +2,8 @@
 
 import type { FormEvent } from "react";
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   RiBuilding2Line,
   RiCheckboxCircleLine,
@@ -9,8 +11,10 @@ import {
   RiShieldCheckLine,
   RiUser3Line,
 } from "@remixicon/react";
+import { EmailSuggestionInput } from "@/components/EmailSuggestionInput";
 import { FormField } from "@/components/FormField";
 import { withBasePath } from "@/lib/paths";
+import { userRoutes } from "@/lib/routes";
 
 type MemberType = "personal" | "company";
 type SubmitTone = "idle" | "success" | "error";
@@ -42,6 +46,7 @@ function getPasswordRuleCount(password: string) {
 }
 
 export function SignupForm({ initialMemberType = "personal", lockMemberType = false }: SignupFormProps) {
+  const router = useRouter();
   const [memberType, setMemberType] = useState<MemberType>(initialMemberType);
   const [password, setPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
@@ -66,6 +71,13 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
   }
 
   function updateMemberType(nextType: MemberType) {
+    if (nextType === memberType) return;
+
+    if (lockMemberType) {
+      router.push(nextType === "company" ? userRoutes.signupCorporate : userRoutes.signupGeneral);
+      return;
+    }
+
     setMemberType(nextType);
     setSubmitState({ tone: "idle", message: "" });
   }
@@ -147,20 +159,20 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
         <p>예약과 견적 안내에 필요한 기본 정보를 입력해 주세요.</p>
       </div>
 
-      <div className="signup-type-grid" role="radiogroup" aria-label="회원 유형">
+      <div className="signup-type-grid" role="group" aria-label="회원 유형">
         {(["personal", "company"] as const).map((type) => {
           const Icon = memberTypeText[type].icon;
+          const selected = memberType === type;
 
           return (
-            <label className="signup-type-option" key={type}>
-              <input
-                checked={memberType === type}
-                disabled={lockMemberType}
-                name="memberType"
-                onChange={() => updateMemberType(type)}
-                type="radio"
-                value={type}
-              />
+            <button
+              aria-pressed={selected}
+              className="signup-type-option"
+              data-active={selected ? "true" : "false"}
+              key={type}
+              onClick={() => updateMemberType(type)}
+              type="button"
+            >
               <span className="signup-type-icon">
                 <Icon size={21} />
               </span>
@@ -168,7 +180,7 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
                 <strong>{memberTypeText[type].label}</strong>
                 <small>{memberTypeText[type].description}</small>
               </span>
-            </label>
+            </button>
           );
         })}
       </div>
@@ -182,9 +194,13 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
         </FormField>
       </div>
 
-      <FormField label="이메일" required>
-        <input autoComplete="email" name="email" placeholder="hello@eataround.co.kr" required type="email" />
-      </FormField>
+      <div className="field">
+        <label className="field-label" htmlFor="signup-email">
+          이메일
+          <abbr aria-label="필수" title="필수 입력">*</abbr>
+        </label>
+        <EmailSuggestionInput id="signup-email" name="email" placeholder="hello@eataround.co.kr" required />
+      </div>
 
       <div className="signup-form-grid">
         <FormField label="비밀번호" required>
@@ -282,6 +298,10 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
           {submitState.message}
         </p>
       ) : null}
+
+      <Link className="secondary-button full signup-login-button" href={userRoutes.login}>
+        가입된 아이디가 있어요
+      </Link>
     </form>
   );
 }

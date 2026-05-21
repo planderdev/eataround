@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RiArrowLeftLine, RiArrowRightLine } from "@remixicon/react";
 import { ExperienceCard } from "@/components/ExperienceCard";
 import { getCollection, getCollections, getExperiences } from "@/lib/content";
-import { userRoutes } from "@/lib/routes";
 
 type PageProps = {
   params: Promise<{ slug: string }>;
+};
+
+const curationHeroImages: Record<string, string> = {
+  "jeju-local-food": "https://images.unsplash.com/photo-1761530439353-eed2b5718f9d?auto=format&fit=crop&w=2400&q=80",
+  "seogwipo-brewery": "https://images.unsplash.com/photo-1766244953579-e829796849cc?auto=format&fit=crop&w=2400&q=80",
+  "team-workshop": "https://images.unsplash.com/photo-1579169825453-8d4b4653cc2c?auto=format&fit=crop&w=2400&q=80",
 };
 
 export async function generateStaticParams() {
@@ -38,16 +42,16 @@ export default async function CurationDetailPage({ params }: PageProps) {
 
   const relatedExperiences = pickCurationExperiences(slug, experiences);
   const otherCollections = collections.filter((item) => item.slug !== collection.slug).slice(0, 3);
+  const heroImage = curationHeroImages[collection.slug] ?? collection.image;
 
   return (
-    <article className="page-section curation-detail">
-      <Link className="journal-detail-back" href={userRoutes.curations}>
-        <RiArrowLeftLine size={18} />
-        기획전 목록
-      </Link>
-
-      <header className="curation-detail-hero">
-        <img src={collection.image} alt={collection.title} />
+    <article className="curation-detail-page">
+      <header
+        className="curation-detail-page-hero"
+        style={{
+          backgroundImage: `linear-gradient(90deg, rgba(21, 30, 26, 0.78), rgba(21, 30, 26, 0.42)), url(${heroImage})`,
+        }}
+      >
         <span>
           <small>{collection.eyebrow}</small>
           <h1>{collection.title}</h1>
@@ -55,8 +59,8 @@ export default async function CurationDetailPage({ params }: PageProps) {
         </span>
       </header>
 
-      <section className="curation-detail-section">
-        <div className="curation-section-head">
+      <section className="page-section curation-detail-page-section">
+        <div className="curation-detail-page-section-head">
           <span className="eyebrow">Selected Experiences</span>
           <h2>함께 보면 좋은 체험</h2>
         </div>
@@ -68,19 +72,18 @@ export default async function CurationDetailPage({ params }: PageProps) {
       </section>
 
       {otherCollections.length ? (
-        <section className="curation-detail-section">
-          <div className="curation-section-head">
+        <section className="page-section curation-detail-page-section">
+          <div className="curation-detail-page-section-head">
             <span className="eyebrow">More Curations</span>
             <h2>다른 기획전</h2>
           </div>
-          <div className="curation-mini-grid">
+          <div className="curation-detail-page-more-grid">
             {otherCollections.map((item) => (
               <Link href={item.href} key={item.slug}>
                 <img src={item.image} alt={item.title} loading="lazy" />
                 <span>
                   <small>{item.eyebrow}</small>
                   <strong>{item.title}</strong>
-                  <RiArrowRightLine size={17} />
                 </span>
               </Link>
             ))}

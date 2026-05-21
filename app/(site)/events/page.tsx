@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { EmptyState } from "@/components/EmptyState";
 import { EventCard } from "@/components/EventCard";
+import { ListToolbar } from "@/components/ListToolbar";
 import { Pagination } from "@/components/Pagination";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SortSelect } from "@/components/SortSelect";
@@ -94,12 +96,9 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
         </Link>
       </div>
 
-      <div className="list-toolbar">
-        <div className="list-toolbar-main">
-          <strong>{sortedEvents.length}개 행사</strong>
-        </div>
+      <ListToolbar summary={<strong>{sortedEvents.length}개 행사</strong>}>
         <SortSelect label="행사 정렬" options={sortOptions} value={sort} />
-      </div>
+      </ListToolbar>
 
       {paginatedEvents.length ? (
         <div className="event-grid">
@@ -108,10 +107,7 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
           ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <strong>예정된 행사를 준비하고 있습니다.</strong>
-          <p>모집이 시작되면 이곳에서 바로 확인할 수 있습니다.</p>
-        </div>
+        <EmptyState title="예정된 행사를 준비하고 있습니다." description="모집이 시작되면 이곳에서 바로 확인할 수 있습니다." />
       )}
       <Pagination alwaysShow={sortedEvents.length > 0} basePath="/events" currentPage={currentPage} pageSize={pageSize} searchParams={params} totalItems={sortedEvents.length} />
     </section>

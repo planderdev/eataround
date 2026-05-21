@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RiMapPinLine, RiStarFill, RiTimeLine } from "@remixicon/react";
+import { ProductBadge } from "@/components/Badge";
 import type { Experience } from "@/lib/data";
 import { getBadgeTone, type BadgeTone } from "@/lib/badges";
 import { formatWon } from "@/lib/format";
@@ -24,9 +25,9 @@ export function ExperienceCard({ experience, compact = false }: ExperienceCardPr
         {badgeLabels.length ? (
           <span className="badge-row">
             {badgeLabels.map((badge) => (
-              <span className="last-seat-badge" data-tone={badge.tone} key={badge.label}>
+              <ProductBadge tone={badge.tone} key={badge.label}>
                 {badge.label}
-              </span>
+              </ProductBadge>
             ))}
           </span>
         ) : null}

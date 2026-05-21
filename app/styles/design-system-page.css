@@ -82,12 +82,12 @@
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 2px;
+  gap: var(--space-8);
 }
 
 .ds-sidebar-link {
   display: block;
-  padding: 5px var(--space-8);
+  padding: var(--space-8);
   border-radius: var(--radius-sm);
   color: var(--color-muted);
   font-size: var(--font-size-sm);
@@ -373,7 +373,7 @@
 .ds-transition-demo {
   flex-shrink: 0;
   width: 180px;
-  height: 32px;
+  height: 40px;
   background: var(--color-soft);
   border-radius: var(--radius-pill);
   position: relative;
@@ -383,8 +383,8 @@
 
 .ds-transition-dot {
   position: absolute;
-  top: 4px;
-  left: 4px;
+  top: var(--space-8);
+  left: var(--space-8);
   width: 24px;
   height: 24px;
   border-radius: 50%;
@@ -393,7 +393,7 @@
 }
 
 .ds-transition-demo:hover .ds-transition-dot {
-  left: calc(180px - 28px);
+  left: calc(180px - var(--space-32));
 }
 
 .ds-token-desc {
@@ -541,7 +541,7 @@
 }
 
 .ds-section-desc code {
-  padding: 1px 6px;
+  padding: 0 var(--space-8);
   border-radius: 4px;
   background: var(--color-soft);
   font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;

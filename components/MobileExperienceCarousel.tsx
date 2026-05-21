@@ -23,7 +23,7 @@ export function MobileExperienceCarousel({ items }: MobileExperienceCarouselProp
         </Link>
       </div>
 
-      <Swiper className="mobile-experience-swiper" slidesPerView={1.28} spaceBetween={12}>
+      <Swiper className="mobile-experience-swiper" slidesPerView={1.28} spaceBetween={16}>
         {items.map((experience) => (
           <SwiperSlide key={experience.slug}>
             <Link className="mobile-experience-card" href={experiencePath(experience.slug)}>

@@ -79,6 +79,7 @@
   --shadow-focus: 0 0 0 3px rgba(35, 111, 85, 0.08);
   --transition-fast: 0.18s ease;
   --transition-base: 0.2s ease;
+  --transition-card: background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), color var(--transition-base), transform var(--transition-base);
   --transition-moderate: 0.24s ease;
   --transition-slow: 0.35s ease;
   --z-dropdown: 20;
@@ -119,50 +120,20 @@
   --font-size-display-md: clamp(38px, 3.34vw, 48px);
   --font-size-display-lg: clamp(42px, 3.75vw, 54px);
   --space-0: 0;
-  --space-1: 1px;
-  --space-2: 2px;
-  --space-3: 3px;
-  --space-4: 4px;
-  --space-5: 5px;
-  --space-6: 6px;
-  --space-7: 7px;
   --space-8: 8px;
-  --space-9: 9px;
-  --space-10: 10px;
-  --space-12: 12px;
-  --space-13: 13px;
-  --space-14: 14px;
   --space-16: 16px;
-  --space-17: 17px;
-  --space-18: 18px;
-  --space-20: 20px;
-  --space-22: 22px;
   --space-24: 24px;
-  --space-26: 26px;
-  --space-28: 28px;
-  --space-30: 30px;
   --space-32: 32px;
-  --space-34: 34px;
-  --space-36: 36px;
-  --space-38: 38px;
   --space-40: 40px;
-  --space-42: 42px;
   --space-48: 48px;
-  --space-54: 54px;
   --space-56: 56px;
-  --space-58: 58px;
   --space-64: 64px;
   --space-72: 72px;
   --space-80: 80px;
   --space-88: 88px;
   --space-96: 96px;
-  --space-104: 104px;
-  --space-110: 110px;
   --space-112: 112px;
-  --space-120: 120px;
   --space-128: 128px;
-  --space-136: 136px;
-  --space-140: 140px;
   --space-144: 144px;
   --radius-sm: 8px;
   --radius-md: 16px;
@@ -174,16 +145,16 @@
   --button-height-sm: 36px;
   --button-height-md: 44px;
   --button-height-lg: 50px;
-  --button-padding-x-sm: var(--space-12);
+  --button-padding-x-sm: var(--space-16);
   --button-padding-x-md: var(--space-16);
-  --button-padding-x-lg: var(--space-20);
+  --button-padding-x-lg: var(--space-24);
   --button-gap: var(--space-8);
   --button-font-size: var(--font-size-md);
   --icon-button-size: var(--control-height-md);
   --field-height: 46px;
   --radius-card: var(--radius-sm);
   --radius-control: var(--radius-sm);
-  --container: 1180px;
+  --container: 1280px;
   --header-height: 72px;
 }
 
@@ -213,10 +184,10 @@
     --button-height-sm: 34px;
     --button-height-md: 44px;
     --button-height-lg: 48px;
-    --button-padding-x-sm: var(--space-10);
-    --button-padding-x-md: var(--space-14);
-    --button-padding-x-lg: var(--space-18);
-    --button-gap: var(--space-6);
+    --button-padding-x-sm: var(--space-8);
+    --button-padding-x-md: var(--space-16);
+    --button-padding-x-lg: var(--space-16);
+    --button-gap: var(--space-8);
     --button-font-size: var(--font-size-xs);
     --field-height: 44px;
   }
@@ -228,12 +199,15 @@
 }
 
 html {
-  scroll-padding-top: calc(var(--header-height) + var(--space-58));
+  max-width: 100%;
+  overflow-x: hidden;
+  scroll-padding-top: calc(var(--header-height) + var(--space-56));
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
+  max-width: 100%;
   overflow-x: clip; 
   color: var(--color-ink);
   font-family:
@@ -269,7 +243,26 @@ textarea {
 }
 
 button {
+  appearance: none;
+  -webkit-appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  text-align: inherit;
   cursor: pointer;
+}
+
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
 }
 
 :focus-visible {
@@ -357,6 +350,12 @@ main {
   font-size: var(--button-font-size);
   font-weight: var(--font-weight-bold);
   line-height: 1.2;
+  transition:
+    background var(--transition-base),
+    border-color var(--transition-base),
+    color var(--transition-base),
+    box-shadow var(--transition-base),
+    transform var(--transition-base);
 }
 
 .icon-button {
@@ -385,7 +384,8 @@ main {
   cursor: not-allowed;
 }
 
-.primary-button.full {
+.primary-button.full,
+.secondary-button.full {
   width: 100%;
 }
 
@@ -423,7 +423,7 @@ main {
   left: 50%;
   transform: translateX(-50%);
   z-index: var(--z-tooltip);
-  padding: 6px 10px;
+  padding: var(--space-8);
   border-radius: var(--radius-sm);
   background: var(--color-ink);
   color: #fff;

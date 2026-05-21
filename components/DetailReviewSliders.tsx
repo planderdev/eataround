@@ -71,9 +71,9 @@ function ReviewSwiper({ reviews }: { reviews: NormalizedReview[] }) {
       slidesPerView={1.08}
       spaceBetween={8}
       breakpoints={{
-        560: { slidesPerView: 1.6, spaceBetween: 10 },
-        860: { slidesPerView: 2.2, spaceBetween: 10 },
-        1120: { slidesPerView: 2.55, spaceBetween: 10 },
+        560: { slidesPerView: 1.6, spaceBetween: 8 },
+        860: { slidesPerView: 2.2, spaceBetween: 8 },
+        1120: { slidesPerView: 2.55, spaceBetween: 8 },
       }}
     >
       {reviews.map((review, index) => (

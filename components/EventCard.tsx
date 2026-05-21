@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RiCalendarLine, RiMapPinLine } from "@remixicon/react";
+import { ProductBadge } from "@/components/Badge";
 import { getBadgeTone } from "@/lib/badges";
 import type { EventItem } from "@/lib/data";
 
@@ -9,7 +10,7 @@ export function EventCard({ event }: { event: EventItem }) {
       <span className="event-image">
         <img src={event.image} alt={event.title} loading="lazy" />
         <span className="badge-row">
-          <span className="last-seat-badge" data-tone={getBadgeTone(event.badge)}>{event.badge}</span>
+          <ProductBadge tone={getBadgeTone(event.badge)}>{event.badge}</ProductBadge>
         </span>
       </span>
       <span className="event-body">

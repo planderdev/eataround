@@ -4,6 +4,7 @@ import Link from "next/link";
 import { RiMapPinLine, RiStarFill, RiTimeLine } from "@remixicon/react";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { ProductBadge } from "@/components/Badge";
 import { getBadgeTone } from "@/lib/badges";
 import type { Experience } from "@/lib/data";
 import { formatWon } from "@/lib/format";
@@ -23,9 +24,9 @@ export function DetailRelatedExperiences({ items }: DetailRelatedExperiencesProp
       modules={[Pagination]}
       pagination={{ clickable: true }}
       slidesPerView={1.18}
-      spaceBetween={14}
+      spaceBetween={16}
       breakpoints={{
-        560: { slidesPerView: 2.08, spaceBetween: 14 },
+        560: { slidesPerView: 2.08, spaceBetween: 16 },
         920: { slidesPerView: 4.5, spaceBetween: 16 },
       }}
     >
@@ -36,9 +37,9 @@ export function DetailRelatedExperiences({ items }: DetailRelatedExperiencesProp
               <img src={item.image} alt={item.title} loading="lazy" />
               {item.badge ? (
                 <span className="badge-row">
-                  <span className="last-seat-badge" data-tone={getBadgeTone(item.badge)}>
+                  <ProductBadge tone={getBadgeTone(item.badge)}>
                     {item.badge}
-                  </span>
+                  </ProductBadge>
                 </span>
               ) : null}
             </span>

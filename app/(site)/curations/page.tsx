@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { RiArrowRightLine } from "@remixicon/react";
+import { CurationCard } from "@/components/CurationCard";
+import { ListToolbar } from "@/components/ListToolbar";
 import { Pagination } from "@/components/Pagination";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SortSelect } from "@/components/SortSelect";
@@ -71,27 +71,13 @@ export default async function CurationsPage({ searchParams }: { searchParams?: P
         level="h1"
       />
 
-      <div className="list-toolbar">
-        <div className="list-toolbar-main">
-          <strong>{sortedCollections.length}개 기획전</strong>
-        </div>
+      <ListToolbar summary={<strong>{sortedCollections.length}개 기획전</strong>}>
         <SortSelect label="기획전 정렬" options={sortOptions} value={sort} />
-      </div>
+      </ListToolbar>
 
       <div className="curation-grid">
         {paginatedCollections.map((collection) => (
-          <Link className="curation-card" href={collection.href} key={collection.slug}>
-            <img src={collection.image} alt={collection.title} loading="lazy" />
-            <span>
-              <small>{collection.eyebrow}</small>
-              <strong>{collection.title}</strong>
-              <p>{collection.description}</p>
-              <b>
-                자세히 보기
-                <RiArrowRightLine size={16} />
-              </b>
-            </span>
-          </Link>
+          <CurationCard item={collection} key={collection.slug} />
         ))}
       </div>
 

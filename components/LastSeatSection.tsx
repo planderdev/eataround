@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { RiArrowRightSLine, RiShoppingBag3Line, RiTimeLine } from "@remixicon/react";
 import { useEffect, useMemo, useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { ProductBadge } from "@/components/Badge";
 import type { Experience, ScheduleStock } from "@/lib/data";
 import { formatWon } from "@/lib/format";
 import { experiencePath, userRoutes } from "@/lib/routes";
@@ -22,6 +24,39 @@ function formatTimer(totalSeconds: number) {
 function discountPercent(price: number, originalPrice?: number) {
   if (!originalPrice || originalPrice <= price) return null;
   return Math.round(((originalPrice - price) / originalPrice) * 100);
+}
+
+function LastSeatCard({ experience, schedule, index }: LastSeatItem & { index: number }) {
+  const percent = discountPercent(schedule.price, experience.originalPrice);
+
+  return (
+    <article className="last-seat-card" data-aos="fade-up" data-aos-delay={String(index * 70)}>
+      <Link className="last-seat-image" href={experiencePath(experience.slug)}>
+        <img src={experience.image} alt={experience.title} loading="lazy" />
+        <span className="badge-row last-seat-badge-row">
+          <ProductBadge tone="urgent">마감임박</ProductBadge>
+          <ProductBadge tone="stock">1자리 남음</ProductBadge>
+        </span>
+      </Link>
+      <button className="last-seat-cart" type="button">
+        <RiShoppingBag3Line size={15} />
+        예약 담기
+      </button>
+      <Link className="last-seat-body" href={experiencePath(experience.slug)}>
+        <strong>{experience.title}</strong>
+        <span>
+          {schedule.date} · {schedule.label}
+        </span>
+        <span className="last-seat-price">
+          {experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
+          <b>
+            {percent ? <span className="discount-rate">{percent}%</span> : null}
+            {formatWon(schedule.price)}
+          </b>
+        </span>
+      </Link>
+    </article>
+  );
 }
 
 export function LastSeatSection({ items }: { items: LastSeatItem[] }) {
@@ -52,38 +87,19 @@ export function LastSeatSection({ items }: { items: LastSeatItem[] }) {
       </div>
 
       <div className="last-seat-grid">
-        {visibleItems.map(({ experience, schedule }, index) => {
-          const percent = discountPercent(schedule.price, experience.originalPrice);
+        {visibleItems.map((item, index) => (
+          <LastSeatCard {...item} index={index} key={item.experience.slug} />
+        ))}
+      </div>
 
-          return (
-            <article className="last-seat-card" data-aos="fade-up" data-aos-delay={String(index * 70)} key={experience.slug}>
-              <Link className="last-seat-image" href={experiencePath(experience.slug)}>
-                <img src={experience.image} alt={experience.title} loading="lazy" />
-                <span className="badge-row last-seat-badge-row">
-                  <span className="last-seat-badge" data-tone="urgent">마감임박</span>
-                  <span className="last-seat-badge" data-tone="stock">1자리 남음</span>
-                </span>
-              </Link>
-              <button className="last-seat-cart" type="button">
-                <RiShoppingBag3Line size={15} />
-                예약 담기
-              </button>
-              <Link className="last-seat-body" href={experiencePath(experience.slug)}>
-                <strong>{experience.title}</strong>
-                <span>
-                  {schedule.date} · {schedule.label}
-                </span>
-                <span className="last-seat-price">
-                  {experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
-                  <b>
-                    {percent ? <span className="discount-rate">{percent}%</span> : null}
-                    {formatWon(schedule.price)}
-                  </b>
-                </span>
-              </Link>
-            </article>
-          );
-        })}
+      <div className="last-seat-mobile-carousel" aria-label="원데이클래스 마감임박 슬라이드">
+        <Swiper className="last-seat-mobile-swiper" slidesPerView={1.18} spaceBetween={16}>
+          {visibleItems.map((item, index) => (
+            <SwiperSlide key={`${item.experience.slug}-mobile`}>
+              <LastSeatCard {...item} index={index} />
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
     </section>
   );

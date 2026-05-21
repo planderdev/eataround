@@ -1,13 +1,12 @@
-import Link from "next/link";
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { EventCard } from "@/components/EventCard";
 import { ExperienceCard } from "@/components/ExperienceCard";
 import { HeroBanner } from "@/components/HeroBanner";
+import { JournalCard } from "@/components/JournalCard";
 import { LastSeatSection, type LastSeatItem } from "@/components/LastSeatSection";
 import { MobileExperienceCarousel } from "@/components/MobileExperienceCarousel";
 import { MobileSwipeCarousel, type MobileSwipeItem } from "@/components/MobileSwipeCarousel";
 import { PackageCtaCarousel } from "@/components/PackageCtaCarousel";
-import { PromoBanner } from "@/components/PromoBanner";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getCategories, getCollections, getEvents, getExperiences, getHeroSlides, getJournals, getPackageCtas } from "@/lib/content";
 import { userRoutes } from "@/lib/routes";
@@ -53,8 +52,6 @@ export default async function HomePage() {
 
       <LastSeatSection items={lastSeatItems} />
 
-      <PromoBanner />
-
       <section className="page-section featured-experience-section" data-aos="fade-up">
         <SectionHeader
           eyebrow="Recommended"
@@ -62,7 +59,7 @@ export default async function HomePage() {
           description="이더라운드가 소개하는 제주 여행을 한눈에 만나보세요."
           href={userRoutes.experiences}
         />
-        <div className="featured-grid">
+        <div className="card-grid">
           {featuredExperiences.map((experience) => (
             <ExperienceCard experience={experience} key={experience.slug} />
           ))}
@@ -96,16 +93,7 @@ export default async function HomePage() {
           <SectionHeader eyebrow="Journal" title="저널" href="/journal" />
           <div className="journal-grid">
             {journals.map((item) => (
-              <Link className="journal-card" data-aos="fade-up" href={`/journal/${item.slug}`} key={item.slug}>
-                <img src={item.image} alt={item.title} loading="lazy" />
-                <span>
-                  <small>
-                    {item.category} · {item.date}
-                  </small>
-                  <strong>{item.title}</strong>
-                  <p>{item.excerpt}</p>
-                </span>
-              </Link>
+              <JournalCard animated item={item} key={item.slug} />
             ))}
           </div>
           <MobileSwipeCarousel ctaHref="/journal" ctaLabel="저널 전체보기" items={journalSwipeItems} />

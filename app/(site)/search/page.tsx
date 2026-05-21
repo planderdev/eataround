@@ -9,6 +9,7 @@ import {
   RiSparkling2Line,
   RiTimeLine,
 } from "@remixicon/react";
+import { ProductBadge } from "@/components/Badge";
 import { EmptyState } from "@/components/EmptyState";
 import { Pagination } from "@/components/Pagination";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -209,7 +210,7 @@ export default async function SearchPage({ searchParams }: { searchParams?: Prom
                   <img src={result.image} alt={result.title} loading="lazy" />
                   {result.badge ? (
                     <span className="badge-row">
-                      <span className="last-seat-badge" data-tone={getBadgeTone(result.badge)}>{result.badge}</span>
+                      <ProductBadge tone={getBadgeTone(result.badge)}>{result.badge}</ProductBadge>
                     </span>
                   ) : null}
                 </span>
@@ -242,7 +243,7 @@ export default async function SearchPage({ searchParams }: { searchParams?: Prom
         </div>
       ) : (
         <EmptyState
-          icon={<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>}
+          icon={<RiSearchLine size={32} aria-hidden />}
           title="검색 결과가 없습니다"
           description="지역명, 체험명, 키워드를 조금 더 넓게 입력해보세요."
           action={<Link className="primary-button" href={userRoutes.experiences}>전체 체험 보기</Link>}

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   RiAlarmWarningLine,
-  RiArrowRightLine,
+  RiArrowRightSLine,
   RiBankCardLine,
   RiCalendarCheckLine,
   RiCheckboxCircleLine,
@@ -368,9 +368,9 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
       <header className="experience-detail-header">
         <nav className="experience-detail-breadcrumb" aria-label="현재 위치">
           <Link href="/">홈</Link>
-          <RiArrowRightLine size={14} />
+          <RiArrowRightSLine size={16} aria-hidden />
           <Link href={userRoutes.experiences}>로컬체험</Link>
-          <RiArrowRightLine size={14} />
+          <RiArrowRightSLine size={16} aria-hidden />
           <span>{displayExperience.region}</span>
         </nav>
 

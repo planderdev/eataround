@@ -17,7 +17,7 @@ export function PackageCtaCarousel({ items }: { items: PackageCta[] }) {
         loop={items.length > 1}
         modules={[Autoplay]}
         slidesPerView={1}
-        spaceBetween={12}
+        spaceBetween={16}
         speed={650}
       >
         {items.map((item) => (

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: program.title,
-    description: `${program.title} 기업·기관 패키지 상세`,
+    description: `${program.title} 기업·기관 단체 프로그램 안내`,
   };
 }
 
@@ -44,7 +44,7 @@ export default async function B2BPackageDetailPage({ params }: PageProps) {
       <header className="package-detail-hero">
         <span className="eyebrow">{program.type}</span>
         <h1>{program.title}</h1>
-        <p>기관 목적과 인원에 맞춰 일정, 식사, 이동 옵션을 조합할 수 있는 단체 패키지입니다.</p>
+        <p>행사 목적과 참여 인원에 맞춰 일정, 식사, 이동 옵션을 조합할 수 있는 단체 프로그램입니다.</p>
         <div className="package-detail-facts">
           <span>
             <RiGroupLine size={18} />
@@ -65,7 +65,7 @@ export default async function B2BPackageDetailPage({ params }: PageProps) {
         <main className="package-detail-main">
           <section className="detail-section">
             <h2>패키지 설명</h2>
-            <p>체험 목적, 참여자 연령, 이동 조건에 따라 프로그램 난이도와 진행 시간을 조정합니다.</p>
+            <p>워크숍, 연수, 고객 초청 행사 등 목적에 따라 진행 시간과 참여 난이도를 조정합니다.</p>
           </section>
 
           <section className="detail-section">
@@ -102,8 +102,8 @@ export default async function B2BPackageDetailPage({ params }: PageProps) {
         </main>
 
         <aside className="quote-summary">
-          <span className="eyebrow">Estimate</span>
-          <h2>간이 견적 기준</h2>
+          <span className="eyebrow">견적 기준</span>
+          <h2>단체 견적 기준</h2>
           <dl>
             <div>
               <dt>기준가</dt>
@@ -127,7 +127,7 @@ export default async function B2BPackageDetailPage({ params }: PageProps) {
             ))}
           </div>
           <Link className="primary-button full" href={`${userRoutes.b2bQuote}?packageId=${program.id}`}>
-            정식 견적 요청
+            단체 견적 요청
           </Link>
         </aside>
       </div>
