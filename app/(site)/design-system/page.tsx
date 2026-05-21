@@ -344,6 +344,54 @@ export default function DesignSystemPage() {
             </div>
           </Section>
 
+          {/* Focus */}
+          <Section title="Focus">
+            <p className="ds-section-desc">키보드 탐색 시 <code>:focus-visible</code>로만 포커스 링을 표시합니다. 마우스 클릭에는 나타나지 않습니다.</p>
+            <h3 className="ds-subsection-title">Outline — 버튼 · 링크 (Tab으로 탐색)</h3>
+            <div className="ds-button-row">
+              <button className="primary-button">Primary</button>
+              <button className="secondary-button">Secondary</button>
+              <button className="text-button">Text</button>
+              <a className="link-button" href="#focus" onClick={(e) => e.preventDefault()}>Link</a>
+            </div>
+            <h3 className="ds-subsection-title">Box Shadow — 입력 필드</h3>
+            <div className="ds-form-row">
+              <input className="ds-input ds-input--focus-demo" type="text" placeholder="클릭하거나 Tab으로 포커스" />
+            </div>
+            <h3 className="ds-subsection-title">Tokens</h3>
+            <div className="ds-token-list">
+              <TokenRow name="--shadow-focus" value="0 0 0 3px rgba(35,111,85,0.08)" />
+              <TokenRow name=":focus-visible outline" value="2px solid --color-primary · offset 2px" />
+              <TokenRow name=".focus-ring" value="border-color + --shadow-focus (input 스타일 포커스)" />
+            </div>
+          </Section>
+
+          {/* Motion */}
+          <Section title="Motion">
+            <p className="ds-section-desc"><code>prefers-reduced-motion: reduce</code> 환경에서 모든 애니메이션과 트랜지션이 자동 비활성화됩니다.</p>
+            <h3 className="ds-subsection-title">Keyframes</h3>
+            <div className="ds-token-list">
+              <TokenRow name="fade-in" value="opacity 0 → 1" />
+              <TokenRow name="slide-up" value="opacity+translateY(8px) → 1+0" />
+              <TokenRow name="skeleton-pulse" value="opacity 1 → 0.4 → 1 · 1.6s · infinite" />
+            </div>
+            <h3 className="ds-subsection-title">Skeleton</h3>
+            <div className="ds-skeleton-demo">
+              <div className="ds-skeleton-card">
+                <div className="skeleton ds-sk-img" />
+                <div className="ds-sk-body">
+                  <div className="skeleton ds-sk-title" />
+                  <div className="skeleton ds-sk-text" />
+                  <div className="skeleton ds-sk-text ds-sk-short" />
+                </div>
+              </div>
+            </div>
+            <h3 className="ds-subsection-title">Utility class</h3>
+            <div className="ds-token-list">
+              <TokenRow name=".skeleton" value="background: --color-line · skeleton-pulse 1.6s infinite" />
+            </div>
+          </Section>
+
           {/* Buttons */}
           <Section title="Buttons">
             <h3 className="ds-subsection-title">Variants</h3>
@@ -376,6 +424,22 @@ export default function DesignSystemPage() {
                   {b.label}
                 </span>
               ))}
+            </div>
+          </Section>
+
+          {/* Toast */}
+          <Section title="Toast">
+            <p className="ds-section-desc">화면 우하단에 고정 표시됩니다. <code>addToast(message, tone)</code>를 호출해 전역으로 사용합니다.</p>
+            <div className="ds-toast-preview">
+              <div className="toast" data-tone="info"><span>일반 알림 메시지입니다</span></div>
+              <div className="toast" data-tone="success"><span>저장이 완료되었습니다</span></div>
+              <div className="toast" data-tone="error"><span>오류가 발생했습니다. 다시 시도해 주세요.</span></div>
+            </div>
+            <div className="ds-token-list">
+              <TokenRow name="addToast(message, tone?, duration?)" value="import { addToast } from '@/lib/toast'" />
+              <TokenRow name="tone" value='"info" | "success" | "error"' />
+              <TokenRow name="duration" value="기본값 4000ms" />
+              <TokenRow name="<Toaster />" value="app/(site)/layout.tsx 에 등록됨" />
             </div>
           </Section>
 
