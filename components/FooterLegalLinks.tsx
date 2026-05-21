@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { RiCloseLine, RiExternalLinkLine, RiFileTextLine, RiShieldCheckLine } from "@remixicon/react";
+import { Modal } from "@/components/Modal";
 
 type LegalType = "terms" | "privacy";
 
@@ -57,24 +58,6 @@ export function FooterLegalLinks() {
   const content = activeModal ? legalContent[activeModal] : null;
   const Icon = content?.icon;
 
-  useEffect(() => {
-    if (!activeModal) return;
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function closeOnEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") setActiveModal(null);
-    }
-
-    document.addEventListener("keydown", closeOnEscape);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [activeModal]);
-
   return (
     <>
       <div className="footer-links" aria-label="푸터 법적 메뉴">
@@ -95,9 +78,8 @@ export function FooterLegalLinks() {
         </a>
       </div>
 
-      {content ? (
-        <div className="legal-modal-layer" role="presentation">
-          <button className="legal-modal-backdrop" aria-label={`${content.title} 닫기`} onClick={() => setActiveModal(null)} type="button" />
+      <Modal isOpen={Boolean(content)} onClose={() => setActiveModal(null)} label={content?.title} zIndex="var(--z-modal-top)">
+        {content && (
           <section className="legal-modal-panel" aria-modal="true" role="dialog" aria-labelledby="legal-modal-title">
             <header className="legal-modal-header">
               <span>{Icon ? <Icon size={20} /> : null}</span>
@@ -116,8 +98,8 @@ export function FooterLegalLinks() {
               ))}
             </div>
           </section>
-        </div>
-      ) : null}
+        )}
+      </Modal>
     </>
   );
 }

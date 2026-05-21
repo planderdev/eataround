@@ -1,3 +1,4 @@
 /* Front site style entrypoint. Keep separate from admin styles. */
 @import "./design-system.css";
 @import "./components.css";
+@import "./design-system-page.css";

@@ -3828,6 +3828,22 @@
   color: var(--color-primary);
 }
 
+.modal-layer {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: grid;
+  place-items: center;
+  padding: var(--space-20);
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(18, 22, 20, 0.58);
+}
+
 .legal-modal-layer {
   position: fixed;
   inset: 0;
@@ -9559,6 +9575,7 @@ color:var(--color-muted);
     display: none;
   }
 
+  .modal-layer,
   .filter-modal-layer {
     padding: var(--space-14);
   }
@@ -9695,6 +9712,7 @@ color:var(--color-muted);
     flex: 1 1 auto;
   }
 
+  .modal-layer,
   .legal-modal-layer {
     padding: var(--space-14);
   }

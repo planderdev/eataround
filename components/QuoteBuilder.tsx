@@ -9,6 +9,7 @@ import {
   RiLock2Line,
 } from "@remixicon/react";
 import { DatePicker } from "@/components/DatePicker";
+import { FormField } from "@/components/FormField";
 import {
   discountTiers as fallbackDiscountTiers,
   packageOptions as fallbackPackageOptions,
@@ -166,13 +167,9 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
 
         {step === 2 ? (
           <section className="quote-step-panel" aria-label="인원 입력">
-            <label className="field">
-              <span>
-                <RiGroupLine size={18} />
-                인원수
-              </span>
+            <FormField label={<><RiGroupLine size={18} />인원수</>}>
               <input min={1} onChange={(event) => setPeople(Number(event.target.value))} type="number" value={people} />
-            </label>
+            </FormField>
             {people >= 50 ? <p className="quote-step-note">50인 이상은 담당자 별도 상담으로 최종 견적을 안내합니다.</p> : null}
           </section>
         ) : null}
@@ -228,50 +225,30 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
         {step === 5 ? (
           <section className="quote-step-panel" aria-label="요청 정보 확인">
             <div className="form-grid">
-              <label className="field">
-                <span>
-                  <RiBuilding2Line size={18} />
-                  기관명
-                </span>
+              <FormField label={<><RiBuilding2Line size={18} />기관명</>}>
                 <input onChange={(event) => setOrganizationName(event.target.value)} placeholder="기관·기업명을 입력하세요" value={organizationName} />
-              </label>
-              <label className="field">
-                <span>
-                  <RiGroupLine size={18} />
-                  담당자
-                </span>
+              </FormField>
+              <FormField label={<><RiGroupLine size={18} />담당자</>}>
                 <input onChange={(event) => setContactName(event.target.value)} placeholder="담당자명" value={contactName} />
-              </label>
+              </FormField>
             </div>
 
             <div className="form-grid">
-              <label className="field">
-                <span>
-                  <RiFileTextLine size={18} />
-                  연락처
-                </span>
+              <FormField label={<><RiFileTextLine size={18} />연락처</>}>
                 <input onChange={(event) => setContactPhone(event.target.value)} placeholder="010-0000-0000" value={contactPhone} />
-              </label>
-              <label className="field">
-                <span>
-                  <RiFileTextLine size={18} />
-                  예산
-                </span>
+              </FormField>
+              <FormField label={<><RiFileTextLine size={18} />예산</>}>
                 <input onChange={(event) => setBudget(event.target.value)} placeholder="예: 2,000만원 이내" value={budget} />
-              </label>
+              </FormField>
             </div>
 
-            <label className="field">
-              <span>
-                <RiFileTextLine size={18} />
-                요청사항
-              </span>
+            <FormField label={<><RiFileTextLine size={18} />요청사항</>}>
               <textarea
                 onChange={(event) => setRequestMemo(event.target.value)}
                 placeholder="희망 지역, 식사 방식, 이동 조건 등 필요한 내용을 남겨주세요."
                 value={requestMemo}
               />
-            </label>
+            </FormField>
           </section>
         ) : null}
 
