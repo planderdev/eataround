@@ -119,7 +119,7 @@
 .ds-color-chip {
   width: 100%;
   height: 64px;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-md);
 }
 
 .ds-color-label {
@@ -145,7 +145,7 @@
 /* Primary scale — horizontal strip */
 .ds-primary-scale {
   display: flex;
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 
@@ -476,7 +476,7 @@
 
   .ds-primary-scale {
     flex-direction: column;
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-md);
   }
 
   .ds-primary-chip {

@@ -102,15 +102,10 @@ const spacings = [
 ];
 
 const radii = [
-  { name: "--radius-xs", px: "3px", label: "xs" },
-  { name: "--radius-sm", px: "4px", label: "sm" },
-  { name: "--radius-md", px: "5px", label: "md" },
-  { name: "--radius-lg", px: "7px", label: "lg" },
-  { name: "--radius-xl", px: "10px", label: "xl" },
-  { name: "--radius-2xl", px: "12px", label: "2xl" },
-  { name: "--radius-3xl", px: "16px", label: "3xl" },
-  { name: "--radius-4xl", px: "18px", label: "4xl" },
-  { name: "--radius-5xl", px: "20px", label: "5xl" },
+  { name: "--radius-sm", px: "8px", label: "sm" },
+  { name: "--radius-md", px: "16px", label: "md" },
+  { name: "--radius-lg", px: "24px", label: "lg" },
+  { name: "--radius-xl", px: "32px", label: "xl" },
   { name: "--radius-pill", px: "999px", label: "pill" },
 ];
 
