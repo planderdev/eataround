@@ -443,6 +443,77 @@ export default function DesignSystemPage() {
             </div>
           </Section>
 
+          {/* Empty State */}
+          <Section title="Empty State">
+            <p className="ds-section-desc">검색 결과 없음, 리스트 비어있음 등 데이터가 없을 때 사용합니다.</p>
+            <div className="ds-empty-demo">
+              <div className="empty-state">
+                <div className="empty-state-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <strong className="empty-state-title">검색 결과가 없습니다</strong>
+                <p className="empty-state-desc">다른 키워드로 다시 검색하거나 필터를 초기화해 보세요.</p>
+                <div className="empty-state-action">
+                  <button className="secondary-button">필터 초기화</button>
+                </div>
+              </div>
+            </div>
+            <div className="ds-token-list">
+              <TokenRow name=".empty-state" value="grid · place-items-center · padding 64px 32px" />
+              <TokenRow name=".empty-state-icon" value="color-muted · opacity 0.45" />
+              <TokenRow name=".empty-state-title" value="font-size-lg · semibold" />
+              <TokenRow name=".empty-state-desc" value="max-width 320px · color-muted · leading-body" />
+            </div>
+          </Section>
+
+          {/* Avatar */}
+          <Section title="Avatar">
+            <p className="ds-section-desc">이미지가 있으면 img, 없으면 이니셜 placeholder를 렌더링합니다.</p>
+            <h3 className="ds-subsection-title">Sizes</h3>
+            <div className="ds-avatar-row">
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-sm">김</span>
+                <code className="ds-token-name">sm · 32px</code>
+              </div>
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-md">이</span>
+                <code className="ds-token-name">md · 40px</code>
+              </div>
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-lg">박</span>
+                <code className="ds-token-name">lg · 56px</code>
+              </div>
+              <div className="ds-avatar-item">
+                <span className="avatar avatar-placeholder avatar-xl">최</span>
+                <code className="ds-token-name">xl · 72px</code>
+              </div>
+            </div>
+            <h3 className="ds-subsection-title">With image</h3>
+            <div className="ds-avatar-row">
+              <div className="ds-avatar-item">
+                <div className="avatar avatar-md" style={{ background: "linear-gradient(135deg, var(--color-primary-300), var(--color-primary-500))" }} />
+                <code className="ds-token-name">md</code>
+              </div>
+              <div className="ds-avatar-item">
+                <div className="avatar avatar-lg" style={{ background: "linear-gradient(135deg, var(--color-coral), #f5a887)" }} />
+                <code className="ds-token-name">lg</code>
+              </div>
+            </div>
+          </Section>
+
+          {/* Divider */}
+          <Section title="Divider">
+            <h3 className="ds-subsection-title">Default</h3>
+            <hr className="divider" />
+            <h3 className="ds-subsection-title">With label</h3>
+            <div className="divider--label">또는</div>
+            <div className="divider--label">소셜 로그인으로 계속하기</div>
+            <div className="ds-token-list">
+              <TokenRow name=".divider" value="height 1px · background --color-line" />
+              <TokenRow name=".divider--label" value="flex · ::before/after lines · color-muted" />
+            </div>
+          </Section>
+
           {/* Form Controls */}
           <Section title="Form Controls">
             <h3 className="ds-subsection-title">Select</h3>

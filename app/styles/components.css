@@ -8568,3 +8568,97 @@ color:var(--color-muted);
     max-width: none;
   }
 }
+
+/* ============================================================
+   Empty State
+   ============================================================ */
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  gap: var(--space-16);
+  padding: var(--space-64) var(--space-32);
+  text-align: center;
+}
+
+.empty-state-icon {
+  color: var(--color-muted);
+  opacity: 0.45;
+}
+
+.empty-state-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-ink);
+}
+
+.empty-state-desc {
+  max-width: 320px;
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+  line-height: var(--leading-body);
+}
+
+.empty-state-action {
+  margin-top: var(--space-8);
+}
+
+/* ============================================================
+   Avatar
+   ============================================================ */
+
+.avatar {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-radius: 50%;
+  object-fit: cover;
+  overflow: hidden;
+}
+
+.avatar-sm { width: 32px; height: 32px; font-size: var(--font-size-xs); }
+.avatar-md { width: 40px; height: 40px; font-size: var(--font-size-sm); }
+.avatar-lg { width: 56px; height: 56px; font-size: var(--font-size-base); }
+.avatar-xl { width: 72px; height: 72px; font-size: var(--font-size-xl); }
+
+.avatar-placeholder {
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-100);
+  color: var(--color-primary-700);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.04em;
+  user-select: none;
+}
+
+/* ============================================================
+   Divider
+   ============================================================ */
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-line);
+  border: none;
+  margin: 0;
+}
+
+.divider--label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-16);
+  color: var(--color-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  letter-spacing: 0.04em;
+  height: auto;
+  background: none;
+}
+
+.divider--label::before,
+.divider--label::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-line);
+}
