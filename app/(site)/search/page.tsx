@@ -9,6 +9,7 @@ import {
   RiSparkling2Line,
   RiTimeLine,
 } from "@remixicon/react";
+import { EmptyState } from "@/components/EmptyState";
 import { Pagination } from "@/components/Pagination";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getBadgeTone } from "@/lib/badges";
@@ -240,13 +241,12 @@ export default async function SearchPage({ searchParams }: { searchParams?: Prom
           })}
         </div>
       ) : (
-        <div className="empty-state search-empty-state">
-          <strong>검색 결과가 없습니다.</strong>
-          <p>지역명, 체험명, 키워드를 조금 더 넓게 입력해보세요.</p>
-          <Link className="primary-button" href={userRoutes.experiences}>
-            전체 체험 보기
-          </Link>
-        </div>
+        <EmptyState
+          icon={<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>}
+          title="검색 결과가 없습니다"
+          description="지역명, 체험명, 키워드를 조금 더 넓게 입력해보세요."
+          action={<Link className="primary-button" href={userRoutes.experiences}>전체 체험 보기</Link>}
+        />
       )}
 
       <Pagination basePath="/search" currentPage={currentPage} pageSize={pageSize} searchParams={params} totalItems={filteredResults.length} />

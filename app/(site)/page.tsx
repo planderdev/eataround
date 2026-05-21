@@ -62,7 +62,7 @@ export default async function HomePage() {
           description="이더라운드가 소개하는 제주 여행을 한눈에 만나보세요."
           href={userRoutes.experiences}
         />
-        <div className="card-grid">
+        <div className="featured-grid">
           {featuredExperiences.map((experience) => (
             <ExperienceCard experience={experience} key={experience.slug} />
           ))}
@@ -75,38 +75,42 @@ export default async function HomePage() {
         <MobileSwipeCarousel ctaHref={userRoutes.curations} ctaLabel="기획전 전체보기" items={collectionSwipeItems} showDots variant="responsive" />
       </section>
 
-      <section className="page-section mobile-carousel-section" data-aos="fade-up">
-        <SectionHeader eyebrow="Live Events" title="진행중인 행사" href="/events" actionLabel="행사 전체보기" />
-        <div className="event-grid">
-          {ongoingEvents.map((event) => (
-            <EventCard event={event} key={event.slug} />
-          ))}
-        </div>
-        <MobileSwipeCarousel ctaHref="/events" ctaLabel="행사 전체보기" items={eventSwipeItems} />
-      </section>
+      <div className="section-band section-band--soft">
+        <section className="page-section mobile-carousel-section" data-aos="fade-up">
+          <SectionHeader eyebrow="Live Events" title="진행중인 행사" href="/events" actionLabel="행사 전체보기" />
+          <div className="event-grid">
+            {ongoingEvents.map((event) => (
+              <EventCard event={event} key={event.slug} />
+            ))}
+          </div>
+          <MobileSwipeCarousel ctaHref="/events" ctaLabel="행사 전체보기" items={eventSwipeItems} />
+        </section>
+      </div>
 
       <section className="page-section package-cta-section" data-aos="fade-up">
         <PackageCtaCarousel items={packageCtas} />
       </section>
 
-      <section className="page-section mobile-carousel-section" data-aos="fade-up">
-        <SectionHeader eyebrow="Journal" title="저널" href="/journal" />
-        <div className="journal-grid">
-          {journals.map((item) => (
-            <Link className="journal-card" data-aos="fade-up" href={`/journal/${item.slug}`} key={item.slug}>
-              <img src={item.image} alt={item.title} loading="lazy" />
-              <span>
-                <small>
-                  {item.category} · {item.date}
-                </small>
-                <strong>{item.title}</strong>
-                <p>{item.excerpt}</p>
-              </span>
-            </Link>
-          ))}
-        </div>
-        <MobileSwipeCarousel ctaHref="/journal" ctaLabel="저널 전체보기" items={journalSwipeItems} />
-      </section>
+      <div className="section-band section-band--cream">
+        <section className="page-section mobile-carousel-section" data-aos="fade-up">
+          <SectionHeader eyebrow="Journal" title="저널" href="/journal" />
+          <div className="journal-grid">
+            {journals.map((item) => (
+              <Link className="journal-card" data-aos="fade-up" href={`/journal/${item.slug}`} key={item.slug}>
+                <img src={item.image} alt={item.title} loading="lazy" />
+                <span>
+                  <small>
+                    {item.category} · {item.date}
+                  </small>
+                  <strong>{item.title}</strong>
+                  <p>{item.excerpt}</p>
+                </span>
+              </Link>
+            ))}
+          </div>
+          <MobileSwipeCarousel ctaHref="/journal" ctaLabel="저널 전체보기" items={journalSwipeItems} />
+        </section>
+      </div>
     </>
   );
 }

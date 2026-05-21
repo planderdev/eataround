@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
+import { DsSidebar } from "@/components/DsSidebar";
 
 export const metadata: Metadata = {
   title: "디자인 시스템",
 };
 
+function slug(title: string) {
+  return title.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
+}
+
 function Section({ title, children }: { title: string; children: import("react").ReactNode }) {
   return (
-    <section className="ds-section">
+    <section className="ds-section" id={slug(title)}>
       <h2 className="ds-section-title">{title}</h2>
       {children}
     </section>
@@ -130,7 +135,9 @@ export default function DesignSystemPage() {
       </div>
 
       <div className="container">
-        <div className="ds-body">
+        <div className="ds-layout">
+          <DsSidebar />
+          <div className="ds-body">
 
           {/* Colors */}
           <Section title="Color">
@@ -183,6 +190,28 @@ export default function DesignSystemPage() {
                   <span className="ds-color-hex">{c.hex}</span>
                 </div>
               ))}
+            </div>
+
+            <h3 className="ds-subsection-title">Semantic Feedback</h3>
+            <div className="ds-color-grid">
+              <div className="ds-color-swatch">
+                <div className="ds-color-chip" style={{ background: "#236F55" }} />
+                <p className="ds-color-label">Success</p>
+                <code className="ds-color-token">--color-success</code>
+                <span className="ds-color-hex">→ --color-primary</span>
+              </div>
+              <div className="ds-color-swatch">
+                <div className="ds-color-chip" style={{ background: "#cf4d45" }} />
+                <p className="ds-color-label">Error</p>
+                <code className="ds-color-token">--color-error</code>
+                <span className="ds-color-hex">→ --color-red</span>
+              </div>
+              <div className="ds-color-swatch">
+                <div className="ds-color-chip" style={{ background: "#f1b940" }} />
+                <p className="ds-color-label">Warning</p>
+                <code className="ds-color-token">--color-warning</code>
+                <span className="ds-color-hex">→ --color-yellow</span>
+              </div>
             </div>
           </Section>
 
@@ -514,6 +543,25 @@ export default function DesignSystemPage() {
             </div>
           </Section>
 
+          {/* Tooltip */}
+          <Section title="Tooltip">
+            <p className="ds-section-desc"><code>data-tooltip="..."</code> 속성만 추가하면 호버·포커스 시 말풍선이 표시됩니다. React 컴포넌트 불필요.</p>
+            <h3 className="ds-subsection-title">Default (위쪽)</h3>
+            <div className="ds-button-row">
+              <button className="primary-button" data-tooltip="저장됨">저장하기</button>
+              <button className="secondary-button" data-tooltip="변경사항이 취소됩니다">취소</button>
+              <button className="icon-button" data-tooltip="설정 열기">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.1 4.9C17.7 3.5 15.9 2.6 14 2.2V2h-4v.2c-1.9.4-3.7 1.3-5.1 2.7L3.5 3.5l-2.8 2.8 1.4 1.4C1.4 9.1.5 10.9.2 13H0v4h.2c.3 2.1 1.2 3.9 2.5 5.3L1.3 23.7l2.8 2.8 1.4-1.4c1.4 1.3 3.2 2.2 5.1 2.5V28h4v-.2c1.9-.3 3.7-1.2 5.1-2.5l1.4 1.4 2.8-2.8-1.4-1.4c1.3-1.4 2.2-3.2 2.5-5.1H24v-4h-.2c-.3-1.9-1.2-3.7-2.5-5.1l1.4-1.4z"/></svg>
+              </button>
+            </div>
+            <div className="ds-token-list">
+              <TokenRow name="data-tooltip" value="HTML 속성 · ::after pseudo-element 렌더링" />
+              <TokenRow name="trigger" value=":hover · :focus-visible" />
+              <TokenRow name="position" value="bottom: 100% + 8px · left: 50% (중앙 정렬)" />
+              <TokenRow name="z-index" value="var(--z-tooltip) = 80" />
+            </div>
+          </Section>
+
           {/* Form Controls */}
           <Section title="Form Controls">
             <h3 className="ds-subsection-title">Select</h3>
@@ -660,6 +708,7 @@ export default function DesignSystemPage() {
             </div>
           </Section>
 
+          </div>
         </div>
       </div>
     </div>
