@@ -6,13 +6,8 @@ import {
   RiArrowLeftLine,
   RiArrowRightSLine,
   RiCalendarCheckLine,
-  RiEdit2Line,
   RiFileTextLine,
   RiHeart3Line,
-  RiMailLine,
-  RiPhoneLine,
-  RiQuestionAnswerLine,
-  RiShieldCheckLine,
   RiStarLine,
   RiTimeLine,
   RiUserSettingsLine,
@@ -21,11 +16,16 @@ import { StatusBadge } from "@/components/Badge";
 import { ExperienceCard } from "@/components/ExperienceCard";
 import { MyReviewList, type MyReviewItem } from "@/components/MyReviewList";
 import { SectionHeader } from "@/components/SectionHeader";
+import { ProfileSection } from "@/components/mypage/ProfileSection";
+import { QuoteDetailSection } from "@/components/mypage/QuoteDetailSection";
+import { QuoteListSection } from "@/components/mypage/QuoteListSection";
+import { ReservationDetailSection } from "@/components/mypage/ReservationDetailSection";
+import { ReservationListSection } from "@/components/mypage/ReservationListSection";
+import { ReviewSection as MypageReviewSection } from "@/components/mypage/ReviewSection";
+import { WishlistSection as MypageWishlistSection } from "@/components/mypage/WishlistSection";
 import { getExperiences } from "@/lib/content";
 import {
-  consentRows,
   myProfile,
-  profileRows,
   quoteHistory,
   reservationHistory,
   reviewHistory,
@@ -194,24 +194,20 @@ function toPageKey(value?: string): PageKey | null {
 }
 
 function renderSection(sectionKey: PageKey, experiences: ExperienceList = []) {
-  if (sectionKey === "reservations") return reservationHistory.map((card) => <ReservationCard card={card} key={card.id} />);
-  if (sectionKey === "quotes") return quoteHistory.map((card) => <QuoteCard card={card} key={card.id} />);
-  if (sectionKey === "wishlist") return <WishlistSection experiences={experiences} />;
-  if (sectionKey === "reviews") return <ReviewSection experiences={experiences} />;
+  if (sectionKey === "reservations") return <ReservationListSection />;
+  if (sectionKey === "quotes") return <QuoteListSection />;
+  if (sectionKey === "wishlist") return <MypageWishlistSection experiences={experiences} />;
+  if (sectionKey === "reviews") return <MypageReviewSection experiences={experiences} />;
   return <ProfileSection />;
 }
 
 function renderDetail(sectionKey: PageKey, detailId: string, experiences: ExperienceList = []) {
   if (sectionKey === "reservations") {
-    const reservation = reservationHistory.find((item) => item.id === detailId);
-    if (!reservation) notFound();
-    return <ReservationDetail reservation={reservation} />;
+    return <ReservationDetailSection id={detailId} />;
   }
 
   if (sectionKey === "quotes") {
-    const quote = quoteHistory.find((item) => item.id === detailId);
-    if (!quote) notFound();
-    return <QuoteDetail quote={quote} />;
+    return <QuoteDetailSection id={detailId} />;
   }
 
   return renderSection(sectionKey, experiences);
@@ -384,74 +380,6 @@ function findReviewProduct(experiences: ExperienceList, item: (typeof reviewHist
     experiences.find((experience) => experience.slug === slug) ??
     experiences.find((experience) => experience.title === item.title) ??
     experiences.find((experience) => experience.title.includes(item.title) || item.title.includes(experience.title))
-  );
-}
-
-function ProfileSection() {
-  return (
-    <div className="me-profile-grid">
-      <article className="me-profile-card">
-        <header>
-          <div>
-            <span className="eyebrow">Basic</span>
-            <h2>기본 정보</h2>
-          </div>
-          <StatusBadge tone="confirmed">인증 완료</StatusBadge>
-        </header>
-        <div className="me-profile-form">
-          <dl className="me-profile-fields">
-            {profileRows.map((row) => (
-              <div key={row.label}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
-            ))}
-          </dl>
-          <button className="secondary-button" type="button">
-            <RiEdit2Line size={16} />
-            변경 요청
-          </button>
-        </div>
-      </article>
-
-      <article className="me-profile-card me-profile-security-card">
-        <header>
-          <div>
-            <span className="eyebrow">Security</span>
-            <h2>보안 및 알림</h2>
-          </div>
-          <RiShieldCheckLine size={22} />
-        </header>
-        <div className="me-profile-checks">
-          <span>
-            <RiMailLine size={18} />
-            {myProfile.email}
-          </span>
-          <span>
-            <RiPhoneLine size={18} />
-            {myProfile.phone}
-          </span>
-          <span>
-            <RiShieldCheckLine size={18} />
-            본인인증 완료
-          </span>
-        </div>
-      </article>
-
-      <article className="me-profile-card me-profile-card-wide">
-        <header>
-          <div>
-            <span className="eyebrow">Agreement</span>
-            <h2>수신 및 개인정보 동의</h2>
-          </div>
-        </header>
-        <dl className="me-profile-consent-list">
-          {consentRows.map((row) => (
-            <MetaItem key={row.label} label={row.label} value={row.value} />
-          ))}
-        </dl>
-      </article>
-    </div>
   );
 }
 

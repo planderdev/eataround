@@ -26,7 +26,7 @@ const categories = [
   { value: "activity", label: "캠핑·액티비티" },
 ];
 const tags = ["쿠킹", "막걸리", "가족", "시음", "농장", "프라이빗"];
-const activeFilterKeys = ["region", "category", "tag", "badge", "seat", "price", "duration", "date", "people", "reservation", "target", "weather"];
+const activeFilterKeys = ["region", "category", "tag", "badge", "seat", "price", "duration", "date", "dateFrom", "dateTo", "people", "reservation", "target", "weather"];
 const pageSize = 4;
 
 const sortOptions = [
@@ -65,6 +65,20 @@ function hasScheduleType(schedules: { date: string }[], type?: string) {
     const day = new Date(schedule.date).getDay();
     if (type === "weekend") return day === 0 || day === 6;
     if (type === "weekday") return day >= 1 && day <= 5;
+    return true;
+  });
+}
+
+function hasScheduleInRange(schedules: { date: string }[], dateFrom?: string, dateTo?: string) {
+  if (!dateFrom && !dateTo) return true;
+  const start = dateFrom ? new Date(`${dateFrom}T00:00:00`) : null;
+  const end = dateTo ? new Date(`${dateTo}T23:59:59`) : null;
+
+  return schedules.some((schedule) => {
+    const scheduleDate = new Date(`${schedule.date}T12:00:00`);
+    if (Number.isNaN(scheduleDate.getTime())) return false;
+    if (start && scheduleDate < start) return false;
+    if (end && scheduleDate > end) return false;
     return true;
   });
 }
@@ -156,6 +170,8 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
   const price = valueOf(params, "price");
   const duration = valueOf(params, "duration");
   const date = valueOf(params, "date");
+  const dateFrom = valueOf(params, "dateFrom");
+  const dateTo = valueOf(params, "dateTo");
   const people = valueOf(params, "people");
   const reservation = valueOf(params, "reservation");
   const target = valueOf(params, "target");
@@ -177,6 +193,7 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
     if (duration === "under-120" && parseMinutes(experience.duration) > 120) return false;
     if (duration === "over-150" && parseMinutes(experience.duration) < 150) return false;
     if (date && !hasScheduleType(experience.schedules, date)) return false;
+    if (!hasScheduleInRange(experience.schedules, dateFrom, dateTo)) return false;
     if (!matchesPeople(experience, people)) return false;
     if (!matchesReservationType(experience, reservation)) return false;
     if (!matchesTarget(experience, target)) return false;
@@ -189,7 +206,7 @@ export default async function ExperiencesPage({ searchParams }: { searchParams?:
   const pageStart = (currentPage - 1) * pageSize;
   const paginated = sorted.slice(pageStart, pageStart + pageSize);
   const activeCount = activeFilterKeys.filter((key) => valueOf(params, key)).length;
-  const initialTabId = badge || seat ? "recommended" : region ? "region" : category ? "category" : tag ? "tag" : price ? "price" : duration ? "duration" : date ? "date" : people ? "people" : reservation ? "reservation" : target ? "target" : weather ? "weather" : "recommended";
+  const initialTabId = badge || seat ? "recommended" : region ? "region" : category ? "category" : tag ? "tag" : price ? "price" : duration ? "duration" : date || dateFrom || dateTo ? "date" : people ? "people" : reservation ? "reservation" : target ? "target" : weather ? "weather" : "recommended";
   const filterTabs: FilterTab[] = [
     {
       id: "recommended",

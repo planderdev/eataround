@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { RiMapPinLine, RiStarFill, RiTimeLine } from "@remixicon/react";
 import { ProductBadge } from "@/components/Badge";
+import { WishlistButton } from "@/components/WishlistButton";
 import type { Experience } from "@/lib/data";
 import { getBadgeTone, type BadgeTone } from "@/lib/badges";
 import { formatWon } from "@/lib/format";
@@ -24,6 +25,7 @@ export function ExperienceCard({ experience, compact = false }: ExperienceCardPr
     >
       <span className="card-image-wrap">
         <img src={experience.image} alt={experience.title} className="card-image" loading="lazy" />
+        <WishlistButton slug={experience.slug} className="card-wishlist-button" />
         {badgeLabels.length ? (
           <span className="badge-row">
             {badgeLabels.map((badge) => (

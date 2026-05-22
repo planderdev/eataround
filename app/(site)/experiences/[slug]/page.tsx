@@ -10,10 +10,8 @@ import {
   RiCloseCircleLine,
   RiCoupon3Line,
   RiGiftLine,
-  RiHeart3Line,
   RiInformationLine,
   RiMapPin2Line,
-  RiQuestionAnswerLine,
   RiRouteLine,
   RiShareForwardLine,
   RiShieldCheckLine,
@@ -24,6 +22,7 @@ import {
 } from "@remixicon/react";
 import { DetailHeroSlider } from "@/components/DetailHeroSlider";
 import { DetailOptionSelector } from "@/components/DetailOptionSelector";
+import { DetailActionButtons } from "@/components/DetailActionButtons";
 import { DetailRelatedExperiences } from "@/components/DetailRelatedExperiences";
 import { DetailReviewSliders } from "@/components/DetailReviewSliders";
 import { DetailStoryShowcase } from "@/components/DetailStoryShowcase";
@@ -391,20 +390,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </div>
 
-          <div className="experience-detail-actions" id="share">
-            <button type="button">
-              <RiHeart3Line size={18} />
-              저장
-            </button>
-            <button type="button">
-              <RiQuestionAnswerLine size={18} />
-              문의
-            </button>
-            <button type="button">
-              <RiShareForwardLine size={18} />
-              공유
-            </button>
-          </div>
+          <DetailActionButtons slug={displayExperience.slug} title={displayExperience.title} />
         </div>
       </header>
 

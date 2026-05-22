@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { adminApiData, paginated } from "@/lib/admin/api-data";
 import { getExperiences } from "@/lib/content";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 
@@ -20,9 +21,12 @@ function normalize(value: unknown) {
   return typeof value === "string" && value.trim() ? value.trim() : null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const products = await getExperiences();
-  return NextResponse.json({ products });
+  return NextResponse.json({
+    ...paginated(request, adminApiData.products),
+    products,
+  });
 }
 
 export async function POST(request: Request) {

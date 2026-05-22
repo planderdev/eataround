@@ -1,5 +1,15 @@
 import { Fragment, type ReactNode, type SelectHTMLAttributes } from "react";
-import { RiArrowDownSLine, RiArrowLeftSLine, RiArrowRightSLine, RiFilter3Line, RiRefreshLine, RiSearchLine } from "@remixicon/react";
+import {
+  RiArrowDownSLine,
+  RiArrowLeftSLine,
+  RiArrowRightSLine,
+  RiArrowUpDownLine,
+  RiFilter3Line,
+  RiLayoutColumnLine,
+  RiRefreshLine,
+  RiSearchLine,
+} from "@remixicon/react";
+import { DatePicker } from "@/components/DatePicker";
 
 export type AdminTone = "success" | "warning" | "danger" | "info" | "neutral";
 
@@ -62,26 +72,23 @@ export function AdminFilterBar({ fields, resultLabel }: { fields: FilterField[];
                     </option>
                   ))}
                 </AdminSelect>
+              ) : field.type === "date" ? (
+                <DatePicker className="admin-date-picker" defaultValue={field.defaultValue} label={field.label} name={field.name} />
               ) : (
                 <span className="admin-filter-input-wrap" data-type={field.type ?? "search"}>
                   {(field.type ?? "search") === "search" ? <RiSearchLine size={16} /> : null}
-                  <input
-                    defaultValue={field.defaultValue}
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    type={field.type === "date" ? "date" : "search"}
-                  />
+                  <input defaultValue={field.defaultValue} name={field.name} placeholder={field.placeholder} type="search" />
                 </span>
               )}
             </label>
           ))}
         </div>
         <div className="admin-filter-actions">
-          <button className="admin-action-button ghost" type="reset" data-admin-toast="필터를 초기화했습니다.">
+          <button className="admin-action-button ghost" type="reset" data-admin-filter-reset>
             <RiRefreshLine size={15} />
             초기화
           </button>
-          <button className="admin-action-button primary" type="button" data-admin-toast="필터 조건을 적용했습니다.">
+          <button className="admin-action-button primary" type="button" data-admin-filter-apply>
             적용
           </button>
         </div>
@@ -109,6 +116,38 @@ export function AdminDataTable<T>({
 
   return (
     <div className="admin-table-wrap">
+      <div className="admin-table-toolbar">
+        <div className="admin-table-density" role="group" aria-label="테이블 밀도">
+          {["compact", "default", "comfortable"].map((density) => (
+            <button data-admin-density={density} key={density} type="button">
+              {density === "compact" ? "Compact" : density === "comfortable" ? "Comfortable" : "Default"}
+            </button>
+          ))}
+        </div>
+        <details className="admin-table-column-menu">
+          <summary>
+            <RiLayoutColumnLine size={15} />
+            컬럼
+          </summary>
+          <div>
+            {columns.map((column, index) => (
+              <label key={column.key}>
+                <input defaultChecked data-admin-column-toggle={index + 2} type="checkbox" />
+                {column.label}
+              </label>
+            ))}
+          </div>
+        </details>
+        <div className="admin-selection-actionbar" aria-live="polite">
+          <strong data-admin-selected-count>0개 선택</strong>
+          <button className="admin-action-button secondary" type="button">
+            선택 적용
+          </button>
+          <button className="admin-action-button ghost" data-admin-clear-selection type="button">
+            해제
+          </button>
+        </div>
+      </div>
       <table className="admin-table admin-data-table">
         <thead>
           <tr>
@@ -120,7 +159,10 @@ export function AdminDataTable<T>({
             </th>
             {columns.map((column) => (
               <th data-align={column.align ?? "left"} key={column.key}>
-                {column.label}
+                <button data-admin-sort="true" type="button">
+                  {column.label}
+                  <RiArrowUpDownLine size={13} />
+                </button>
               </th>
             ))}
             {hasDetail ? <th data-align="right">상세</th> : null}
@@ -144,9 +186,19 @@ export function AdminDataTable<T>({
                   ))}
                   {hasDetail ? (
                     <td data-align="right">
-                      <details className="admin-row-details">
+                      <details className="admin-row-slideover">
                         <summary>상세보기</summary>
-                        <div className="admin-row-details-panel">
+                        <div className="admin-row-slideover-backdrop" aria-hidden />
+                        <div className="admin-row-slideover-panel" role="dialog" aria-label={`${rowKey(row)} 상세`}>
+                          <header>
+                            <div>
+                              <span>Detail</span>
+                              <strong>{rowKey(row)}</strong>
+                            </div>
+                            <button data-admin-close-slideover type="button">
+                              닫기
+                            </button>
+                          </header>
                           {detail ? (
                             <div className="admin-row-details-body">{detail(row)}</div>
                           ) : (
@@ -181,22 +233,37 @@ export function AdminDataTable<T>({
 }
 
 export function AdminPagination({ total }: { total: number }) {
+  const pageSize = 20;
+  const end = Math.min(total, pageSize);
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const visiblePages = pages <= 5 ? Array.from({ length: pages }, (_, index) => index + 1) : [1, 2, 3, pages];
+
   return (
-    <div className="admin-pagination">
-      <span>총 {total.toLocaleString("ko-KR")}건 · 1 / 1 페이지</span>
+    <div className="admin-pagination" data-admin-pagination data-page-size={pageSize} data-total={total}>
+      <span data-admin-pagination-summary>
+        총 {total.toLocaleString("ko-KR")}건 중 {total ? `1-${end}` : "0"}번째 표시
+      </span>
       <label>
         페이지당
-        <AdminSelect aria-label="페이지당 항목 수" defaultValue="20">
+        <AdminSelect aria-label="페이지당 항목 수" defaultValue="20" data-admin-page-size>
           <option value="20">20</option>
           <option value="50">50</option>
           <option value="100">100</option>
         </AdminSelect>
       </label>
       <div>
-        <button className="admin-icon-button" type="button" aria-label="이전 페이지" disabled>
+        <button className="admin-icon-button" type="button" aria-label="이전 페이지" data-admin-prev-page disabled>
           <RiArrowLeftSLine size={18} />
         </button>
-        <button className="admin-icon-button" type="button" aria-label="다음 페이지" disabled>
+        {visiblePages.map((page, index) => (
+          <Fragment key={page}>
+            {index > 0 && page - visiblePages[index - 1] > 1 ? <span>...</span> : null}
+            <button className="admin-pagination-page" data-active={page === 1} data-admin-page={page} type="button">
+              {page}
+            </button>
+          </Fragment>
+        ))}
+        <button className="admin-icon-button" type="button" aria-label="다음 페이지" data-admin-next-page disabled={pages <= 1}>
           <RiArrowRightSLine size={18} />
         </button>
       </div>

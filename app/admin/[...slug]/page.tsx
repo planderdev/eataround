@@ -257,7 +257,7 @@ function HeaderAction({ href, label, primary }: { href?: string; label: string; 
   }
 
   return (
-    <button className={className} type="button" data-admin-toast={`${label} 작업을 준비했습니다.`}>
+    <button className={className} type="button">
       <ActionIcon label={label} />
       {label}
     </button>
@@ -302,22 +302,22 @@ function RowActionButtons({
   return (
     <>
       {secondary ? (
-        <button className="admin-action-button ghost" type="button" data-admin-toast={`${secondary} 작업을 열었습니다.`}>
+        <button className="admin-action-button ghost" type="button">
           {secondary}
         </button>
       ) : null}
       {info ? (
-        <button className="admin-action-button info" type="button" data-admin-toast={`${info} 작업을 준비했습니다.`}>
+        <button className="admin-action-button info" type="button">
           {info}
         </button>
       ) : null}
       {danger ? (
-        <button className="admin-action-button danger" type="button" data-admin-toast={`${danger} 처리 전 확인이 필요합니다.`}>
+        <button className="admin-action-button danger" type="button">
           {danger}
         </button>
       ) : null}
       {primary ? (
-        <button className="admin-action-button secondary" type="button" data-admin-toast={`${primary} 작업을 저장했습니다.`}>
+        <button className="admin-action-button secondary" type="button">
           {primary}
         </button>
       ) : null}
@@ -364,7 +364,7 @@ function ListFrame({
             </option>
           ))}
         </AdminSelect>
-        <button className="admin-action-button ghost" type="button" data-admin-toast="선택 항목에 일괄 작업을 적용했습니다.">
+        <button className="admin-action-button ghost" type="button">
           일괄 적용
         </button>
       </AdminResultSummary>
@@ -636,7 +636,7 @@ function ProductEditorPage({ data }: { data: AdminData }) {
             <li>예약 유형과 승인 필요 여부 확인</li>
             <li>팀 단위 재고와 캘린더 노출 확인</li>
           </ul>
-          <button className="admin-action-button primary" type="button" data-admin-toast="상품 저장 준비가 완료되었습니다.">
+          <button className="admin-action-button primary" type="button">
             <RiSave3Line size={16} />
             상품 저장
           </button>
@@ -744,21 +744,62 @@ function SchedulesPage({ data }: { data: AdminData }) {
       />
       <div className="admin-schedule-dashboard">
         <div className="admin-calendar-panel">
+          <div className="admin-calendar-toolbar">
+            <div>
+              <span>2026년 5월</span>
+              <strong>회차·팀 재고 캘린더</strong>
+            </div>
+            <div className="admin-chart-toggle" role="tablist" aria-label="캘린더 보기">
+              <button aria-selected="true" data-active="true" role="tab" type="button">
+                월
+              </button>
+              <button aria-selected="false" role="tab" type="button">
+                주
+              </button>
+            </div>
+          </div>
           <div className="admin-calendar-board">
             {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
               <span key={day}>{day}</span>
             ))}
-            {schedules.slice(0, 14).map((schedule, index) => {
-              const isFull = schedule.booked >= schedule.capacity;
+            {Array.from({ length: 28 }).map((_, index) => {
+              const schedule = schedules[index % schedules.length];
+              const day = index + 1;
+              const remaining = schedule.capacity - schedule.booked;
+              const isFull = remaining <= 0;
+              const isLow = !isFull && remaining <= 2;
               return (
-                <article className="admin-calendar-cell" data-state={isFull ? "full" : "open"} key={`${schedule.product}-${schedule.date}-${schedule.label}`}>
-                  <b>{index + 17}</b>
-                  <strong>{schedule.product}</strong>
-                  <small>{schedule.label} · {schedule.region}</small>
-                  <AdminStatusBadge tone={isFull ? "danger" : "success"}>
-                    {schedule.reservedTeams ?? 0}/{schedule.maxTeams ?? 4}팀
-                  </AdminStatusBadge>
-                </article>
+                <details className="admin-calendar-cell" data-state={isFull ? "full" : isLow ? "low" : "open"} key={`${schedule.product}-${schedule.date}-${schedule.label}-${index}`}>
+                  <summary>
+                    <b>{day}</b>
+                    <span className="admin-calendar-dots">
+                      <i data-state={isFull ? "full" : "open"} />
+                      <i data-state={isLow ? "low" : "open"} />
+                    </span>
+                    <strong>{schedule.product}</strong>
+                    <small>{schedule.label} · {schedule.region}</small>
+                    <AdminStatusBadge tone={isFull ? "danger" : isLow ? "warning" : "success"}>
+                      {schedule.reservedTeams ?? 0}/{schedule.maxTeams ?? 4}팀
+                    </AdminStatusBadge>
+                  </summary>
+                  <div className="admin-calendar-detail-panel">
+                    <header>
+                      <span>Schedule Detail</span>
+                      <strong>{day}일 회차 관리</strong>
+                    </header>
+                    <DetailPairs
+                      items={[
+                        ["상품", schedule.product],
+                        ["운영일", schedule.date],
+                        ["시간", schedule.label],
+                        ["호스트", schedule.host],
+                        ["팀 재고", `${schedule.reservedTeams ?? 0}/${schedule.maxTeams ?? 0}팀`],
+                        ["인원 재고", `${schedule.booked}/${schedule.capacity}명`],
+                      ]}
+                    />
+                    <RowActionButtons danger="회차 마감" info="예약자 안내" primary="재고 저장" secondary="반복 등록" />
+                  </div>
+                </details>
               );
             })}
           </div>
@@ -918,9 +959,43 @@ function QuotesPage({ data }: { data: AdminData }) {
       total={data.quoteRequests.length}
     >
       <AdminDataTable
-        actions={() => <RowActionButtons info="견적서 발송" primary="예약 전환" secondary="금액 조정" />}
+        actions={(row) => (
+          <>
+            <Link className="admin-action-button ghost" href={`/admin/quotes/${encodeURIComponent(row.org)}/preview`}>
+              PDF 미리보기
+            </Link>
+            <RowActionButtons info="견적서 발송" primary="예약 전환" secondary="금액 조정" />
+          </>
+        )}
         columns={columns}
-        detail={(row) => <DetailPairs items={[["기관", row.org], ["담당자", row.contact ?? "-"], ["프로그램", row.program], ["옵션", row.options ?? "-"], ["예산", row.budget]]} />}
+        detail={(row) => (
+          <div className="admin-quote-detail-panel">
+            <DetailPairs items={[["기관", row.org], ["담당자", row.contact ?? "-"], ["프로그램", row.program], ["옵션", row.options ?? "-"], ["예산", row.budget]]} />
+            <div className="admin-quote-adjustment-panel">
+              <label>
+                <span>관리자 조정 금액</span>
+                <input defaultValue={row.estimatedTotal ? String(row.estimatedTotal) : ""} inputMode="numeric" placeholder="최종 견적 금액" />
+              </label>
+              <label>
+                <span>상태</span>
+                <AdminSelect defaultValue={row.status}>
+                  {Array.from(new Set(["REQUESTED", "IN_REVIEW", "QUOTED", "WON", "LOST", row.status])).map((status) => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </label>
+              <label className="admin-quote-adjustment-panel-wide">
+                <span>관리자 메모</span>
+                <textarea defaultValue={`${row.people}명 기준 ${row.program} 운영 가능 여부 확인 필요`} />
+              </label>
+              <Link className="admin-action-button info" href={`/admin/quotes/${encodeURIComponent(row.org)}/preview`}>
+                견적서 HTML 미리보기
+              </Link>
+            </div>
+          </div>
+        )}
         rowKey={(row) => `${row.org}-${row.contact ?? ""}`}
         rows={data.quoteRequests}
       />
@@ -1048,7 +1123,30 @@ function ContentPage({ data, type }: { data: AdminData; type: "banners" | "curat
       <AdminDataTable
         actions={() => <RowActionButtons danger="숨김 처리" info="호스트 답변 요청" primary="노출 승인" />}
         columns={columns}
-        detail={(row) => <DetailPairs items={[["작성자", row.name], ["평점", row.rating], ["전문", row.text], ["검수 기준", "개인정보와 부적절 표현 확인"]]} />}
+        detail={(row) => (
+          <div className="admin-review-moderation-panel">
+            <DetailPairs items={[["작성자", row.name], ["평점", `${row.rating}.0`], ["전문", row.text], ["검수 기준", "개인정보와 부적절 표현 확인"]]} />
+            <div className="admin-review-moderation-grid">
+              <label>
+                <input type="checkbox" />
+                개인정보 포함 여부 확인
+              </label>
+              <label>
+                <input type="checkbox" />
+                부적절 표현 없음
+              </label>
+              <label>
+                <input type="checkbox" />
+                상품과 무관한 내용 없음
+              </label>
+              <label>
+                <input type="checkbox" />
+                호스트 답변 필요
+              </label>
+            </div>
+            <textarea aria-label="리뷰 검수 메모" placeholder="신고 사유, 비노출 사유, 호스트 전달 메모를 남겨주세요." />
+          </div>
+        )}
         rowKey={(row) => `${row.name}-${row.text}`}
         rows={data.flatReviews}
       />
@@ -1128,7 +1226,7 @@ function AdminWorkflowPage({ actionKey, config, data }: { actionKey: string; con
             <Link className="admin-action-button ghost" href={detail.backHref}>
               취소
             </Link>
-            <button className={`admin-action-button ${actionVariant(config.primaryAction ?? config.title, true)}`} type="button" data-admin-toast={`${config.title} 작업 내용을 저장했습니다.`}>
+            <button className={`admin-action-button ${actionVariant(config.primaryAction ?? config.title, true)}`} type="button">
               <ActionIcon label={config.primaryAction ?? config.title} />
               {config.primaryAction ?? "저장"}
             </button>

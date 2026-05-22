@@ -45,6 +45,17 @@ function periodTimestamp(period: string, segment: 0 | 1) {
   return Number.isFinite(timestamp) ? timestamp : 0;
 }
 
+function deriveEventStatus(event: EventList[number]): "upcoming" | "ongoing" | "ended" {
+  const now = new Date();
+  const start = periodTimestamp(event.period, 0);
+  const end = periodTimestamp(event.period, 1);
+
+  if (!start || !end) return event.status === "ended" ? "ended" : "ongoing";
+  if (now.getTime() < start) return "upcoming";
+  if (now.getTime() > end + 86_399_999) return "ended";
+  return "ongoing";
+}
+
 function sortEvents(events: EventList, sort: string) {
   const sorted = [...events];
 
@@ -68,7 +79,7 @@ export default async function EventsPage({ searchParams }: { searchParams?: Prom
   const events = await getEvents();
   const status = valueOf(params, "status") === "upcoming" ? "upcoming" : "ongoing";
   const sort = normalizeSort(valueOf(params, "sort"));
-  const filteredEvents = status === "upcoming" ? [] : events.filter((event) => event.status === "ongoing");
+  const filteredEvents = events.filter((event) => deriveEventStatus(event) === status);
   const sortedEvents = sortEvents(filteredEvents, sort);
   const requestedPage = parsePage(valueOf(params, "page"));
   const totalPages = Math.max(1, Math.ceil(sortedEvents.length / pageSize));

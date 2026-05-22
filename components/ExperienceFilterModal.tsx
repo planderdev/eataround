@@ -11,6 +11,7 @@ import {
 } from "@remixicon/react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperInstance } from "swiper";
+import { DatePicker } from "@/components/DatePicker";
 import { Modal } from "@/components/Modal";
 import { userRoutes } from "@/lib/routes";
 
@@ -53,9 +54,10 @@ export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialT
   const [activeTabId, setActiveTabId] = useState(initialTabId);
   const [tabSwiper, setTabSwiper] = useState<SwiperInstance | null>(null);
   const initialDraftValues = useMemo(() => getInitialDraftValues(tabs), [tabs]);
-  const filterKeys = useMemo(() => [...new Set(tabs.flatMap((tab) => tab.options.map((option) => option.filterKey)))], [tabs]);
+  const filterKeys = useMemo(() => [...new Set([...tabs.flatMap((tab) => tab.options.map((option) => option.filterKey)), "dateFrom", "dateTo"])], [tabs]);
   const [draftValues, setDraftValues] = useState<Record<string, string>>(initialDraftValues);
   const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? tabs[0];
+  const isDateTab = /date|날짜|일정|소요/.test(`${activeTab.id} ${activeTab.label}`);
   const activeTabIndex = Math.max(
     tabs.findIndex((tab) => tab.id === activeTab.id),
     0,
@@ -63,8 +65,13 @@ export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialT
 
   useEffect(() => {
     if (!open) return;
+    const search = new URLSearchParams(window.location.search);
     setActiveTabId(initialTabId);
-    setDraftValues(initialDraftValues);
+    setDraftValues({
+      ...initialDraftValues,
+      ...(search.get("dateFrom") ? { dateFrom: search.get("dateFrom") ?? "" } : {}),
+      ...(search.get("dateTo") ? { dateTo: search.get("dateTo") ?? "" } : {}),
+    });
   }, [initialDraftValues, initialTabId, open]);
 
   useEffect(() => {
@@ -170,6 +177,28 @@ export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialT
                 );
               })}
             </div>
+            {isDateTab ? (
+              <div className="filter-date-range">
+                <span>
+                  <strong>날짜 직접 선택</strong>
+                  <small>선택한 기간 안에 예약 가능한 회차가 있는 상품만 볼 수 있어요.</small>
+                </span>
+                <div>
+                  <DatePicker
+                    label="시작일"
+                    name="dateFrom"
+                    value={draftValues.dateFrom}
+                    onChange={(value) => setDraftValues((current) => ({ ...current, dateFrom: value }))}
+                  />
+                  <DatePicker
+                    label="종료일"
+                    name="dateTo"
+                    value={draftValues.dateTo}
+                    onChange={(value) => setDraftValues((current) => ({ ...current, dateTo: value }))}
+                  />
+                </div>
+              </div>
+            ) : null}
           </div>
 
           <footer className="filter-modal-footer">

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   RiCheckboxCircleLine,
   RiCloseLine,
@@ -12,15 +12,31 @@ import {
   RiNotification3Line,
   RiSearchLine,
 } from "@remixicon/react";
+import { CommandPalette } from "@/components/admin/CommandPalette";
+import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
+import { NotificationPanel, type AdminNotification } from "@/components/admin/NotificationPanel";
+import { adminApi } from "@/lib/admin/api";
 import { adminNavItems, getCurrentAdminNavItem } from "@/lib/admin";
 import { withBasePath } from "@/lib/paths";
 
+type AdminToast = {
+  id: number;
+  message: string;
+  tone: "success" | "error" | "warning" | "info";
+};
+
 export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [commandQuery, setCommandQuery] = useState("");
   const [searchCount, setSearchCount] = useState<number | null>(null);
-  const [toast, setToast] = useState("");
+  const [toasts, setToasts] = useState<AdminToast[]>([]);
+  const [notifications, setNotifications] = useState<AdminNotification[]>([]);
+  const [confirmAction, setConfirmAction] = useState<{ label: string; run: () => void } | null>(null);
   const groups = Array.from(new Set(adminNavItems.map((item) => item.group)));
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const currentNavItem = useMemo(() => getCurrentAdminNavItem(pathname), [pathname]);
@@ -32,6 +48,8 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     setIsSidebarOpen(false);
     setSearchQuery("");
     setSearchCount(null);
+    setIsCommandOpen(false);
+    setIsNotificationOpen(false);
   }, [pathname]);
 
   useEffect(() => {
@@ -72,8 +90,15 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setIsCommandOpen(true);
+        return;
+      }
       if (event.key !== "Escape") return;
       setIsSidebarOpen(false);
+      setIsCommandOpen(false);
+      setIsNotificationOpen(false);
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -81,13 +106,26 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
   }, []);
 
   useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(""), 2400);
-    return () => window.clearTimeout(timer);
-  }, [toast]);
+    adminApi.notifications
+      .list()
+      .then(setNotifications)
+      .catch(() => setNotifications([]));
+  }, []);
 
-  function showToast(message: string) {
-    setToast(message);
+  useEffect(() => {
+    window.setTimeout(() => {
+      document.querySelectorAll<HTMLElement>("[data-admin-pagination]").forEach((pagination) => {
+        applyTablePagination(pagination, 1);
+      });
+    }, 0);
+  }, [pathname]);
+
+  function showToast(message: string, tone: AdminToast["tone"] = "success") {
+    const id = Date.now() + Math.random();
+    setToasts((current) => [...current.slice(-2), { id, message, tone }]);
+    window.setTimeout(() => {
+      setToasts((current) => current.filter((toast) => toast.id !== id));
+    }, 5000);
   }
 
   function syncTableSelection(table: HTMLTableElement) {
@@ -105,6 +143,13 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
       headerCheck.indeterminate = selectedCount > 0 && selectedCount < rowChecks.length;
     }
 
+    const tableWrap = table.closest<HTMLElement>(".admin-table-wrap");
+    if (tableWrap) {
+      tableWrap.dataset.selectedCount = String(selectedCount);
+      const counter = tableWrap.querySelector<HTMLElement>("[data-admin-selected-count]");
+      if (counter) counter.textContent = `${selectedCount}개 선택`;
+    }
+
     return selectedCount;
   }
 
@@ -118,19 +163,214 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     showToast(selectedCount > 0 ? `${selectedCount}개 항목을 선택했습니다.` : "선택을 해제했습니다.");
   }
 
-  function handleShellClick(event: React.MouseEvent<HTMLDivElement>) {
+  function sortTable(headerButton: HTMLButtonElement) {
+    const th = headerButton.closest("th");
+    const table = headerButton.closest("table");
+    const tbody = table?.querySelector("tbody");
+    if (!th || !table || !tbody) return;
+
+    const columnIndex = Array.from(th.parentElement?.children ?? []).indexOf(th);
+    const direction = headerButton.dataset.sortDirection === "asc" ? "desc" : "asc";
+    table.querySelectorAll<HTMLButtonElement>("[data-admin-sort]").forEach((button) => {
+      if (button !== headerButton) delete button.dataset.sortDirection;
+    });
+    headerButton.dataset.sortDirection = direction;
+
+    const rows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>("tr")).filter((row) => !row.querySelector(".admin-table-empty"));
+    rows
+      .sort((a, b) => {
+        const aText = a.children[columnIndex]?.textContent?.trim() ?? "";
+        const bText = b.children[columnIndex]?.textContent?.trim() ?? "";
+        return direction === "asc" ? aText.localeCompare(bText, "ko") : bText.localeCompare(aText, "ko");
+      })
+      .forEach((row) => tbody.appendChild(row));
+
+    const pagination = table.closest<HTMLElement>(".admin-list-shell")?.querySelector<HTMLElement>("[data-admin-pagination]");
+    if (pagination) applyTablePagination(pagination);
+  }
+
+  function applyTablePagination(pagination: HTMLElement, requestedPage?: number) {
+    const shell = pagination.closest<HTMLElement>(".admin-list-shell");
+    const table = shell?.querySelector<HTMLTableElement>(".admin-data-table");
+    const tbody = table?.querySelector("tbody");
+    if (!table || !tbody) return;
+
+    const rows = Array.from(tbody.querySelectorAll<HTMLTableRowElement>("tr")).filter((row) => !row.querySelector(".admin-table-empty"));
+    const pageSizeInput = pagination.querySelector<HTMLSelectElement>("[data-admin-page-size]");
+    const pageSize = Math.max(1, Number(pageSizeInput?.value || pagination.dataset.pageSize || 20));
+    const availableRows = rows.filter((row) => row.dataset.filterHidden !== "true");
+    const pageCount = Math.max(1, Math.ceil(availableRows.length / pageSize));
+    const page = Math.min(Math.max(requestedPage ?? Number(pagination.dataset.page || 1), 1), pageCount);
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+
+    pagination.dataset.page = String(page);
+    pagination.dataset.pageSize = String(pageSize);
+
+    rows.forEach((row) => {
+      if (row.dataset.filterHidden === "true") {
+        row.hidden = true;
+        return;
+      }
+      const visibleIndex = availableRows.indexOf(row);
+      row.hidden = visibleIndex < start || visibleIndex >= end;
+    });
+
+    const summary = pagination.querySelector<HTMLElement>("[data-admin-pagination-summary]");
+    if (summary) {
+      const rangeStart = availableRows.length ? start + 1 : 0;
+      const rangeEnd = Math.min(end, availableRows.length);
+      summary.textContent = `총 ${availableRows.length.toLocaleString("ko-KR")}건 중 ${rangeStart}-${rangeEnd}번째 표시`;
+    }
+
+    pagination.querySelectorAll<HTMLButtonElement>("[data-admin-page]").forEach((button) => {
+      const buttonPage = Number(button.dataset.adminPage);
+      button.dataset.active = String(buttonPage === page);
+      button.disabled = buttonPage > pageCount;
+    });
+
+    const prevButton = pagination.querySelector<HTMLButtonElement>("[data-admin-prev-page]");
+    const nextButton = pagination.querySelector<HTMLButtonElement>("[data-admin-next-page]");
+    if (prevButton) prevButton.disabled = page <= 1;
+    if (nextButton) nextButton.disabled = page >= pageCount;
+    syncTableSelection(table);
+  }
+
+  async function runAdminAction(label: string) {
+    try {
+      const result = await adminApi.actions.execute(label);
+      showToast(result.message || `${label} 작업을 완료했습니다.`, "success");
+    } catch {
+      showToast(`${label} 작업 중 오류가 발생했습니다.`, "error");
+    }
+  }
+
+  function applySectionFilters(button: HTMLButtonElement) {
+    const form = button.closest<HTMLFormElement>(".admin-filter-grid");
+    const shell = button.closest<HTMLElement>(".admin-list-shell, .admin-schedule-shell");
+    const rows = Array.from(shell?.querySelectorAll<HTMLTableRowElement>(".admin-data-table tbody tr") ?? []);
+    if (!form || !rows.length) {
+      showToast("현재 화면에 적용할 표 데이터가 없습니다.", "warning");
+      return;
+    }
+
+    const values = Array.from(new FormData(form).values())
+      .map((value) => String(value).trim().toLowerCase())
+      .filter(Boolean);
+
+    if (!values.length) {
+      rows.forEach((row) => {
+        delete row.dataset.filterHidden;
+      });
+      const pagination = shell?.querySelector<HTMLElement>("[data-admin-pagination]");
+      if (pagination) applyTablePagination(pagination, 1);
+      showToast("필터 조건을 초기화했습니다.", "info");
+      return;
+    }
+
+    let visibleCount = 0;
+    rows.forEach((row) => {
+      const text = (row.textContent ?? "").toLowerCase();
+      const visible = values.every((value) => text.includes(value));
+      row.dataset.filterHidden = String(!visible);
+      if (visible) visibleCount += 1;
+    });
+    const pagination = shell?.querySelector<HTMLElement>("[data-admin-pagination]");
+    if (pagination) applyTablePagination(pagination, 1);
+    showToast(`필터를 적용했습니다. ${visibleCount}개 항목 표시`, "info");
+  }
+
+  async function handleShellClick(event: React.MouseEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
     const topbarAction = target.closest<HTMLButtonElement>("[data-admin-topbar-action]");
     if (topbarAction) {
       const action = topbarAction.dataset.adminTopbarAction;
       if (action === "notifications") {
-        showToast("알림은 대시보드 우선순위와 각 상세 페이지에서 확인합니다.");
+        setIsNotificationOpen((value) => !value);
         return;
       }
       if (action === "logout") {
+        await fetch(withBasePath("/api/auth/logout"), { method: "POST" }).catch(() => null);
+        document.cookie = "session=; path=/; max-age=0; SameSite=Lax";
+        router.push("/admin/login");
         showToast("로그아웃은 실제 인증 연동 후 처리됩니다.");
         return;
       }
+    }
+
+    const paginationButton = target.closest<HTMLButtonElement>("[data-admin-prev-page], [data-admin-next-page], [data-admin-page]");
+    if (paginationButton) {
+      const pagination = paginationButton.closest<HTMLElement>("[data-admin-pagination]");
+      if (!pagination) return;
+      const currentPage = Number(pagination.dataset.page || 1);
+      const requestedPage = paginationButton.dataset.adminPrevPage !== undefined
+        ? currentPage - 1
+        : paginationButton.dataset.adminNextPage !== undefined
+          ? currentPage + 1
+          : Number(paginationButton.dataset.adminPage || 1);
+      applyTablePagination(pagination, requestedPage);
+      showToast("페이지 표시를 변경했습니다.", "info");
+      return;
+    }
+
+    const sortButton = target.closest<HTMLButtonElement>("[data-admin-sort]");
+    if (sortButton) {
+      sortTable(sortButton);
+      showToast("테이블 정렬을 변경했습니다.", "info");
+      return;
+    }
+
+    const filterApplyButton = target.closest<HTMLButtonElement>("[data-admin-filter-apply]");
+    if (filterApplyButton) {
+      applySectionFilters(filterApplyButton);
+      return;
+    }
+
+    const filterResetButton = target.closest<HTMLButtonElement>("[data-admin-filter-reset]");
+    if (filterResetButton) {
+      window.setTimeout(() => {
+        const shell = filterResetButton.closest<HTMLElement>(".admin-list-shell, .admin-schedule-shell");
+        shell?.querySelectorAll<HTMLTableRowElement>(".admin-data-table tbody tr").forEach((row) => {
+          delete row.dataset.filterHidden;
+        });
+        const pagination = shell?.querySelector<HTMLElement>("[data-admin-pagination]");
+        if (pagination) applyTablePagination(pagination, 1);
+      }, 0);
+      showToast("필터를 초기화했습니다.", "info");
+      return;
+    }
+
+    const closeSlideoverButton = target.closest<HTMLButtonElement>("[data-admin-close-slideover]");
+    if (closeSlideoverButton) {
+      closeSlideoverButton.closest<HTMLDetailsElement>(".admin-row-slideover")?.removeAttribute("open");
+      return;
+    }
+
+    const slideoverBackdrop = target.closest<HTMLElement>(".admin-row-slideover-backdrop");
+    if (slideoverBackdrop) {
+      slideoverBackdrop.closest<HTMLDetailsElement>(".admin-row-slideover")?.removeAttribute("open");
+      return;
+    }
+
+    const densityButton = target.closest<HTMLButtonElement>("[data-admin-density]");
+    if (densityButton) {
+      const tableWrap = densityButton.closest<HTMLElement>(".admin-table-wrap");
+      if (tableWrap) tableWrap.dataset.density = densityButton.dataset.adminDensity ?? "default";
+      showToast("테이블 밀도를 변경했습니다.", "info");
+      return;
+    }
+
+    const clearSelectionButton = target.closest<HTMLButtonElement>("[data-admin-clear-selection]");
+    if (clearSelectionButton) {
+      const tableWrap = clearSelectionButton.closest<HTMLElement>(".admin-table-wrap");
+      const table = tableWrap?.querySelector("table");
+      table?.querySelectorAll<HTMLInputElement>(".admin-table-check input").forEach((input) => {
+        input.checked = false;
+        input.indeterminate = false;
+      });
+      if (table) syncTableSelection(table);
+      showToast("선택을 해제했습니다.", "info");
+      return;
     }
 
     const tableRow = target.closest<HTMLTableRowElement>(".admin-data-table tbody tr");
@@ -164,7 +404,14 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     }
 
     const label = action.getAttribute("aria-label") || action.textContent?.trim() || "관리 작업";
-    showToast(`${label} 작업은 별도 상세 페이지에서 처리합니다.`);
+    if (action.classList.contains("danger")) {
+      setConfirmAction({
+        label,
+        run: () => runAdminAction(label),
+      });
+      return;
+    }
+    await runAdminAction(label);
   }
 
   function handleShellChange(event: React.ChangeEvent<HTMLDivElement>) {
@@ -182,6 +429,24 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
 
       const selectedCount = syncTableSelection(table);
       showToast(selectedCount > 0 ? `${selectedCount}개 항목을 선택했습니다.` : "선택을 해제했습니다.");
+      return;
+    }
+
+    if (target.matches("[data-admin-column-toggle]")) {
+      const input = target as HTMLInputElement;
+      const index = Number(input.dataset.adminColumnToggle);
+      const tableWrap = input.closest(".admin-table-wrap");
+      tableWrap?.querySelectorAll<HTMLTableCellElement>(`table tr > *:nth-child(${index})`).forEach((cell) => {
+        cell.hidden = !input.checked;
+      });
+      showToast("표시 컬럼을 변경했습니다.", "info");
+      return;
+    }
+
+    if (target.matches("[data-admin-page-size]")) {
+      const pagination = target.closest<HTMLElement>("[data-admin-pagination]");
+      if (pagination) applyTablePagination(pagination, 1);
+      showToast("페이지당 표시 개수를 변경했습니다.", "info");
       return;
     }
 
@@ -289,6 +554,22 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
             <button className="admin-topbar-icon" type="button" aria-label="알림" data-admin-topbar-action="notifications">
               <RiNotification3Line size={18} />
             </button>
+            <NotificationPanel
+              isOpen={isNotificationOpen}
+              items={notifications}
+              onClose={() => setIsNotificationOpen(false)}
+              onReadAll={async () => {
+                const previousItems = notifications;
+                setNotifications((items) => items.map((item) => ({ ...item, unread: false })));
+                const result = await adminApi.notifications.readAll().catch(() => null);
+                if (!result?.ok) {
+                  setNotifications(previousItems);
+                  showToast("알림 상태를 변경하지 못했습니다.", "error");
+                  return;
+                }
+                showToast("알림을 모두 읽음 처리했습니다.", "info");
+              }}
+            />
             <button className="admin-topbar-icon" type="button" aria-label="로그아웃" data-admin-topbar-action="logout">
               <RiLogoutBoxRLine size={18} />
             </button>
@@ -303,9 +584,27 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
         </main>
       </div>
 
-      <div className="admin-toast" data-open={Boolean(toast)} role="status" aria-live="polite">
-        <RiCheckboxCircleLine size={18} />
-        {toast || "완료"}
+      <CommandPalette isOpen={isCommandOpen} query={commandQuery} onClose={() => setIsCommandOpen(false)} onQueryChange={setCommandQuery} />
+      <ConfirmDialog
+        isOpen={Boolean(confirmAction)}
+        title={`${confirmAction?.label ?? "작업"} 처리`}
+        description="이 작업은 운영 데이터에 영향을 줄 수 있습니다. 계속 진행할까요?"
+        confirmLabel="진행"
+        tone="danger"
+        onCancel={() => setConfirmAction(null)}
+        onConfirm={() => {
+          confirmAction?.run();
+          setConfirmAction(null);
+        }}
+      />
+
+      <div className="admin-toast-stack" aria-live="polite">
+        {toasts.map((toast) => (
+          <div className="admin-toast" data-open="true" data-tone={toast.tone} role="status" key={toast.id}>
+            <RiCheckboxCircleLine size={18} />
+            {toast.message}
+          </div>
+        ))}
       </div>
     </div>
   );
