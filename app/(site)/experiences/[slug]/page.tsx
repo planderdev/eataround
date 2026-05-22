@@ -26,6 +26,7 @@ import { DetailHeroSlider } from "@/components/DetailHeroSlider";
 import { DetailOptionSelector } from "@/components/DetailOptionSelector";
 import { DetailRelatedExperiences } from "@/components/DetailRelatedExperiences";
 import { DetailReviewSliders } from "@/components/DetailReviewSliders";
+import { DetailStoryShowcase } from "@/components/DetailStoryShowcase";
 import { ExperienceAnchor } from "@/components/ExperienceAnchor";
 import { ExperienceIntroMedia } from "@/components/ExperienceIntroMedia";
 import type { Experience, ExperienceReview } from "@/lib/data";
@@ -411,7 +412,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
 
       <DetailHeroSlider images={galleryImages} title={displayExperience.title} />
 
-      <section className="experience-fact-strip" aria-label="상품 핵심 정보">
+      <section className="experience-fact-strip" aria-label="상품 핵심 정보" data-aos="fade-up" data-aos-delay="80">
         {factItems.map((item) => {
           const Icon = item.icon;
           return (
@@ -424,45 +425,59 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
         })}
       </section>
 
+      <DetailStoryShowcase
+        category={displayExperience.category}
+        duration={displayExperience.duration}
+        highlights={displayExperience.highlights}
+        image={galleryImages[1] ?? galleryImages[0]}
+        recommendedFor={recommendedFor}
+        region={displayExperience.region}
+        summary={displayExperience.summary}
+        tags={displayExperience.tags}
+        title={displayExperience.title}
+      />
+
       <div className="experience-detail-layout">
         <main className="experience-detail-main">
           <ExperienceAnchor items={anchorItems} />
 
-          <section className="experience-seller-card" id="seller">
-            <div className="experience-seller-avatar">
-              <RiUserStarLine size={24} />
-            </div>
-            <div>
-              <span className="eyebrow">판매자 정보</span>
-              <h2>{displayExperience.host.name}</h2>
-              <p>{displayExperience.host.description}</p>
-              <div className="experience-seller-badges">
-                <span>응답 빠름</span>
-                <span>서비스 검증</span>
-                <span>예약 운영 가능</span>
+          <section className="experience-seller-trust-grid" data-aos="fade-up" id="seller">
+            <article className="experience-seller-card">
+              <div className="experience-seller-avatar">
+                <RiUserStarLine size={24} />
               </div>
-            </div>
-            <a href="#reserve">문의하기</a>
+              <div>
+                <span className="eyebrow">판매자 정보</span>
+                <h2>{displayExperience.host.name}</h2>
+                <p>{displayExperience.host.description}</p>
+                <div className="experience-seller-badges">
+                  <span>응답 빠름</span>
+                  <span>서비스 검증</span>
+                  <span>예약 운영 가능</span>
+                </div>
+              </div>
+              <a href="#reserve">문의하기</a>
+            </article>
+
+            <aside className="experience-trust-card" data-aos="fade-up" data-aos-delay="80">
+              <div>
+                <RiShieldStarLine size={22} />
+                <strong>이 판매자, 안심하고 예약하세요</strong>
+              </div>
+              <p>여행자 만족도, 응답률, 서비스 품질을 꼼꼼히 확인한 로컬 파트너입니다.</p>
+              <a href="#notice">운영 안내 보기</a>
+            </aside>
           </section>
 
-          <section className="experience-trust-card">
-            <div>
-              <RiShieldStarLine size={22} />
-              <strong>이 판매자, 안심하고 예약하세요</strong>
-            </div>
-            <p>여행자 만족도, 응답률, 서비스 품질을 꼼꼼히 확인한 로컬 파트너입니다.</p>
-            <a href="#notice">운영 안내 보기</a>
-          </section>
-
-          <section className="experience-notice-cards" aria-label="예약 공지">
-            <article>
+          <section className="experience-notice-cards" aria-label="예약 공지" data-aos="fade-up">
+            <article data-aos="fade-up">
               <RiAlarmWarningLine size={20} />
               <div>
                 <strong>예약 전 확인</strong>
                 <p>일정별 좌석과 팀 단위 재고가 다를 수 있습니다. 예약 요청 후 최종 가능 여부를 안내합니다.</p>
               </div>
             </article>
-            <article>
+            <article data-aos="fade-up" data-aos-delay="80">
               <RiInformationLine size={20} />
               <div>
                 <strong>현장 운영 안내</strong>
@@ -471,7 +486,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </article>
           </section>
 
-          <section className="experience-confirm-card">
+          <section className="experience-confirm-card" data-aos="fade-up">
             <RiCalendarCheckLine size={22} />
             <div>
               <strong>{reservationType} 예약</strong>
@@ -479,7 +494,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-benefit-section">
+          <section className="experience-benefit-section" data-aos="fade-up">
             <h2>결제 혜택</h2>
             <div className="experience-benefit-list">
               <article>
@@ -495,11 +510,11 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-detail-section" id="intro">
+          <section className="experience-detail-section" data-aos="fade-up" id="intro">
             <ExperienceIntroMedia images={galleryImages} title={displayExperience.title} />
           </section>
 
-          <section className="experience-detail-section">
+          <section className="experience-detail-section" data-aos="fade-up">
             <h2>이런 분께 추천해요</h2>
             <div className="experience-info-grid">
               {recommendedFor.map((item) => (
@@ -511,7 +526,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-detail-section" id="course">
+          <section className="experience-detail-section" data-aos="fade-up" id="course">
             <h2>코스</h2>
             <div className="experience-timeline">
               {scheduleSteps.map((step) => (
@@ -523,7 +538,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-detail-section" id="included">
+          <section className="experience-detail-section" data-aos="fade-up" id="included">
             <h2>포함·불포함 사항</h2>
             <div className="experience-include-grid">
               <article className="experience-include-card" data-tone="included">
@@ -567,7 +582,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-detail-section" id="guide">
+          <section className="experience-detail-section" data-aos="fade-up" id="guide">
             <h2>이용안내</h2>
             <div className="experience-guide-grid">
               <article>
@@ -592,7 +607,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </div>
           </section>
 
-          <section className="experience-detail-section" id="notice">
+          <section className="experience-detail-section" data-aos="fade-up" id="notice">
             <h2>필수확인사항</h2>
             <ul className="check-list">
               {displayExperience.notices.map((item) => (
@@ -601,7 +616,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </ul>
           </section>
 
-          <section className="experience-detail-section" id="refund">
+          <section className="experience-detail-section" data-aos="fade-up" id="refund">
             <h2>취소·환불 규정</h2>
             <ul className="notice-list">
               {copy.refundRules.map((item) => (
@@ -610,11 +625,11 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             </ul>
           </section>
 
-          <section className="experience-detail-section" id="review">
+          <section className="experience-detail-section" data-aos="fade-up" id="review">
             <DetailReviewSliders images={galleryImages} rating={displayExperience.rating} reviewCount={displayExperience.reviewCount} reviews={reviews} />
           </section>
 
-          <section className="experience-related-section" aria-label="관련 상품">
+          <section className="experience-related-section" aria-label="관련 상품" data-aos="fade-up">
             <div>
               <span className="eyebrow">인기 상품</span>
               <h2>함께 보면 좋은 로컬체험</h2>

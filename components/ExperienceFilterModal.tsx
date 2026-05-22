@@ -33,6 +33,8 @@ type ExperienceFilterModalProps = {
   resultCount: number;
   activeCount: number;
   initialTabId: string;
+  basePath?: string;
+  submitLabel?: string;
 };
 
 function getInitialDraftValues(tabs: FilterTab[]) {
@@ -45,7 +47,7 @@ function getInitialDraftValues(tabs: FilterTab[]) {
   }, {});
 }
 
-export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialTabId }: ExperienceFilterModalProps) {
+export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialTabId, basePath = userRoutes.experiences, submitLabel }: ExperienceFilterModalProps) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeTabId, setActiveTabId] = useState(initialTabId);
@@ -98,7 +100,7 @@ export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialT
     }
 
     const query = search.toString();
-    router.push(query ? `${userRoutes.experiences}?${query}` : userRoutes.experiences);
+    router.push(query ? `${basePath}?${query}` : basePath);
     setOpen(false);
   }
 
@@ -176,7 +178,7 @@ export function ExperienceFilterModal({ tabs, resultCount, activeCount, initialT
               초기화
             </button>
             <button className="filter-modal-submit" onClick={handleApply} type="button">
-              {resultCount.toLocaleString("ko-KR")}개의 체험보기
+              {submitLabel ?? `${resultCount.toLocaleString("ko-KR")}개의 체험보기`}
             </button>
           </footer>
         </section>

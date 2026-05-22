@@ -1,11 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useModal } from "@/lib/useModal";
 import { RiAddLine, RiArrowLeftLine, RiArrowLeftSLine, RiArrowRightSLine, RiSubtractLine } from "@remixicon/react";
 import type { Experience, ScheduleStock } from "@/lib/data";
 import { formatWon, getStockText, getTeamStockText } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
+import { userRoutes } from "@/lib/routes";
 
 type DetailOptionSelectorProps = {
   experience: Experience;
@@ -42,6 +44,7 @@ const recommendedOptions = [
 ];
 
 export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) {
+  const router = useRouter();
   const firstSchedule = experience.schedules[0];
   const { isOpen: open, open: openModal, close: closeModal } = useModal();
   const [selectedDate, setSelectedDate] = useState(firstSchedule?.date ?? "");
@@ -96,25 +99,40 @@ export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) 
     if (!selectedSchedule || !canReserve) return;
 
     setMessage("예약 요청을 접수하는 중입니다.");
-    const response = await fetch(withBasePath("/api/reservations"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productSlug: experience.slug,
-        date: selectedSchedule.date,
-        timeLabel: selectedSchedule.label,
-        people: totalPeople,
-        totalAmount: total,
-        reservationType: selectedSchedule.reservationType ?? "approval",
-        approvalRequired: selectedSchedule.approvalRequired ?? true,
-        options: counts,
-        recommendedOptions: Object.entries(recommendedChecked)
-          .filter(([, checked]) => checked)
-          .map(([title]) => title),
-      }),
-    });
-    const result = (await response.json()) as { message?: string };
-    setMessage(result.message ?? "예약 요청이 접수되었습니다.");
+    try {
+      const response = await fetch(withBasePath("/api/reservations"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productSlug: experience.slug,
+          date: selectedSchedule.date,
+          timeLabel: selectedSchedule.label,
+          people: totalPeople,
+          totalAmount: total,
+          reservationType: selectedSchedule.reservationType ?? "approval",
+          approvalRequired: selectedSchedule.approvalRequired ?? true,
+          options: counts,
+          recommendedOptions: Object.entries(recommendedChecked)
+            .filter(([, checked]) => checked)
+            .map(([title]) => title),
+        }),
+      });
+      const contentType = response.headers.get("content-type") ?? "";
+      const result = contentType.includes("application/json") ? ((await response.json().catch(() => ({}))) as { message?: string }) : {};
+      const isStaticPreviewMiss = response.status === 404 && !contentType.includes("application/json");
+
+      if (response.ok || isStaticPreviewMiss) {
+        router.push(`${userRoutes.bookingComplete}?product=${encodeURIComponent(experience.slug)}`);
+        return;
+      }
+
+      if (!response.ok) {
+        setMessage(result.message ?? "예약 정보를 다시 확인해 주세요.");
+        return;
+      }
+    } catch {
+      setMessage("일시적으로 예약 요청을 접수하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
   }
 
   return (

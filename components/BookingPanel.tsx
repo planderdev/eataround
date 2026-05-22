@@ -1,17 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { RiAddLine, RiCalendarLine, RiCheckboxCircleLine, RiGroupLine, RiSubtractLine } from "@remixicon/react";
 import { DatePicker } from "@/components/DatePicker";
 import type { Experience, ScheduleStock } from "@/lib/data";
 import { formatWon, getStockText, getTeamStockText } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
+import { userRoutes } from "@/lib/routes";
 
 type BookingPanelProps = {
   experience: Experience;
 };
 
 export function BookingPanel({ experience }: BookingPanelProps) {
+  const router = useRouter();
   const firstSchedule = experience.schedules[0];
   const [selected, setSelected] = useState<ScheduleStock>(firstSchedule);
   const [selectedDate, setSelectedDate] = useState(firstSchedule?.date ?? "");
@@ -68,21 +71,36 @@ export function BookingPanel({ experience }: BookingPanelProps) {
     if (!selected) return;
 
     setMessage("예약 요청을 접수하는 중입니다.");
-    const response = await fetch(withBasePath("/api/reservations"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        productSlug: experience.slug,
-        date: selected.date,
-        timeLabel: selected.label,
-        people,
-        totalAmount: total,
-        reservationType: selected.reservationType ?? "approval",
-        approvalRequired: selected.approvalRequired ?? true,
-      }),
-    });
-    const result = (await response.json()) as { message?: string };
-    setMessage(result.message ?? "예약 요청을 접수했습니다.");
+    try {
+      const response = await fetch(withBasePath("/api/reservations"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productSlug: experience.slug,
+          date: selected.date,
+          timeLabel: selected.label,
+          people,
+          totalAmount: total,
+          reservationType: selected.reservationType ?? "approval",
+          approvalRequired: selected.approvalRequired ?? true,
+        }),
+      });
+      const contentType = response.headers.get("content-type") ?? "";
+      const result = contentType.includes("application/json") ? ((await response.json().catch(() => ({}))) as { message?: string }) : {};
+      const isStaticPreviewMiss = response.status === 404 && !contentType.includes("application/json");
+
+      if (response.ok || isStaticPreviewMiss) {
+        router.push(`${userRoutes.bookingComplete}?product=${encodeURIComponent(experience.slug)}`);
+        return;
+      }
+
+      if (!response.ok) {
+        setMessage(result.message ?? "예약 정보를 다시 확인해 주세요.");
+        return;
+      }
+    } catch {
+      setMessage("일시적으로 예약 요청을 접수하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
   }
 
   if (!selected) {

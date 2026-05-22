@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { RiArrowRightSLine, RiShoppingBag3Line, RiTimeLine } from "@remixicon/react";
+import { RiArrowRightSLine, RiCalendarLine, RiShoppingBag3Line, RiTimeLine } from "@remixicon/react";
 import { useEffect, useMemo, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { ProductBadge } from "@/components/Badge";
@@ -44,8 +44,15 @@ function LastSeatCard({ experience, schedule, index }: LastSeatItem & { index: n
       </button>
       <Link className="last-seat-body" href={experiencePath(experience.slug)}>
         <strong>{experience.title}</strong>
-        <span>
-          {schedule.date} · {schedule.label}
+        <span className="last-seat-schedule">
+          <span>
+            <RiCalendarLine size={15} />
+            {schedule.date}
+          </span>
+          <span>
+            <RiTimeLine size={15} />
+            {schedule.label}
+          </span>
         </span>
         <span className="last-seat-price">
           {experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
@@ -74,7 +81,7 @@ export function LastSeatSection({ items }: { items: LastSeatItem[] }) {
   if (!visibleItems.length) return null;
 
   return (
-    <section className="page-section last-seat-section" data-aos="fade-up">
+    <section className="main-section last-seat-section" data-aos="fade-up">
       <div className="last-seat-heading">
         <Link href={`${userRoutes.experiences}?tag=쿠킹`}>
           <span>원데이클래스 1자리 남음</span>

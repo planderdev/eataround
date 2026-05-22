@@ -12,10 +12,10 @@ export function ExperienceIntroMedia({ images, title }: ExperienceIntroMediaProp
   const introImages = images.slice(0, 3);
 
   return (
-    <div className="experience-intro-media" data-expanded={isExpanded}>
+    <div className="experience-intro-media" data-aos="fade-up" data-expanded={isExpanded}>
       <div className="experience-intro-media-grid">
         {introImages.map((image, index) => (
-          <span className="experience-intro-media-card" key={`${image}-intro-${index}`}>
+          <span className="experience-intro-media-card" data-aos="fade-up" data-aos-delay={String(index * 80)} key={`${image}-intro-${index}`}>
             <img src={image} alt={`${title} 소개 이미지 ${index + 1}`} loading="lazy" />
           </span>
         ))}

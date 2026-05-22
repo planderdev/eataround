@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 type ModalProps = {
   isOpen: boolean;
@@ -31,10 +32,12 @@ export function Modal({ isOpen, onClose, label, zIndex = "var(--z-modal)", child
 
   if (!isOpen) return null;
 
-  return (
+  const modal = (
     <div className="modal-layer" role="presentation" style={{ zIndex }}>
       <button className="modal-backdrop" aria-label={label ? `${label} 닫기` : "닫기"} onClick={onClose} type="button" />
       {children}
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

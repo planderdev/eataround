@@ -18,7 +18,7 @@ export function DetailHeroSlider({ images, title }: DetailHeroSliderProps) {
   if (!slides.length) return null;
 
   return (
-    <section className="detail-hero-slider" aria-label={`${title} 이미지`}>
+    <section className="detail-hero-slider" aria-label={`${title} 이미지`} data-aos="fade-up">
       <div className="detail-hero-stage">
         <Swiper
           className="detail-hero-swiper"

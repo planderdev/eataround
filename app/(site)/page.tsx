@@ -52,7 +52,7 @@ export default async function HomePage() {
 
       <LastSeatSection items={lastSeatItems} />
 
-      <section className="page-section featured-experience-section" data-aos="fade-up">
+      <section className="main-section featured-experience-section" data-aos="fade-up">
         <SectionHeader
           eyebrow="Recommended"
           title="추천 로컬체험"
@@ -67,13 +67,13 @@ export default async function HomePage() {
         <MobileExperienceCarousel items={featuredExperiences} />
       </section>
 
-      <section className="page-section mobile-carousel-section" data-aos="fade-up">
+      <section className="main-section mobile-carousel-section" data-aos="fade-up">
         <SectionHeader eyebrow="Collections" title="기획전" description="먹고 알고 경험하는 제주 로컬 여행을 취향별로 둘러보세요." />
         <MobileSwipeCarousel ctaHref={userRoutes.curations} ctaLabel="기획전 전체보기" items={collectionSwipeItems} showDots variant="responsive" />
       </section>
 
       <div className="section-band section-band--soft">
-        <section className="page-section mobile-carousel-section" data-aos="fade-up">
+        <section className="main-section mobile-carousel-section" data-aos="fade-up">
           <SectionHeader eyebrow="Live Events" title="진행중인 행사" href="/events" actionLabel="행사 전체보기" />
           <div className="event-grid">
             {ongoingEvents.map((event) => (
@@ -84,12 +84,12 @@ export default async function HomePage() {
         </section>
       </div>
 
-      <section className="page-section package-cta-section" data-aos="fade-up">
+      <section className="main-section package-cta-section" data-aos="fade-up">
         <PackageCtaCarousel items={packageCtas} />
       </section>
 
       <div className="section-band section-band--cream">
-        <section className="page-section mobile-carousel-section" data-aos="fade-up">
+        <section className="main-section mobile-carousel-section" data-aos="fade-up">
           <SectionHeader eyebrow="Journal" title="저널" href="/journal" />
           <div className="journal-grid">
             {journals.map((item) => (

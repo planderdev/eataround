@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  RiArrowRightLine,
   RiCheckboxCircleLine,
   RiCloseLine,
   RiExternalLinkLine,
@@ -16,18 +15,12 @@ import {
 import { adminNavItems, getCurrentAdminNavItem } from "@/lib/admin";
 import { withBasePath } from "@/lib/paths";
 
-type DrawerState = {
-  title: string;
-  description: string;
-};
-
 export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCount, setSearchCount] = useState<number | null>(null);
   const [toast, setToast] = useState("");
-  const [drawer, setDrawer] = useState<DrawerState | null>(null);
   const groups = Array.from(new Set(adminNavItems.map((item) => item.group)));
   const normalizedSearch = searchQuery.trim().toLowerCase();
   const currentNavItem = useMemo(() => getCurrentAdminNavItem(pathname), [pathname]);
@@ -39,7 +32,6 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     setIsSidebarOpen(false);
     setSearchQuery("");
     setSearchCount(null);
-    setDrawer(null);
   }, [pathname]);
 
   useEffect(() => {
@@ -70,19 +62,18 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
   }, [normalizedSearch, pathname, children]);
 
   useEffect(() => {
-    if (!isSidebarOpen && !drawer) return;
+    if (!isSidebarOpen) return;
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = previousOverflow;
     };
-  }, [drawer, isSidebarOpen]);
+  }, [isSidebarOpen]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key !== "Escape") return;
       setIsSidebarOpen(false);
-      setDrawer(null);
     }
 
     window.addEventListener("keydown", handleKeyDown);
@@ -99,8 +90,32 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     setToast(message);
   }
 
-  function openDrawer(title: string, description = "변경 사항을 확인하고 운영 메모를 남긴 뒤 저장할 수 있습니다.") {
-    setDrawer({ title, description });
+  function syncTableSelection(table: HTMLTableElement) {
+    const rowChecks = Array.from(table.querySelectorAll<HTMLInputElement>("tbody .admin-table-check input"));
+    const selectedCount = rowChecks.filter((input) => input.checked).length;
+    const headerCheck = table.querySelector<HTMLInputElement>("thead .admin-table-check input");
+
+    rowChecks.forEach((input) => {
+      const row = input.closest("tr");
+      if (row) row.dataset.selected = String(input.checked);
+    });
+
+    if (headerCheck) {
+      headerCheck.checked = selectedCount > 0 && selectedCount === rowChecks.length;
+      headerCheck.indeterminate = selectedCount > 0 && selectedCount < rowChecks.length;
+    }
+
+    return selectedCount;
+  }
+
+  function toggleTableRow(tableRow: HTMLTableRowElement) {
+    const checkbox = tableRow.querySelector<HTMLInputElement>(".admin-table-check input");
+    const table = tableRow.closest("table");
+    if (!checkbox || !table) return;
+
+    checkbox.checked = !checkbox.checked;
+    const selectedCount = syncTableSelection(table);
+    showToast(selectedCount > 0 ? `${selectedCount}개 항목을 선택했습니다.` : "선택을 해제했습니다.");
   }
 
   function handleShellClick(event: React.MouseEvent<HTMLDivElement>) {
@@ -109,13 +124,33 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     if (topbarAction) {
       const action = topbarAction.dataset.adminTopbarAction;
       if (action === "notifications") {
-        openDrawer("알림 센터", "미확정 예약, 견적 요청, 품절 임박 회차를 한 번에 확인합니다.");
+        showToast("알림은 대시보드 우선순위와 각 상세 페이지에서 확인합니다.");
         return;
       }
       if (action === "logout") {
         showToast("로그아웃은 실제 인증 연동 후 처리됩니다.");
         return;
       }
+    }
+
+    const tableRow = target.closest<HTMLTableRowElement>(".admin-data-table tbody tr");
+    if (tableRow && !target.closest("a, button, input, label, select, textarea, summary, details, .admin-row-details")) {
+      toggleTableRow(tableRow);
+      return;
+    }
+
+    const tab = target.closest<HTMLButtonElement>(".admin-tab");
+    if (tab) {
+      const tablist = tab.closest<HTMLElement>("[role='tablist']");
+      const tabs = Array.from(tablist?.querySelectorAll<HTMLButtonElement>(".admin-tab") ?? []);
+      tabs.forEach((item) => {
+        const isSelected = item === tab;
+        item.dataset.active = String(isSelected);
+        item.setAttribute("aria-selected", String(isSelected));
+        item.tabIndex = isSelected ? 0 : -1;
+      });
+      showToast(`${tab.textContent?.trim() || "선택한"} 탭으로 이동했습니다.`);
+      return;
     }
 
     const action = target.closest<HTMLButtonElement>(".admin-main .admin-action-button, .admin-main .admin-inline-form button, .admin-main .admin-icon-button");
@@ -129,15 +164,41 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     }
 
     const label = action.getAttribute("aria-label") || action.textContent?.trim() || "관리 작업";
-    openDrawer(action.dataset.adminPanel || label, action.dataset.adminDescription);
-    showToast(`${label} 작업 패널을 열었습니다.`);
+    showToast(`${label} 작업은 별도 상세 페이지에서 처리합니다.`);
   }
 
   function handleShellChange(event: React.ChangeEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
-    if (target.matches(".admin-select, .admin-settings-grid input, .admin-table-check input")) {
+    if (target.matches(".admin-table-check input")) {
+      const input = target as HTMLInputElement;
+      const table = input.closest("table");
+      if (!table) return;
+
+      if (input.closest("thead")) {
+        table.querySelectorAll<HTMLInputElement>("tbody .admin-table-check input").forEach((rowInput) => {
+          rowInput.checked = input.checked;
+        });
+      }
+
+      const selectedCount = syncTableSelection(table);
+      showToast(selectedCount > 0 ? `${selectedCount}개 항목을 선택했습니다.` : "선택을 해제했습니다.");
+      return;
+    }
+
+    if (target.matches(".admin-select, .admin-settings-grid input")) {
       showToast("변경사항이 화면에 반영되었습니다.");
     }
+  }
+
+  function handleShellKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    const target = event.target as HTMLElement;
+    const tableRow = target.closest<HTMLTableRowElement>(".admin-data-table tbody tr");
+    if (!tableRow || target.closest("a, button, input, label, select, textarea")) return;
+
+    event.preventDefault();
+    toggleTableRow(tableRow);
   }
 
   if (pathname === "/admin/login") {
@@ -145,7 +206,13 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
   }
 
   return (
-    <div className="admin-shell" data-drawer-open={Boolean(drawer)} data-sidebar-open={isSidebarOpen} onChange={handleShellChange} onClick={handleShellClick}>
+    <div
+      className="admin-shell"
+      data-sidebar-open={isSidebarOpen}
+      onChange={handleShellChange}
+      onClick={handleShellClick}
+      onKeyDown={handleShellKeyDown}
+    >
       <button
         className="admin-sidebar-backdrop"
         type="button"
@@ -156,7 +223,7 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
         <div className="admin-sidebar-head">
           <Link className="admin-brand" href="/admin/dashboard" aria-label="eat.around 관리자">
             <img src={withBasePath("/assets/images/logo.png")} alt="" width={500} height={74} />
-            <span>ADMIN · 1차 운영</span>
+            <span>ADMIN</span>
           </Link>
           <button className="admin-sidebar-close" type="button" aria-label="관리자 메뉴 닫기" onClick={() => setIsSidebarOpen(false)}>
             <RiCloseLine size={20} />
@@ -164,12 +231,14 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
         </div>
 
         <nav className="admin-sidebar-nav">
-          {groups.map((group) => (
-            <div className="admin-nav-group" key={group}>
-              <span>{group}</span>
-              {adminNavItems
-                .filter((item) => item.group === group)
-                .map((item) => {
+          {groups.map((group) => {
+            const groupItems = adminNavItems.filter((item) => item.group === group);
+            const isGroupActive = groupItems.some((item) => item.id === currentNavItem?.id);
+
+            return (
+              <div className="admin-nav-group" data-active={isGroupActive} key={group}>
+                <span>{group}</span>
+                {groupItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = currentNavItem?.id === item.id;
 
@@ -181,8 +250,9 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
                     </Link>
                   );
                 })}
-            </div>
-          ))}
+              </div>
+            );
+          })}
         </nav>
       </aside>
 
@@ -232,61 +302,6 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
           </div>
         </main>
       </div>
-
-      <button className="admin-command-backdrop" type="button" aria-label="작업 패널 닫기" onClick={() => setDrawer(null)} />
-      <aside className="admin-command-drawer" data-open={Boolean(drawer)} aria-hidden={!drawer}>
-        <div className="admin-command-drawer-head">
-          <div>
-            <span>Quick Edit</span>
-            <strong>{drawer?.title || "관리 작업"}</strong>
-          </div>
-          <button type="button" aria-label="작업 패널 닫기" onClick={() => setDrawer(null)}>
-            <RiCloseLine size={20} />
-          </button>
-        </div>
-        <div className="admin-command-form">
-          <div className="admin-command-summary">
-            <span>운영 플로우</span>
-            <strong>{drawer?.description || "선택한 항목의 상태와 운영 메모를 빠르게 정리합니다."}</strong>
-            <small>
-              저장 전 변경 이력과 담당자 메모를 확인해 운영 기록을 남깁니다.
-            </small>
-          </div>
-          <label>
-            <span>담당자</span>
-            <select defaultValue="kim">
-              <option value="kim">김선재 · SUPER_ADMIN</option>
-              <option value="operator">운영 담당자</option>
-              <option value="content">콘텐츠 담당자</option>
-            </select>
-          </label>
-          <label>
-            <span>관리 메모</span>
-            <textarea placeholder="담당자에게 남길 메모를 입력하세요." />
-          </label>
-          <label>
-            <span>상태</span>
-            <select defaultValue="active">
-              <option value="active">진행중</option>
-              <option value="pending">검토중</option>
-              <option value="hidden">숨김</option>
-            </select>
-          </label>
-          <button className="admin-drawer-secondary" type="button">
-            상세 화면으로 이동
-            <RiArrowRightLine size={16} />
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setDrawer(null);
-              showToast("작업 내용이 임시 반영되었습니다.");
-            }}
-          >
-            저장하기
-          </button>
-        </div>
-      </aside>
 
       <div className="admin-toast" data-open={Boolean(toast)} role="status" aria-live="polite">
         <RiCheckboxCircleLine size={18} />

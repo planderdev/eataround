@@ -1,18 +1,3 @@
-import {
-  RiBookOpenLine,
-  RiBuilding2Line,
-  RiCalendarLine,
-  RiDiscountPercentLine,
-  RiFileList3Line,
-  RiFileTextLine,
-  RiGroupLine,
-  RiImageLine,
-  RiMapPinLine,
-  RiSettings3Line,
-  RiSparkling2Line,
-  RiStore2Line,
-} from "@remixicon/react";
-
 export type Category = {
   label: string;
   href: string;
@@ -569,23 +554,6 @@ export const packageCtas: PackageCta[] = [
   },
 ];
 
-export const adminMenus = [
-  { label: "대시보드", href: "/admin", icon: RiSparkling2Line },
-  { label: "회원관리", href: "/admin/members", icon: RiGroupLine },
-  { label: "상품관리", href: "/admin/products", icon: RiStore2Line },
-  { label: "예약관리", href: "/admin/reservations", icon: RiCalendarLine },
-  { label: "패키지관리", href: "/admin/packages", icon: RiBuilding2Line },
-  { label: "견적관리", href: "/admin/quotes", icon: RiFileTextLine },
-  { label: "행사관리", href: "/admin/events", icon: RiDiscountPercentLine },
-  { label: "배너관리", href: "/admin/banners", icon: RiImageLine },
-  { label: "기획전관리", href: "/admin/collections", icon: RiFileList3Line },
-  { label: "저널관리", href: "/admin/journals", icon: RiBookOpenLine },
-  { label: "리뷰관리", href: "/admin/reviews", icon: RiFileTextLine },
-  { label: "쿠폰/이벤트", href: "/admin/coupons", icon: RiDiscountPercentLine },
-  { label: "정산관리", href: "/admin/settlements", icon: RiFileTextLine },
-  { label: "장소관리", href: "/admin/places", icon: RiMapPinLine },
-  { label: "설정", href: "/admin/settings", icon: RiSettings3Line },
-];
 
 export function getExperience(slug: string) {
   return experiences.find((experience) => experience.slug === slug);

@@ -138,11 +138,18 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
           marketingConsent: agreements.marketing,
         }),
       });
-      const result = (await response.json()) as { message?: string };
+      const contentType = response.headers.get("content-type") ?? "";
+      const result = contentType.includes("application/json") ? ((await response.json().catch(() => ({}))) as { message?: string }) : {};
+      const isStaticPreviewMiss = response.status === 404 && !contentType.includes("application/json");
+
+      if (response.ok || isStaticPreviewMiss) {
+        router.push(`${userRoutes.signupComplete}?type=${isCompany ? "company" : "personal"}`);
+        return;
+      }
 
       setSubmitState({
-        tone: response.ok ? "success" : "error",
-        message: result.message ?? (response.ok ? "가입 신청이 접수되었습니다." : "가입 정보를 다시 확인해 주세요."),
+        tone: "error",
+        message: result.message ?? "가입 정보를 다시 확인해 주세요.",
       });
     } catch {
       setSubmitState({ tone: "error", message: "일시적으로 가입 신청을 접수하지 못했습니다. 잠시 후 다시 시도해 주세요." });

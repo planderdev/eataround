@@ -37,8 +37,6 @@ type ProgramMeta = {
 };
 
 const b2bImages = {
-  hero: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80",
-  heroInset: "https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=900&q=80",
   workflow: "https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80",
   discount: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1000&q=80",
 };
@@ -170,16 +168,6 @@ export default async function B2BPage() {
                 <dd>10명 이상 단체</dd>
               </div>
             </dl>
-          </div>
-          <div className="b2b-hero-media" data-aos="fade-left" data-aos-delay="120">
-            <img alt="제주 바다를 배경으로 한 단체 프로그램 이미지" src={b2bImages.hero} />
-            <div className="b2b-hero-media-card">
-              <img alt="테이블에 둘러앉은 워크숍 참가자" src={b2bImages.heroInset} />
-              <span>
-                <small>단체 프로그램</small>
-                <strong>기간·인원·프로그램을 남기면 운영팀이 최종 견적을 안내합니다</strong>
-              </span>
-            </div>
           </div>
         </section>
       </div>

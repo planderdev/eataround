@@ -28,6 +28,7 @@ const copyEntries = [
 const staticSearchParamPages = [
   "app/(site)/experiences/page.tsx",
   "app/(site)/local-experiences/page.tsx",
+  "app/(site)/curations/page.tsx",
   "app/(site)/events/page.tsx",
   "app/(site)/events/ended/page.tsx",
   "app/(site)/journal/page.tsx",

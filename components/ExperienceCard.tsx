@@ -13,6 +13,8 @@ type ExperienceCardProps = {
 
 export function ExperienceCard({ experience, compact = false }: ExperienceCardProps) {
   const badgeLabels = getExperienceBadgeLabels(experience);
+  const hasSalePrice = Boolean(experience.originalPrice && experience.originalPrice > experience.price);
+  const salePriceAmount = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 0 }).format(experience.price);
 
   return (
     <Link
@@ -52,8 +54,17 @@ export function ExperienceCard({ experience, compact = false }: ExperienceCardPr
         </span>
         <span className="price-row">
           <span>
-            {experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
-            <b>{formatWon(experience.price)}</b>
+            {hasSalePrice && experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
+            <b data-sale={hasSalePrice}>
+              {hasSalePrice ? (
+                <>
+                  <span className="price-currency">₩</span>
+                  <span className="price-sale-amount">{salePriceAmount}</span>
+                </>
+              ) : (
+                formatWon(experience.price)
+              )}
+            </b>
           </span>
           <span className="rating">
             <RiStarFill size={14} />

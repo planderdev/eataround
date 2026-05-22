@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { RiCheckboxCircleLine, RiFileList3Line, RiShieldCheckLine } from "@remixicon/react";
 import { SectionHeader } from "@/components/SectionHeader";
+import { userRoutes } from "@/lib/routes";
 
 type PageProps = {
   params: Promise<{ reservationId: string }>;
@@ -50,7 +51,7 @@ export default async function CheckoutPage({ params }: PageProps) {
           <RiFileList3Line size={24} />
           <h2>결제 안내</h2>
           <p>예약 신청으로 접수되며, 담당자가 가능 여부와 결제 안내를 별도로 전달합니다.</p>
-          <Link className="primary-button full" href={`/booking/complete/${reservationId}`}>
+          <Link className="primary-button full" href={`${userRoutes.bookingComplete}?reservationId=${reservationId}`}>
             <RiCheckboxCircleLine size={18} />
             예약 신청 완료
           </Link>

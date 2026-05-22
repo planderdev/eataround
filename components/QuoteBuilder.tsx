@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   RiBuilding2Line,
   RiCheckboxCircleLine,
@@ -20,6 +21,7 @@ import {
 } from "@/lib/data";
 import { formatWon } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
+import { userRoutes } from "@/lib/routes";
 
 type QuoteBuilderProps = {
   programs?: PackageProgram[];
@@ -49,6 +51,7 @@ function isDiscountRowActive(row: DiscountRow, people: number) {
 }
 
 export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fallbackPackageOptions, tiers = fallbackDiscountTiers }: QuoteBuilderProps) {
+  const router = useRouter();
   const initialPrograms = programs.length ? programs : fallbackPackagePrograms;
   const initialOptions = options.length ? options : fallbackPackageOptions;
   const initialTiers = tiers.length ? tiers : fallbackDiscountTiers;
@@ -98,27 +101,49 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
       return;
     }
 
+    if (!organizationName.trim() || !contactName.trim() || !contactPhone.trim()) {
+      setStep(5);
+      setMessage("기관명, 담당자, 연락처를 입력해 주세요.");
+      return;
+    }
+
     setMessage("단체 견적 요청을 접수하고 있습니다.");
-    const response = await fetch(withBasePath("/api/quotes"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        memberType: memberMode,
-        organizationName,
-        contactName,
-        contactPhone,
-        budget,
-        requestMemo,
-        programIds: selectedIds,
-        optionIds: selectedOptionIds,
-        people,
-        startDate,
-        endDate,
-        estimatedTotal: total,
-      }),
-    });
-    const result = (await response.json()) as { message?: string };
-    setMessage(result.message ?? "견적 요청이 접수되었습니다. 운영팀이 검토 후 안내드립니다.");
+
+    try {
+      const response = await fetch(withBasePath("/api/quotes"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          memberType: memberMode,
+          organizationName,
+          contactName,
+          contactPhone,
+          budget,
+          requestMemo,
+          programIds: selectedIds,
+          optionIds: selectedOptionIds,
+          people,
+          startDate,
+          endDate,
+          estimatedTotal: total,
+        }),
+      });
+      const contentType = response.headers.get("content-type") ?? "";
+      const result = contentType.includes("application/json") ? ((await response.json().catch(() => ({}))) as { message?: string }) : {};
+      const isStaticPreviewMiss = response.status === 404 && !contentType.includes("application/json");
+
+      if (response.ok || isStaticPreviewMiss) {
+        router.push(`${userRoutes.b2bQuoteComplete}?people=${people}`);
+        return;
+      }
+
+      if (!response.ok) {
+        setMessage(result.message ?? "견적 요청 정보를 다시 확인해 주세요.");
+        return;
+      }
+    } catch {
+      setMessage("일시적으로 견적 요청을 접수하지 못했습니다. 잠시 후 다시 시도해 주세요.");
+    }
   }
 
   return (
@@ -136,7 +161,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
           </span>
         </div>
 
-        <div className="quote-access-toggle" role="radiogroup" aria-label="견적 요청 권한">
+        <div className="segmented quote-access-toggle" role="radiogroup" aria-label="견적 요청 권한">
           <button data-active={memberMode === "company"} onClick={() => setMemberMode("company")} type="button">
             기업·기관회원
           </button>

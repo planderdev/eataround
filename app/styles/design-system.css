@@ -34,7 +34,7 @@
   --color-coral: #e8634d;
   --color-blue: #3868b2;
   --color-yellow: #f1b940;
-  --color-rating: #ffb000;
+  --color-rating: #ff8100;
   --color-red: #cf4d45;
   --color-accent-pink: #ff4d7d;
   --color-on-inverse-muted: #d6e2dc;
@@ -77,6 +77,15 @@
   --shadow-lg: 0 24px 52px rgba(18, 30, 24, 0.12);
   --shadow-xl: 0 26px 70px rgba(16, 24, 20, 0.24);
   --shadow-focus: 0 0 0 3px rgba(35, 111, 85, 0.08);
+  --shadow-image-inset: inset 0 -90px 110px rgba(0, 0, 0, 0.28);
+  --shadow-floating-panel: 0 20px 48px rgba(16, 24, 20, 0.22);
+  --shadow-popover: 0 18px 46px rgba(18, 30, 24, 0.16);
+  --shadow-bottom-nav: 0 -12px 28px rgba(36, 54, 45, 0.12);
+  --shadow-bottom-bar: 0 -12px 28px rgba(16, 24, 32, 0.08);
+  --shadow-image-float: 0 10px 22px rgba(40, 20, 20, 0.22);
+  --shadow-selected-ring: inset 0 0 0 1px var(--color-status-success-line);
+  --shadow-primary-ring: 0 0 0 1px var(--color-primary);
+  --shadow-section-bleed-primary: 0 0 0 100vmax var(--color-primary-50);
   --transition-fast: 0.18s ease;
   --transition-base: 0.2s ease;
   --transition-card: background var(--transition-base), border-color var(--transition-base), box-shadow var(--transition-base), color var(--transition-base), transform var(--transition-base);
