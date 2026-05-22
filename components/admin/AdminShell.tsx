@@ -293,7 +293,7 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
         await fetch(withBasePath("/api/auth/logout"), { method: "POST" }).catch(() => null);
         document.cookie = "session=; path=/; max-age=0; SameSite=Lax";
         router.push("/admin/login");
-        showToast("로그아웃은 실제 인증 연동 후 처리됩니다.");
+        showToast("로그아웃되었습니다.", "info");
         return;
       }
     }

@@ -109,7 +109,7 @@ export function BookingPanel({ experience }: BookingPanelProps) {
         <div className="booking-title">
           <span>
             <small>예약 일정</small>
-            <strong>준비중</strong>
+            <strong>예약 오픈 예정</strong>
           </span>
         </div>
         <p className="form-message">예약 가능한 회차가 등록되면 이 영역에 표시됩니다.</p>

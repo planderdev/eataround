@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   title: "견적서 미리보기 | 이더라운드 관리자",
 };
 
+export async function generateStaticParams() {
+  const quotes = await getAdminQuoteRequests();
+  return quotes.map((quote) => ({ id: encodeURIComponent(quote.org) }));
+}
+
 export default async function AdminQuotePreviewPage({ params }: PageProps) {
   const { id } = await params;
   const quotes = await getAdminQuoteRequests();
