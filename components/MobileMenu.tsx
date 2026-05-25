@@ -52,7 +52,7 @@ export function MobileMenu() {
 
         <div className="mobile-menu-profile">
           <span className="mobile-menu-avatar">
-            <img src={withBasePath("/assets/images/symbol.png")} alt="이더라운드" />
+            <img src={withBasePath("/assets/images/symbol.png")} alt="이더라운드" loading="lazy" decoding="async" />
           </span>
           <span>
             <small>이더라운드 멤버</small>

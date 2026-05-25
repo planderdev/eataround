@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { RiBuilding2Line, RiLock2Line, RiMailLine, RiUser3Line } from "@remixicon/react";
-import { EmailSuggestionInput } from "@/components/EmailSuggestionInput";
 import { withBasePath } from "@/lib/paths";
 import { userRoutes } from "@/lib/routes";
+import { notifySessionChanged } from "@/lib/useSession";
 
 type LoginMode = "personal" | "company";
 
@@ -31,10 +32,55 @@ const loginModeContent = {
 };
 
 export function LoginForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [loginMode, setLoginMode] = useState<LoginMode>("personal");
   const [rememberId, setRememberId] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [message, setMessage] = useState("");
   const content = loginModeContent[loginMode];
   const ModeIcon = content.icon;
+
+  async function submit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!email.trim() || !password) {
+      setMessage("이메일과 비밀번호를 입력해 주세요.");
+      return;
+    }
+    setSubmitting(true);
+    setMessage("");
+
+    try {
+      const response = await fetch(withBasePath("/api/auth/login"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          password,
+          keepSignedIn: rememberId,
+          memberType: loginMode,
+        }),
+        credentials: "same-origin",
+      });
+      const data = (await response.json().catch(() => ({}))) as { ok?: boolean; message?: string };
+
+      if (!response.ok) {
+        setMessage(data.message ?? "로그인 정보를 다시 확인해 주세요.");
+        return;
+      }
+
+      notifySessionChanged();
+      const redirectTo = searchParams.get("redirect") ?? userRoutes.me;
+      router.push(redirectTo);
+      router.refresh();
+    } catch {
+      setMessage("일시적으로 로그인할 수 없습니다. 잠시 후 다시 시도해 주세요.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
 
   return (
     <div className="auth-card">
@@ -58,29 +104,38 @@ export function LoginForm() {
         {content.note}
       </p>
 
-      <form className="auth-form">
+      <form className="auth-form" onSubmit={submit}>
         <input name="memberType" type="hidden" value={loginMode} />
         <div className="field">
           <label className="field-label" htmlFor="login-email">
             <RiMailLine size={18} />
             {content.emailLabel}
           </label>
-          <EmailSuggestionInput id="login-email" name="email" placeholder={content.emailPlaceholder} />
+          <input
+            autoComplete="email"
+            id="login-email"
+            name="email"
+            onChange={(event) => setEmail(event.target.value)}
+            placeholder={content.emailPlaceholder}
+            type="email"
+            value={email}
+          />
         </div>
         <label className="field">
           <span>
             <RiLock2Line size={18} />
             비밀번호
           </span>
-          <input autoComplete="current-password" name="password" placeholder={content.passwordPlaceholder} type="password" />
+          <input autoComplete="current-password" name="password" onChange={(event) => setPassword(event.target.value)} placeholder={content.passwordPlaceholder} type="password" value={password} />
         </label>
         <label className="auth-remember">
           <input checked={rememberId} name="rememberId" onChange={(event) => setRememberId(event.target.checked)} type="checkbox" />
           <span>아이디 저장하기</span>
         </label>
-        <button className="primary-button full" type="button">
-          {content.submitLabel}
+        <button className="primary-button full" disabled={submitting} type="submit">
+          {submitting ? "로그인 중..." : content.submitLabel}
         </button>
+        {message ? <p className="form-message" data-tone="error">{message}</p> : null}
       </form>
 
       {loginMode === "personal" ? (

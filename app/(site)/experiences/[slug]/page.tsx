@@ -20,6 +20,7 @@ import {
   RiTimeLine,
   RiUserStarLine,
 } from "@remixicon/react";
+import { BookingPanel } from "@/components/BookingPanel";
 import { DetailHeroSlider } from "@/components/DetailHeroSlider";
 import { DetailOptionSelector } from "@/components/DetailOptionSelector";
 import { DetailActionButtons } from "@/components/DetailActionButtons";
@@ -28,6 +29,7 @@ import { DetailReviewSliders } from "@/components/DetailReviewSliders";
 import { DetailStoryShowcase } from "@/components/DetailStoryShowcase";
 import { ExperienceAnchor } from "@/components/ExperienceAnchor";
 import { ExperienceIntroMedia } from "@/components/ExperienceIntroMedia";
+import { detectBookingMode } from "@/lib/booking-mode";
 import type { Experience, ExperienceReview } from "@/lib/data";
 import { getExperience, getExperiences, getProductDetailContent, getProductReviews } from "@/lib/content";
 import { userRoutes } from "@/lib/routes";
@@ -341,6 +343,8 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
     { label: displayExperience.duration, value: "전체 진행 시간", icon: RiTimeLine },
     { label: `${displayExperience.category}, ${copy.language}`, value: "진행 언어와 카테고리", icon: RiRouteLine },
   ];
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://eataround.co.kr";
+  const detailUrl = `${siteUrl}${userRoutes.experiences}/${displayExperience.slug}`;
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -348,23 +352,35 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
     description: displayExperience.summary,
     image: galleryImages,
     brand: { "@type": "Brand", name: "이더라운드" },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: displayExperience.rating,
-      reviewCount: displayExperience.reviewCount,
-    },
+    aggregateRating: displayExperience.reviewCount
+      ? {
+          "@type": "AggregateRating",
+          ratingValue: displayExperience.rating,
+          reviewCount: displayExperience.reviewCount,
+        }
+      : undefined,
     offers: {
       "@type": "Offer",
       priceCurrency: "KRW",
       price: displayExperience.price,
       availability: "https://schema.org/InStock",
-      url: `https://eataround.co.kr${userRoutes.experiences}/${displayExperience.slug}`,
+      url: detailUrl,
     },
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "로컬체험", item: `${siteUrl}${userRoutes.experiences}` },
+      { "@type": "ListItem", position: 3, name: displayExperience.title, item: detailUrl },
+    ],
   };
 
   return (
     <section className="page-section experience-detail-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <header className="experience-detail-header">
         <nav className="experience-detail-breadcrumb" aria-label="현재 위치">
           <Link href="/">홈</Link>
@@ -422,6 +438,12 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
         tags={displayExperience.tags}
         title={displayExperience.title}
       />
+
+      {detectBookingMode(displayExperience) !== "schedule" ? (
+        <section className="experience-reserve-section" data-aos="fade-up" id="reserve">
+          <BookingPanel experience={displayExperience} />
+        </section>
+      ) : null}
 
       <div className="experience-detail-layout">
         <main className="experience-detail-main">
@@ -505,8 +527,10 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
             <div className="experience-info-grid">
               {recommendedFor.map((item) => (
                 <article key={item}>
-                  <strong>{item}</strong>
+                  <div className="experience-info-title">
+                    <strong>{item}</strong>
                   <span>일정, 포함사항, 예약 조건을 함께 확인해주세요.</span>
+                  </div>
                 </article>
               ))}
             </div>
@@ -616,10 +640,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
           </section>
 
           <section className="experience-related-section" aria-label="관련 상품" data-aos="fade-up">
-            <div>
-              <span className="eyebrow">인기 상품</span>
-              <h2>함께 보면 좋은 로컬체험</h2>
-            </div>
+            <h2>함께 보면 좋은 로컬체험</h2>
             <DetailRelatedExperiences items={related} />
           </section>
         </main>

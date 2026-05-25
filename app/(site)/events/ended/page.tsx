@@ -57,7 +57,7 @@ export default async function EndedEventsPage({ searchParams }: { searchParams?:
           <EventCard event={event} key={event.slug} />
         ))}
       </div>
-      <Pagination basePath="/events/ended" currentPage={currentPage} pageSize={pageSize} searchParams={params} totalItems={endedEvents.length} />
+      <Pagination alwaysShow={endedEvents.length > 0} basePath="/events/ended" currentPage={currentPage} pageSize={pageSize} searchParams={params} totalItems={endedEvents.length} />
     </section>
   );
 }

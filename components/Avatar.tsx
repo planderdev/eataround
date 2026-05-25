@@ -16,7 +16,7 @@ function initials(name: string) {
 
 export function Avatar({ src, alt = "", name, size = "md" }: AvatarProps) {
   if (src) {
-    return <img className={`avatar avatar-${size}`} src={src} alt={alt} />;
+    return <img className={`avatar avatar-${size}`} src={src} alt={alt} loading="lazy" decoding="async" />;
   }
   return (
     <span className={`avatar avatar-placeholder avatar-${size}`} aria-label={name}>

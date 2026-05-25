@@ -90,6 +90,24 @@ export type InquiryPayload = {
   phone: string;
   message: string;
   productSlug?: string;
+  inquiryType?: "product" | "event" | "package" | "general";
+  preferredDate?: string;
+  people?: number;
+};
+
+export type Inquiry = {
+  id: string;
+  title: string;
+  inquiryType: string;
+  status: string;
+  statusTone: ApiTone;
+  preview: string;
+  productSlug?: string;
+  preferredDate?: string;
+  people?: number;
+  createdAt: string;
+  answer?: string;
+  href: string;
 };
 
 export type AuthLoginPayload = {

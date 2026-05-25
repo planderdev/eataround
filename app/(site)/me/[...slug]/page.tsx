@@ -6,6 +6,7 @@ import {
   RiArrowLeftLine,
   RiArrowRightSLine,
   RiCalendarCheckLine,
+  RiChat3Line,
   RiFileTextLine,
   RiHeart3Line,
   RiStarLine,
@@ -16,6 +17,8 @@ import { StatusBadge } from "@/components/Badge";
 import { ExperienceCard } from "@/components/ExperienceCard";
 import { MyReviewList, type MyReviewItem } from "@/components/MyReviewList";
 import { SectionHeader } from "@/components/SectionHeader";
+import { InquiryDetailSection } from "@/components/mypage/InquiryDetailSection";
+import { InquiryListSection } from "@/components/mypage/InquiryListSection";
 import { ProfileSection } from "@/components/mypage/ProfileSection";
 import { QuoteDetailSection } from "@/components/mypage/QuoteDetailSection";
 import { QuoteListSection } from "@/components/mypage/QuoteListSection";
@@ -25,6 +28,7 @@ import { ReviewSection as MypageReviewSection } from "@/components/mypage/Review
 import { WishlistSection as MypageWishlistSection } from "@/components/mypage/WishlistSection";
 import { getExperiences } from "@/lib/content";
 import {
+  inquiryHistory,
   myProfile,
   quoteHistory,
   reservationHistory,
@@ -37,7 +41,7 @@ type PageProps = {
   params: Promise<{ slug: string[] }>;
 };
 
-type PageKey = "reservations" | "quotes" | "wishlist" | "reviews" | "profile";
+type PageKey = "reservations" | "quotes" | "inquiries" | "wishlist" | "reviews" | "profile";
 type ExperienceList = Awaited<ReturnType<typeof getExperiences>>;
 
 const pageMap: Record<PageKey, { title: string; description: string; icon: RemixiconComponentType }> = {
@@ -50,6 +54,11 @@ const pageMap: Record<PageKey, { title: string; description: string; icon: Remix
     title: "견적 내역",
     description: "B2B 견적 요청과 관리자 응답, 예상 견적을 확인합니다.",
     icon: RiFileTextLine,
+  },
+  inquiries: {
+    title: "문의 내역",
+    description: "문의 예약·상담 요청과 호스트 답변을 확인합니다.",
+    icon: RiChat3Line,
   },
   wishlist: {
     title: "찜",
@@ -77,6 +86,7 @@ const tabs = Object.entries(pageMap).map(([key, page]) => ({
 const sectionActions: Record<PageKey, { href: string; label: string }> = {
   reservations: { href: userRoutes.experiences, label: "새 체험 찾기" },
   quotes: { href: userRoutes.b2bQuote, label: "새 견적 요청" },
+  inquiries: { href: userRoutes.experiences, label: "문의 가능 체험 보기" },
   wishlist: { href: userRoutes.experiences, label: "체험 더보기" },
   reviews: { href: `${userRoutes.me}/reservations`, label: "이용 내역 보기" },
   profile: { href: userRoutes.help, label: "고객센터 문의" },
@@ -92,6 +102,11 @@ const sectionStats: Record<PageKey, { label: string; value: string; note: string
     { label: "전체 견적", value: `${quoteHistory.length}건`, note: "요청 기준" },
     { label: "검토 중", value: `${quoteHistory.filter((item) => item.statusTone === "pending").length}건`, note: "담당자 확인 중" },
     { label: "견적서 수신", value: `${quoteHistory.filter((item) => item.statusTone === "received").length}건`, note: "승인 대기" },
+  ],
+  inquiries: [
+    { label: "전체 문의", value: `${inquiryHistory.length}건`, note: "접수 기준" },
+    { label: "답변 대기", value: `${inquiryHistory.filter((item) => item.statusTone === "pending").length}건`, note: "호스트 확인 중" },
+    { label: "답변 완료", value: `${inquiryHistory.filter((item) => item.statusTone === "received" || item.statusTone === "done").length}건`, note: "최신 회신순" },
   ],
   wishlist: [
     { label: "관심 체험", value: `${wishlistItems.length}개`, note: "저장된 체험" },
@@ -115,6 +130,7 @@ export function generateStaticParams() {
     ...tabs.map((item) => ({ slug: [item.key] })),
     ...reservationHistory.map((item) => ({ slug: ["reservations", item.id] })),
     ...quoteHistory.map((item) => ({ slug: ["quotes", item.id] })),
+    ...inquiryHistory.map((item) => ({ slug: ["inquiries", item.id] })),
   ];
 }
 
@@ -189,13 +205,22 @@ export default async function MeSectionPage({ params }: PageProps) {
 }
 
 function toPageKey(value?: string): PageKey | null {
-  if (value === "reservations" || value === "quotes" || value === "wishlist" || value === "reviews" || value === "profile") return value;
+  if (
+    value === "reservations" ||
+    value === "quotes" ||
+    value === "inquiries" ||
+    value === "wishlist" ||
+    value === "reviews" ||
+    value === "profile"
+  )
+    return value;
   return null;
 }
 
 function renderSection(sectionKey: PageKey, experiences: ExperienceList = []) {
   if (sectionKey === "reservations") return <ReservationListSection />;
   if (sectionKey === "quotes") return <QuoteListSection />;
+  if (sectionKey === "inquiries") return <InquiryListSection />;
   if (sectionKey === "wishlist") return <MypageWishlistSection experiences={experiences} />;
   if (sectionKey === "reviews") return <MypageReviewSection experiences={experiences} />;
   return <ProfileSection />;
@@ -208,6 +233,10 @@ function renderDetail(sectionKey: PageKey, detailId: string, experiences: Experi
 
   if (sectionKey === "quotes") {
     return <QuoteDetailSection id={detailId} />;
+  }
+
+  if (sectionKey === "inquiries") {
+    return <InquiryDetailSection id={detailId} />;
   }
 
   return renderSection(sectionKey, experiences);

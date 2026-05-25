@@ -95,8 +95,7 @@ export function DetailStoryShowcase({
                 <article className="detail-story-slide">
                   <small>{slide.eyebrow}</small>
                   <strong>{slide.title}</strong>
-                  <span>{slide.body}</span>
-                  <RiArrowRightLine size={18} aria-hidden />
+                  <span>{slide.body}</span> 
                 </article>
               </SwiperSlide>
             ))}

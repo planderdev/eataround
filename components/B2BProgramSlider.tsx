@@ -38,7 +38,7 @@ export function B2BProgramSlider({ items }: { items: B2BProgramSlideItem[] }) {
         {items.map((item) => (
           <SwiperSlide key={item.href}>
             <Link className="b2b-program-slide" data-tone={item.tone} href={item.href}>
-              <img alt={item.imageAlt} src={item.image} />
+              <img alt={item.imageAlt} src={item.image} loading="lazy" decoding="async" />
               <span className="b2b-program-slide-overlay" />
               <span className="b2b-program-slide-copy">
                 <small>{item.outcome}</small>

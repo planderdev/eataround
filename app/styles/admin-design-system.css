@@ -143,22 +143,22 @@
 
 @media (max-width: 640px) {
   :root {
-    --admin-font-size-xs: clamp(13px, 3.15vw, 13px);
-    --admin-font-size-sm: clamp(13px, 3.35vw, 13px);
-    --admin-font-size-md: clamp(13px, 3.55vw, 14px);
-    --admin-font-size-base: clamp(14px, 3.75vw, 15px);
-    --admin-font-size-base-lg: clamp(15px, 4vw, 16px);
-    --admin-font-size-lg: clamp(15px, 4.2vw, 17px);
-    --admin-font-size-xl: clamp(16px, 4.45vw, 18px);
-    --admin-font-size-2xl: clamp(17px, 4.75vw, 19px);
-    --admin-font-size-3xl: clamp(18px, 5vw, 20px);
-    --admin-font-size-4xl: clamp(20px, 5.55vw, 22px);
-    --admin-font-size-5xl: clamp(21px, 5.9vw, 23px);
-    --admin-font-size-6xl: clamp(22px, 6.2vw, 24px);
-    --admin-font-size-7xl: clamp(24px, 6.7vw, 26px);
-    --admin-font-size-section-sm: clamp(23px, 7.2vw, 28px);
-    --admin-font-size-section: clamp(24px, 7.5vw, 30px);
-    --admin-font-size-page: clamp(26px, 8.2vw, 32px);
+    --admin-font-size-xs: clamp(14px, 3.2vw, 14px);
+    --admin-font-size-sm: clamp(14px, 3.4vw, 15px);
+    --admin-font-size-md: clamp(14px, 3.65vw, 15px);
+    --admin-font-size-base: clamp(15px, 3.85vw, 16px);
+    --admin-font-size-base-lg: clamp(16px, 4.1vw, 17px);
+    --admin-font-size-lg: clamp(17px, 4.35vw, 18px);
+    --admin-font-size-xl: clamp(18px, 4.65vw, 20px);
+    --admin-font-size-2xl: clamp(19px, 4.95vw, 21px);
+    --admin-font-size-3xl: clamp(20px, 5.25vw, 22px);
+    --admin-font-size-4xl: clamp(22px, 5.75vw, 24px);
+    --admin-font-size-5xl: clamp(23px, 6.05vw, 25px);
+    --admin-font-size-6xl: clamp(24px, 6.35vw, 26px);
+    --admin-font-size-7xl: clamp(26px, 6.9vw, 28px);
+    --admin-font-size-section-sm: clamp(26px, 7.2vw, 30px);
+    --admin-font-size-section: clamp(28px, 7.5vw, 32px);
+    --admin-font-size-page: clamp(30px, 8.2vw, 34px);
     --admin-control-height-sm: 34px;
     --admin-control-height-md: 44px;
     --admin-button-height-sm: 34px;
@@ -168,8 +168,18 @@
     --admin-button-padding-x-md: var(--admin-space-16);
     --admin-button-padding-x-lg: var(--admin-space-16);
     --admin-button-gap: var(--admin-space-8);
-    --admin-button-font-size: var(--admin-font-size-xs);
+    --admin-button-font-size: var(--admin-font-size-sm);
     --admin-field-height: 44px;
+  }
+}
+
+@media (max-width: 640px) {
+  .admin-shell,
+  .admin-shell button,
+  .admin-shell input,
+  .admin-shell select,
+  .admin-shell textarea {
+    font-size: max(14px, 1em);
   }
 }
 
@@ -177,4 +187,8 @@
   :root {
     --admin-sidebar-width: var(--admin-sidebar-drawer-width);
   }
+}
+
+.admin-shell small {
+  font-size: var(--admin-font-size-xs);
 }

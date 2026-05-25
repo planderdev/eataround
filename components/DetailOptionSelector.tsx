@@ -1,9 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useModal } from "@/lib/useModal";
-import { RiAddLine, RiArrowLeftLine, RiArrowLeftSLine, RiArrowRightSLine, RiSubtractLine } from "@remixicon/react";
+import {
+  RiAddLine,
+  RiArrowLeftLine,
+  RiArrowLeftSLine,
+  RiArrowRightLine,
+  RiArrowRightSLine,
+  RiBuilding2Line,
+  RiChat3Line,
+  RiSubtractLine,
+} from "@remixicon/react";
+import { detectBookingMode } from "@/lib/booking-mode";
 import type { Experience, ScheduleStock } from "@/lib/data";
 import { formatWon, getStockText, getTeamStockText } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
@@ -44,6 +55,42 @@ const recommendedOptions = [
 ];
 
 export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) {
+  const mode = detectBookingMode(experience);
+
+  if (mode === "package") {
+    return (
+      <Link
+        className="detail-option-bar detail-option-bar--package"
+        href={`${userRoutes.b2bQuote}?from=${encodeURIComponent(experience.slug)}`}
+        id="reserve"
+      >
+        <span>
+          <RiBuilding2Line size={16} />
+          <small>기업·기관 단체 패키지</small>
+          <strong>단체 견적 받기</strong>
+        </span>
+        <RiArrowRightLine size={18} />
+      </Link>
+    );
+  }
+
+  if (mode === "inquiry") {
+    return (
+      <a className="detail-option-bar detail-option-bar--inquiry" href="#reserve-form" id="reserve">
+        <span>
+          <RiChat3Line size={16} />
+          <small>문의 예약</small>
+          <strong>희망 일정 남기기</strong>
+        </span>
+        <RiArrowRightLine size={18} />
+      </a>
+    );
+  }
+
+  return <DetailOptionSelectorSchedule experience={experience} />;
+}
+
+function DetailOptionSelectorSchedule({ experience }: DetailOptionSelectorProps) {
   const router = useRouter();
   const firstSchedule = experience.schedules[0];
   const { isOpen: open, open: openModal, close: closeModal } = useModal();

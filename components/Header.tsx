@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, type FocusEvent } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   RiArticleLine,
   RiBookOpenLine,
@@ -12,18 +12,22 @@ import {
   RiFileList3Line,
   RiHomeSmile2Line,
   RiLeafLine,
+  RiLogoutBoxRLine,
   RiMapPinLine,
   RiQuestionAnswerLine,
   RiRestaurant2Line,
   RiSearchLine,
+  RiShieldCheckLine,
   RiSparkling2Line,
   RiTeamLine,
   RiUserAddLine,
   RiUser3Line,
 } from "@remixicon/react";
+import { HeaderWishlist } from "@/components/HeaderWishlist";
 import { MobileMenu } from "@/components/MobileMenu";
 import { userRoutes } from "@/lib/routes";
 import { withBasePath } from "@/lib/paths";
+import { useSession } from "@/lib/useSession";
 
 const navItems = [
   {
@@ -105,8 +109,17 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+  const { status: sessionStatus, user, signOut } = useSession();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const closeTimerRef = useRef<number | null>(null);
+
+  async function handleSignOut() {
+    closeMegaMenu();
+    await signOut();
+    router.push(userRoutes.home);
+    router.refresh();
+  }
 
   useEffect(() => {
     clearCloseTimer();
@@ -219,16 +232,36 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="header-actions">
+        <div className="header-actions" data-session={sessionStatus}>
           <Link className="icon-button" href={userRoutes.search} aria-label="검색" onClick={closeMegaMenu}>
             <RiSearchLine size={20} />
           </Link>
-          <Link className="icon-button" href={userRoutes.signup} aria-label="회원가입" onClick={closeMegaMenu}>
-            <RiUserAddLine size={20} />
-          </Link>
-          <Link className="icon-button" href={userRoutes.me} aria-label="마이페이지" onClick={closeMegaMenu}>
-            <RiUser3Line size={20} />
-          </Link>
+          <HeaderWishlist onNavigate={closeMegaMenu} />
+          {sessionStatus === "authenticated" && user ? (
+            <>
+              {user.role === "admin" ? (
+                <Link className="icon-button" href="/admin" aria-label="관리자" onClick={closeMegaMenu} data-tooltip="관리자">
+                  <RiShieldCheckLine size={20} />
+                </Link>
+              ) : null}
+              <Link className="header-user-chip" href={userRoutes.me} onClick={closeMegaMenu}>
+                <RiUser3Line size={18} />
+                <span>{user.name}</span>
+              </Link>
+              <button className="icon-button" type="button" aria-label="로그아웃" onClick={handleSignOut} data-tooltip="로그아웃">
+                <RiLogoutBoxRLine size={20} />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link className="icon-button" href={userRoutes.signup} aria-label="회원가입" onClick={closeMegaMenu} data-tooltip="회원가입">
+                <RiUserAddLine size={20} />
+              </Link>
+              <Link className="icon-button" href={userRoutes.login} aria-label="로그인" onClick={closeMegaMenu} data-tooltip="로그인">
+                <RiUser3Line size={20} />
+              </Link>
+            </>
+          )}
           <MobileMenu />
         </div>
       </div>

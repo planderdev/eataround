@@ -197,7 +197,7 @@
 }
 
 .ds-color-token {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   color: var(--color-muted);
   font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
   word-break: break-all;
@@ -225,12 +225,12 @@
 }
 
 .ds-primary-chip-name {
-  font-size: 12px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
 }
 
 .ds-primary-chip-hex {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
 }
 
@@ -415,7 +415,7 @@
 }
 
 .ds-z-bar span {
-  font-size: 11px;
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-700);
   font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;

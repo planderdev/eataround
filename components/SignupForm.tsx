@@ -306,6 +306,25 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
         </p>
       ) : null}
 
+      {!isCompany ? (
+        <div className="auth-social-section">
+          <strong className="auth-social-title">간편 SNS 회원가입</strong>
+          <div className="auth-socials">
+            <button aria-label="카카오로 시작하기" data-provider="kakao" type="button">
+              <span className="auth-social-mark" data-provider="kakao">
+                <img alt="" aria-hidden="true" src={withBasePath("/assets/images/login-kakao.svg")} />
+              </span>
+            </button>
+            <button aria-label="네이버로 시작하기" data-provider="naver" type="button">
+              <span className="auth-social-mark" data-provider="naver">
+                <img alt="" aria-hidden="true" src={withBasePath("/assets/images/login-naver.svg")} />
+              </span>
+            </button>
+          </div>
+          <p className="auth-social-note">SNS로 가입하면 이름·이메일은 자동으로 가져오고, 휴대폰 번호만 추가로 입력합니다.</p>
+        </div>
+      ) : null}
+
       <Link className="secondary-button full signup-login-button" href={userRoutes.login}>
         가입된 아이디가 있어요
       </Link>

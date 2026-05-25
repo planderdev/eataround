@@ -45,8 +45,11 @@ export default async function HomePage() {
     }))
     .filter((item): item is LastSeatItem => Boolean(item.schedule));
 
+  const firstHeroImage = heroSlides[0]?.image;
+
   return (
     <>
+      {firstHeroImage ? <link rel="preload" as="image" href={firstHeroImage} fetchPriority="high" /> : null}
       <HeroBanner slides={heroSlides} />
       <CategoryStrip items={categoryItems} />
 

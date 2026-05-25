@@ -1,4 +1,6 @@
 import {
+  getMockInquiries,
+  getMockInquiry,
   getMockQuote,
   getMockQuotes,
   getMockProfile,
@@ -11,7 +13,7 @@ import {
   updateMockProfile,
 } from "@/lib/mock/me";
 import { withBasePath } from "@/lib/paths";
-import type { ApiSuccess, Profile, ProfilePayload, Quote, Reservation, Review, ReviewPayload, WishlistItem } from "@/types/api";
+import type { ApiSuccess, Inquiry, Profile, ProfilePayload, Quote, Reservation, Review, ReviewPayload, WishlistItem } from "@/types/api";
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
 
@@ -49,6 +51,16 @@ export async function fetchMyQuotes(): Promise<Quote[]> {
 export async function fetchMyQuote(id: string): Promise<Quote> {
   if (useMock) return getMockQuote(id);
   return fetchJson<Quote>(`/api/me/quotes/${id}`);
+}
+
+export async function fetchMyInquiries(): Promise<Inquiry[]> {
+  if (useMock) return getMockInquiries();
+  return fetchJson<Inquiry[]>("/api/me/inquiries");
+}
+
+export async function fetchMyInquiry(id: string): Promise<Inquiry> {
+  if (useMock) return getMockInquiry(id);
+  return fetchJson<Inquiry>(`/api/me/inquiries/${id}`);
 }
 
 export async function fetchMyWishlist(): Promise<WishlistItem[]> {

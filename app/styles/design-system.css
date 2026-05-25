@@ -170,25 +170,25 @@
 
 @media (max-width: 640px) {
   :root {
-    --font-size-xs: clamp(13px, 3.15vw, 13px);
-    --font-size-sm: clamp(13px, 3.35vw, 13px);
-    --font-size-md: clamp(13px, 3.55vw, 14px);
-    --font-size-base: clamp(14px, 3.75vw, 15px);
-    --font-size-base-lg: clamp(15px, 4vw, 16px);
-    --font-size-lg: clamp(15px, 4.2vw, 17px);
-    --font-size-xl: clamp(16px, 4.45vw, 18px);
-    --font-size-2xl: clamp(17px, 4.75vw, 19px);
-    --font-size-3xl: clamp(18px, 5vw, 20px);
-    --font-size-4xl: clamp(20px, 5.55vw, 22px);
-    --font-size-5xl: clamp(21px, 5.9vw, 23px);
-    --font-size-6xl: clamp(22px, 6.2vw, 24px);
-    --font-size-7xl: clamp(24px, 6.7vw, 26px);
-    --font-size-section-sm: clamp(23px, 7.2vw, 28px);
-    --font-size-section: clamp(24px, 7.5vw, 30px);
-    --font-size-page: clamp(26px, 8.2vw, 32px);
-    --font-size-display-sm: clamp(28px, 8.8vw, 36px);
-    --font-size-display-md: clamp(30px, 9.2vw, 38px);
-    --font-size-display-lg: clamp(30px, 9.6vw, 40px);
+    --font-size-xs: clamp(14px, 3.2vw, 14px);
+    --font-size-sm: clamp(14px, 3.4vw, 15px);
+    --font-size-md: clamp(14px, 3.65vw, 15px);
+    --font-size-base: clamp(15px, 3.85vw, 16px);
+    --font-size-base-lg: clamp(16px, 4.1vw, 17px);
+    --font-size-lg: clamp(17px, 4.35vw, 18px);
+    --font-size-xl: clamp(18px, 4.65vw, 20px);
+    --font-size-2xl: clamp(19px, 4.95vw, 21px);
+    --font-size-3xl: clamp(20px, 5.25vw, 22px);
+    --font-size-4xl: clamp(22px, 5.75vw, 24px);
+    --font-size-5xl: clamp(23px, 6.05vw, 25px);
+    --font-size-6xl: clamp(24px, 6.35vw, 26px);
+    --font-size-7xl: clamp(26px, 6.9vw, 28px);
+    --font-size-section-sm: clamp(26px, 7.2vw, 30px);
+    --font-size-section: clamp(28px, 7.5vw, 32px);
+    --font-size-page: clamp(30px, 8.2vw, 34px);
+    --font-size-display-sm: clamp(32px, 8.8vw, 38px);
+    --font-size-display-md: clamp(34px, 9.2vw, 40px);
+    --font-size-display-lg: clamp(34px, 9.6vw, 42px);
     --control-height-sm: 34px;
     --control-height-md: 44px;
     --button-height-sm: 34px;
@@ -198,8 +198,18 @@
     --button-padding-x-md: var(--space-16);
     --button-padding-x-lg: var(--space-16);
     --button-gap: var(--space-8);
-    --button-font-size: var(--font-size-xs);
+    --button-font-size: var(--font-size-md);
     --field-height: 44px;
+  }
+}
+
+@media (max-width: 640px) {
+  body,
+  button,
+  input,
+  select,
+  textarea {
+    font-size: max(14px, 1em);
   }
 }
 
@@ -238,6 +248,10 @@ h5,
 h6,
 p {
   margin: 0;
+}
+
+small {
+  font-size: var(--font-size-xs);
 }
 
 a {
@@ -308,6 +322,33 @@ textarea:focus-visible {
 @keyframes skeleton-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
+}
+
+/* Scroll reveal — driven by AosProvider IntersectionObserver via data-aos-visible attribute */
+[data-aos] {
+  opacity: 0;
+  transition:
+    opacity 0.65s ease-out,
+    transform 0.65s ease-out;
+  will-change: opacity, transform;
+}
+[data-aos="fade-up"] { transform: translate3d(0, 24px, 0); }
+[data-aos="fade-down"] { transform: translate3d(0, -24px, 0); }
+[data-aos="fade-left"] { transform: translate3d(24px, 0, 0); }
+[data-aos="fade-right"] { transform: translate3d(-24px, 0, 0); }
+[data-aos="fade-in"] { transform: none; }
+[data-aos="zoom-in"] { transform: scale(0.94); }
+[data-aos="zoom-out"] { transform: scale(1.06); }
+[data-aos][data-aos-visible="true"] {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-aos] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -464,4 +505,31 @@ main {
   margin: -1px;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
+}
+
+.skip-to-content {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: var(--z-modal-top);
+  padding: var(--space-8) var(--space-16);
+  border-radius: var(--radius-control);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-200%);
+  transition: transform var(--transition-fast);
+}
+.skip-to-content:focus,
+.skip-to-content:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-primary-dark);
+  outline-offset: 2px;
+}
+
+main:focus {
+  outline: none;
 }

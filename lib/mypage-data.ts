@@ -110,6 +110,49 @@ export const quoteHistory = [
   },
 ];
 
+export const inquiryHistory = [
+  {
+    id: "I-20260520-014",
+    title: "[해녀 프라이빗 스토리텔링 살롱] 가족 4인 일정 가능 여부",
+    inquiryType: "product" as const,
+    status: "답변 완료",
+    statusTone: "received" as const,
+    preview: "6월 8일 오전 11시 가족 4인 진행 가능 여부, 어린이 동반 시 안전 안내 부탁드립니다.",
+    productSlug: "haenyeo-private-storytelling",
+    preferredDate: "2026-06-08",
+    people: 4,
+    createdAt: "2026.05.20 11:24",
+    answer: "안녕하세요. 6월 8일 오전 회차 진행 가능합니다. 어린이 동반 시 잠수 시연은 안전상 제외되며, 별도 체험으로 대체됩니다.",
+    href: `${userRoutes.me}/inquiries/I-20260520-014`,
+  },
+  {
+    id: "I-20260522-008",
+    title: "[제주 발효 밥상 클래스] 알레르기 옵션 문의",
+    inquiryType: "product" as const,
+    status: "답변 대기",
+    statusTone: "pending" as const,
+    preview: "갑각류 알레르기가 있는 경우 메뉴 대체가 가능한지 확인 부탁드립니다.",
+    productSlug: "jeju-fermentation-table",
+    preferredDate: "2026-05-30",
+    people: 2,
+    createdAt: "2026.05.22 09:08",
+    href: `${userRoutes.me}/inquiries/I-20260522-008`,
+  },
+  {
+    id: "I-20260518-002",
+    title: "기업 워크숍 일정 협의 문의",
+    inquiryType: "package" as const,
+    status: "상담 완료",
+    statusTone: "done" as const,
+    preview: "30명 규모 1박 2일 워크숍을 6월 말에 진행 가능한지 알고 싶습니다.",
+    preferredDate: "2026-06-28",
+    people: 30,
+    createdAt: "2026.05.18 14:52",
+    answer: "6월 28-29일 일정 진행 가능합니다. 단체 견적서를 별도로 발송드릴 예정입니다.",
+    href: `${userRoutes.me}/inquiries/I-20260518-002`,
+  },
+];
+
 export const wishlistItems = [
   {
     title: "해녀의 계절 바다 밥상",

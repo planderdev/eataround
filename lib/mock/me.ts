@@ -1,11 +1,12 @@
 import {
+  inquiryHistory,
   myProfile,
   quoteHistory,
   reservationHistory,
   reviewHistory,
   wishlistItems,
 } from "@/lib/mypage-data";
-import type { Profile, ProfilePayload, Quote, Reservation, Review, ReviewPayload, WishlistItem } from "@/types/api";
+import type { Inquiry, Profile, ProfilePayload, Quote, Reservation, Review, ReviewPayload, WishlistItem } from "@/types/api";
 
 const wait = () => new Promise((resolve) => setTimeout(resolve, 180));
 
@@ -41,6 +42,16 @@ export async function getMockQuotes(): Promise<Quote[]> {
 export async function getMockQuote(id: string): Promise<Quote> {
   await wait();
   return quoteHistory.find((quote) => quote.id === id) ?? quoteHistory[0];
+}
+
+export async function getMockInquiries(): Promise<Inquiry[]> {
+  await wait();
+  return inquiryHistory;
+}
+
+export async function getMockInquiry(id: string): Promise<Inquiry> {
+  await wait();
+  return inquiryHistory.find((inquiry) => inquiry.id === id) ?? inquiryHistory[0];
 }
 
 export async function getMockWishlist(): Promise<WishlistItem[]> {

@@ -383,10 +383,6 @@ export const adminRouteConfigs: AdminRouteConfig[] = [
   },
 ];
 
-export const adminRouteSlugs = adminRouteConfigs.map((route) => ({
-  slug: route.key.split("/"),
-}));
-
 export function getAdminRouteConfig(key: string) {
   return adminRouteConfigs.find((route) => route.key === key);
 }

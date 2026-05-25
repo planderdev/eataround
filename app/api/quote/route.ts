@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
+import { getSessionUser } from "@/lib/session";
+
+export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const payload = (await request.json()) as {
-    memberType?: "personal" | "company";
     organizationName?: string;
     contactName?: string;
     contactPhone?: string;
@@ -17,8 +19,21 @@ export async function POST(request: Request) {
     estimatedTotal?: number;
   };
 
-  if (payload.memberType !== "company") {
-    return NextResponse.json({ ok: false, message: "기업·기관 회원만 견적 요청을 보낼 수 있습니다." }, { status: 403 });
+  const session = await getSessionUser(request);
+
+  if (hasDatabaseConfig()) {
+    if (!session) {
+      return NextResponse.json({ ok: false, message: "기업·기관 회원으로 로그인 후 견적 요청을 보낼 수 있습니다." }, { status: 401 });
+    }
+    if (session.memberType !== "company") {
+      return NextResponse.json({ ok: false, message: "기업·기관 회원만 견적 요청을 보낼 수 있습니다." }, { status: 403 });
+    }
+    if (!session.companyApproved) {
+      return NextResponse.json(
+        { ok: false, message: "가입 승인이 완료된 후 견적 요청을 보낼 수 있습니다. 담당자가 검토 후 안내드립니다." },
+        { status: 403 },
+      );
+    }
   }
 
   if (!payload.organizationName || !payload.contactName || !payload.contactPhone) {
@@ -30,10 +45,11 @@ export async function POST(request: Request) {
     try {
       await pool.execute(
         `insert into quote_requests
-          (organization_name, contact_name, contact_phone, budget_label, people, start_date, end_date,
+          (user_id, organization_name, contact_name, contact_phone, budget_label, people, start_date, end_date,
            program_ids, option_ids, estimated_total, request_memo, status)
-         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested')`,
+         values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'requested')`,
         [
+          session?.id ?? null,
           payload.organizationName ?? null,
           payload.contactName ?? null,
           payload.contactPhone ?? null,

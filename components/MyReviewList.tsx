@@ -145,13 +145,15 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
                   <ReviewRating rating={displayRating} />
                   {displayRating ? (
                     <>
-                      <Link className="secondary-button" href={item.productHref}>
+                      <div className="me-review-cta">
+                        <Link className="secondary-button" href={item.productHref}>
                         후기 보기
                         <RiArrowRightSLine size={16} />
                       </Link>
                       <button className="secondary-button" onClick={() => openModal({ ...item, rating: displayRating, text: displayText })} type="button">
                         수정
                       </button>
+                      </div>
                     </>
                   ) : (
                     <button className="primary-button" onClick={() => openModal(item)} type="button">
@@ -180,7 +182,7 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
           {activeItem ? (
             <form className="review-write-form" onSubmit={submitReview}>
               <div className="review-write-product">
-                {activeItem.product ? <img src={activeItem.product.image} alt={activeItem.product.title} /> : null}
+                {activeItem.product ? <img src={activeItem.product.image} alt={activeItem.product.title} loading="lazy" decoding="async" /> : null}
                 <span>
                   <small>{activeItem.date}</small>
                   <strong>{activeItem.title}</strong>
@@ -239,7 +241,7 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
               {draftImages.length ? (
                 <div className="review-write-preview-grid">
                   {draftImages.map((image, index) => (
-                    <img alt={`첨부 이미지 ${index + 1}`} key={image} src={image} />
+                    <img alt={`첨부 이미지 ${index + 1}`} key={image} src={image} loading="lazy" decoding="async" />
                   ))}
                 </div>
               ) : null}

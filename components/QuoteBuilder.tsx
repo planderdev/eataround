@@ -17,8 +17,30 @@ import {
   packagePrograms as fallbackPackagePrograms,
   type DiscountTier,
   type PackageOption,
+  type PackageOptionCategory,
   type PackageProgram,
 } from "@/lib/data";
+
+const optionCategoryOrder: PackageOptionCategory[] = ["lodging", "meal", "transport", "extra"];
+const optionCategoryMeta: Record<PackageOptionCategory, { label: string; description: string }> = {
+  lodging: { label: "숙박", description: "1박 기준 인원 단위 견적" },
+  meal: { label: "식사", description: "로컬 식당 또는 케이터링" },
+  transport: { label: "이동", description: "단체 차량·셔틀 운영" },
+  extra: { label: "기타", description: "현장 기록·운영 보조" },
+};
+
+function groupOptionsByCategory(options: PackageOption[]) {
+  const grouped = new Map<PackageOptionCategory, PackageOption[]>();
+  for (const option of options) {
+    const category = option.category ?? "extra";
+    const bucket = grouped.get(category) ?? [];
+    bucket.push(option);
+    grouped.set(category, bucket);
+  }
+  return optionCategoryOrder
+    .map((category) => ({ category, items: grouped.get(category) ?? [] }))
+    .filter((group) => group.items.length > 0);
+}
 import { formatWon } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
 import { userRoutes } from "@/lib/routes";
@@ -57,7 +79,7 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
   const initialTiers = tiers.length ? tiers : fallbackDiscountTiers;
   const [memberMode, setMemberMode] = useState<"company" | "personal">("company");
   const [selectedIds, setSelectedIds] = useState(initialPrograms.slice(0, 2).map((program) => program.id));
-  const [selectedOptionIds, setSelectedOptionIds] = useState(["meal"]);
+  const [selectedOptionIds, setSelectedOptionIds] = useState(["meal-local"]);
   const [people, setPeople] = useState(20);
   const [startDate, setStartDate] = useState("2026-06-12");
   const [endDate, setEndDate] = useState("2026-06-13");
@@ -114,7 +136,6 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          memberType: memberMode,
           organizationName,
           contactName,
           contactPhone,
@@ -231,22 +252,36 @@ export function QuoteBuilder({ programs = fallbackPackagePrograms, options = fal
         {step === 4 ? (
           <section className="quote-step-panel" aria-label="옵션 선택">
             <strong className="program-list-title">옵션 선택</strong>
-            <div className="program-list">
-              {initialOptions.map((option) => (
-                <button
-                  className="program-option"
-                  data-active={selectedOptionIds.includes(option.id)}
-                  key={option.id}
-                  onClick={() => toggleOption(option.id)}
-                  type="button"
-                >
-                  <span>
-                    <b>{option.title}</b>
-                    <small>{option.description}</small>
-                  </span>
-                  <strong>{option.priceType === "flat" ? formatWon(option.price) : `${formatWon(option.price)} / 인`}</strong>
-                </button>
-              ))}
+            <p className="quote-step-note quote-step-note--info">숙박·식사·이동 등 필요한 옵션만 선택하세요. 선택한 옵션은 견적에 즉시 반영됩니다.</p>
+            <div className="quote-option-groups">
+              {groupOptionsByCategory(initialOptions).map((group) => {
+                const meta = optionCategoryMeta[group.category];
+                return (
+                  <section className="quote-option-group" key={group.category} data-category={group.category}>
+                    <header>
+                      <strong>{meta.label}</strong>
+                      <small>{meta.description}</small>
+                    </header>
+                    <div className="program-list">
+                      {group.items.map((option) => (
+                        <button
+                          className="program-option"
+                          data-active={selectedOptionIds.includes(option.id)}
+                          key={option.id}
+                          onClick={() => toggleOption(option.id)}
+                          type="button"
+                        >
+                          <span>
+                            <b>{option.title}</b>
+                            <small>{option.description}</small>
+                          </span>
+                          <strong>{option.priceType === "flat" ? formatWon(option.price) : `${formatWon(option.price)} / 인`}</strong>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
             </div>
           </section>
         ) : null}

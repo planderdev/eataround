@@ -141,8 +141,7 @@ export default async function B2BPage() {
     <div className="b2b-page">
       <div className="b2b-band b2b-band--hero">
         <section className="b2b-hero page-section">
-          <div className="b2b-hero-copy" data-aos="fade-up">
-            <span className="eyebrow">기업·기관 패키지</span>
+          <div className="b2b-hero-copy" data-aos="fade-up"> 
             <h1>제주 로컬 체험으로 완성하는 단체 프로그램</h1>
             <p>워크숍, 연수, 고객 초청 행사에 맞춰 쿠킹·전통주·마을투어·로컬 다이닝을 조합하고 견적 요청까지 연결합니다.</p>
             <div className="b2b-hero-actions">

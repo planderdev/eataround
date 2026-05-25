@@ -16,6 +16,7 @@ import { CommandPalette } from "@/components/admin/CommandPalette";
 import { ConfirmDialog } from "@/components/admin/ConfirmDialog";
 import { NotificationPanel, type AdminNotification } from "@/components/admin/NotificationPanel";
 import { adminApi } from "@/lib/admin/api";
+import { ADMIN_TOAST_EVENT, type AdminToastEventDetail } from "@/lib/admin/toast";
 import { adminNavItems, getCurrentAdminNavItem } from "@/lib/admin";
 import { withBasePath } from "@/lib/paths";
 
@@ -127,6 +128,16 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
       setToasts((current) => current.filter((toast) => toast.id !== id));
     }, 5000);
   }
+
+  useEffect(() => {
+    function handleToastEvent(event: Event) {
+      const detail = (event as CustomEvent<AdminToastEventDetail>).detail;
+      if (!detail?.message) return;
+      showToast(detail.message, detail.tone ?? "success");
+    }
+    window.addEventListener(ADMIN_TOAST_EVENT, handleToastEvent);
+    return () => window.removeEventListener(ADMIN_TOAST_EVENT, handleToastEvent);
+  }, []);
 
   function syncTableSelection(table: HTMLTableElement) {
     const rowChecks = Array.from(table.querySelectorAll<HTMLInputElement>("tbody .admin-table-check input"));
@@ -349,14 +360,6 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     const slideoverBackdrop = target.closest<HTMLElement>(".admin-row-slideover-backdrop");
     if (slideoverBackdrop) {
       slideoverBackdrop.closest<HTMLDetailsElement>(".admin-row-slideover")?.removeAttribute("open");
-      return;
-    }
-
-    const densityButton = target.closest<HTMLButtonElement>("[data-admin-density]");
-    if (densityButton) {
-      const tableWrap = densityButton.closest<HTMLElement>(".admin-table-wrap");
-      if (tableWrap) tableWrap.dataset.density = densityButton.dataset.adminDensity ?? "default";
-      showToast("테이블 밀도를 변경했습니다.", "info");
       return;
     }
 

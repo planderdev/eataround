@@ -139,6 +139,8 @@ export default async function JournalDetailPage({ params }: PageProps) {
   const content = getArticleContent(journal.slug, journal.excerpt);
   const readingMinutes = estimateReadingMinutes(content);
   const relatedJournals = journals.filter((item) => item.slug !== journal.slug).slice(0, 2);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://eataround.co.kr";
+  const journalUrl = `${siteUrl}/journal/${journal.slug}`;
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -148,11 +150,23 @@ export default async function JournalDetailPage({ params }: PageProps) {
     datePublished: journal.date.replaceAll(".", "-"),
     author: { "@type": "Organization", name: "이더라운드" },
     publisher: { "@type": "Organization", name: "이더라운드" },
+    mainEntityOfPage: journalUrl,
+    url: journalUrl,
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "저널", item: `${siteUrl}/journal` },
+      { "@type": "ListItem", position: 3, name: journal.title, item: journalUrl },
+    ],
   };
 
   return (
     <article className="page-section journal-detail">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <nav className="journal-detail-back" aria-label="저널 탐색">
         <Link href="/journal">
           <RiArrowLeftLine size={18} />

@@ -103,12 +103,15 @@ export type PackageProgram = {
   type: "체험" | "강의" | "투어";
 };
 
+export type PackageOptionCategory = "lodging" | "meal" | "transport" | "extra";
+
 export type PackageOption = {
   id: string;
   title: string;
   description: string;
   price: number;
   priceType: "person" | "flat";
+  category?: PackageOptionCategory;
 };
 
 export type DiscountTier = {
@@ -404,6 +407,71 @@ export const experiences: Experience[] = [
       { date: "2026-05-31", label: "오후 18:30", capacity: 8, booked: 7, price: 142000, maxTeams: 2, reservedTeams: 2, teamCapacity: 4, reservationType: "approval", approvalRequired: true },
     ],
   },
+  {
+    slug: "haenyeo-private-storytelling",
+    title: "해녀 프라이빗 스토리텔링 살롱",
+    eyebrow: "문의 예약",
+    region: "구좌",
+    category: "스토리",
+    price: 0,
+    duration: "120분",
+    rating: 5,
+    reviewCount: 12,
+    image: "https://cdn.imweb.me/thumbnail/20230831/2ca78f5658b74.jpg",
+    badge: "문의예약",
+    tags: ["해녀", "스토리", "실내", "프라이빗", "소규모"],
+    summary: "해녀의 일생과 바다 이야기를 작은 살롱에서 깊이 듣는 비공개 프로그램입니다.",
+    description:
+      "회당 정원이 작고, 해녀 호스트의 일정과 인원 구성에 맞춰 운영되어 사전 문의 예약으로 진행됩니다. 희망 일정·인원을 남기면 호스트가 운영 가능 여부와 안내를 함께 회신합니다.",
+    highlights: ["해녀 호스트와의 1:1 살롱", "잠수 도구 시연", "지역 차 페어링", "기록 사진 제공"],
+    included: ["입장", "웰컴 티", "촬영", "호스트 해설"],
+    notices: ["호스트 일정에 따라 회신까지 24시간 정도 걸릴 수 있습니다.", "단체·기업 진행은 별도 견적으로 안내합니다."],
+    host: {
+      name: "구좌 해녀 살롱",
+      description: "구좌 해녀 5인이 직접 운영하는 비공개 살롱입니다.",
+    },
+    place: {
+      name: "구좌 해녀 살롱",
+      address: "제주특별자치도 제주시 구좌읍 해맞이해안로 88",
+    },
+    schedules: [
+      { date: "2026-06-08", label: "오전 11:00", capacity: 6, booked: 0, price: 0, maxTeams: 1, reservedTeams: 0, teamCapacity: 6, reservationType: "inquiry", approvalRequired: true },
+      { date: "2026-06-15", label: "오후 15:00", capacity: 6, booked: 0, price: 0, maxTeams: 1, reservedTeams: 0, teamCapacity: 6, reservationType: "inquiry", approvalRequired: true },
+      { date: "2026-06-22", label: "오전 11:00", capacity: 6, booked: 0, price: 0, maxTeams: 1, reservedTeams: 0, teamCapacity: 6, reservationType: "inquiry", approvalRequired: true },
+    ],
+  },
+  {
+    slug: "corporate-workshop-package",
+    title: "기업·기관 제주 로컬 워크숍 패키지",
+    eyebrow: "기업·기관 패키지",
+    region: "제주시",
+    category: "워크숍",
+    price: 580000,
+    duration: "1박 2일",
+    rating: 4.9,
+    reviewCount: 21,
+    image: "https://cdn.imweb.me/thumbnail/20230831/5089900ac1a12.jpg",
+    badge: "단체",
+    tags: ["기업·기관", "단체", "워크숍", "패키지", "프라이빗"],
+    summary: "팀 빌딩과 로컬 체험을 묶은 단체 견적 전용 패키지입니다. 10명부터 단체 할인이 적용됩니다.",
+    description:
+      "발효 클래스·양조장 투어·해녀 살롱을 기간과 인원에 맞춰 조합합니다. 기간·인원·옵션(숙박·식사·이동)을 선택해 단체 견적을 즉시 받아볼 수 있습니다.",
+    highlights: ["맞춤 프로그램 조합", "단체 할인 자동 적용", "운영팀 24시간 검토", "최종 견적서 발송"],
+    included: ["프로그램 진행", "운영 인력", "단체 사진"],
+    excluded: ["숙박", "이동", "식사 옵션은 별도 견적"],
+    notices: ["10인부터 단체 할인이 적용되고 50인 이상은 별도 안내합니다.", "공휴일·성수기 진행은 가용성에 따라 변동될 수 있습니다."],
+    host: {
+      name: "이더라운드 B2B 운영팀",
+      description: "기업·기관 워크숍과 로컬 패키지를 전담 운영합니다.",
+    },
+    place: {
+      name: "제주 전역 (희망 지역 기준)",
+      address: "선택한 일정·지역에 따라 운영팀이 안내합니다.",
+    },
+    schedules: [
+      { date: "2026-06-12", label: "패키지 견적", capacity: 50, booked: 0, price: 580000, maxTeams: 5, reservedTeams: 0, teamCapacity: 10, reservationType: "inquiry", approvalRequired: true },
+    ],
+  },
 ];
 
 export const events: EventItem[] = [
@@ -477,9 +545,13 @@ export const packagePrograms: PackageProgram[] = [
 ];
 
 export const packageOptions: PackageOption[] = [
-  { id: "lodging", title: "숙박 섭외", description: "1박 기준 숙소 추천 및 견적", price: 90000, priceType: "person" },
-  { id: "meal", title: "식사 포함", description: "로컬 식당 또는 케이터링", price: 25000, priceType: "person" },
-  { id: "transport", title: "이동 차량", description: "일정 내 단체 이동 차량", price: 300000, priceType: "flat" },
+  { id: "lodging-standard", title: "스탠다드 숙박", description: "1박 2인실 기준 숙소 추천 및 섭외", price: 90000, priceType: "person", category: "lodging" },
+  { id: "lodging-pension", title: "단체 펜션 섭외", description: "그룹 단위로 활용 가능한 펜션 풀패키지", price: 70000, priceType: "person", category: "lodging" },
+  { id: "meal-local", title: "로컬 식당 식사", description: "지역 로컬 식당 사전 예약·세팅", price: 25000, priceType: "person", category: "meal" },
+  { id: "meal-catering", title: "케이터링 식사", description: "체험 현장으로 도착하는 단체 케이터링", price: 32000, priceType: "person", category: "meal" },
+  { id: "transport-bus", title: "전세 버스", description: "전 일정 단체 이동(45인승)", price: 480000, priceType: "flat", category: "transport" },
+  { id: "transport-van", title: "프라이빗 밴", description: "소규모 이동을 위한 12인승 밴", price: 300000, priceType: "flat", category: "transport" },
+  { id: "extra-photo", title: "현장 사진 기록", description: "행사 운영 사진·하이라이트 영상 제공", price: 250000, priceType: "flat", category: "extra" },
 ];
 
 export const discountTiers: DiscountTier[] = [

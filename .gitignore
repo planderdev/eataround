@@ -18,3 +18,4 @@ next-dev.err.log
 tsconfig.tsbuildinfo
 Thumbs.db
 .DS_Store
+.claude/settings.local.json

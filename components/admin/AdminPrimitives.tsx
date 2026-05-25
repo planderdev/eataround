@@ -88,7 +88,7 @@ export function AdminFilterBar({ fields, resultLabel }: { fields: FilterField[];
             <RiRefreshLine size={15} />
             초기화
           </button>
-          <button className="admin-action-button primary" type="button" data-admin-filter-apply>
+          <button className="admin-action-button secondary" type="button" data-admin-filter-apply>
             적용
           </button>
         </div>
@@ -117,13 +117,6 @@ export function AdminDataTable<T>({
   return (
     <div className="admin-table-wrap">
       <div className="admin-table-toolbar">
-        <div className="admin-table-density" role="group" aria-label="테이블 밀도">
-          {["compact", "default", "comfortable"].map((density) => (
-            <button data-admin-density={density} key={density} type="button">
-              {density === "compact" ? "Compact" : density === "comfortable" ? "Comfortable" : "Default"}
-            </button>
-          ))}
-        </div>
         <details className="admin-table-column-menu">
           <summary>
             <RiLayoutColumnLine size={15} />

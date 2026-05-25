@@ -32,6 +32,7 @@ export function WishlistButton({ className = "", label = "찜하기", showLabel 
     try {
       const result = await toggleWishlist(slug);
       setSaved(result.saved);
+      window.dispatchEvent(new Event("wishlist:changed"));
       window.dispatchEvent(
         new CustomEvent("site-toast", {
           detail: result.saved ? "찜 목록에 저장했습니다." : "찜 목록에서 삭제했습니다.",

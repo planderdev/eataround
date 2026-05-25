@@ -73,9 +73,46 @@ export default async function EventDetailPage({ params }: PageProps) {
       icon: RiFileList3Line,
     },
   ];
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://eataround.co.kr";
+  const eventUrl = `${siteUrl}${userRoutes.events}/${event.slug}`;
+  const eventJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Event",
+    name: event.title,
+    description: event.summary,
+    startDate,
+    endDate,
+    eventStatus: isOngoing
+      ? "https://schema.org/EventScheduled"
+      : "https://schema.org/EventEnded",
+    eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+    location: {
+      "@type": "Place",
+      name: event.venue,
+      address: event.venue,
+    },
+    image: [event.image],
+    organizer: {
+      "@type": "Organization",
+      name: event.partner,
+      url: siteUrl,
+    },
+    url: eventUrl,
+  };
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "홈", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "행사", item: `${siteUrl}${userRoutes.events}` },
+      { "@type": "ListItem", position: 3, name: event.title, item: eventUrl },
+    ],
+  };
 
   return (
     <main className="event-detail-page">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(eventJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <section className="event-detail-hero">
         <div className="event-detail-hero-media" aria-hidden="true">
           <img src={event.image} alt="" />

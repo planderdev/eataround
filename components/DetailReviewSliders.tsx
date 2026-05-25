@@ -179,7 +179,7 @@ function ReviewSwiper({ reviews }: { reviews: NormalizedReview[] }) {
         {lightboxImages.map((item, index) => (
           <SwiperSlide key={`${item.image}-${index}`}>
             <figure className="detail-review-lightbox-slide">
-              <img src={item.image} alt={item.alt} />
+              <img src={item.image} alt={item.alt} loading="lazy" decoding="async" />
               <figcaption>{item.name}</figcaption>
             </figure>
           </SwiperSlide>

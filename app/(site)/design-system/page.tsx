@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
-import { RiCheckboxCircleLine, RiErrorWarningLine, RiInbox2Line } from "@remixicon/react";
+import {
+  RiArrowRightLine,
+  RiBuilding2Line,
+  RiChat3Line,
+  RiCheckboxCircleLine,
+  RiErrorWarningLine,
+  RiInbox2Line,
+} from "@remixicon/react";
 import { ProductBadge, type BadgeTone } from "@/components/Badge";
 import { DsSidebar } from "@/components/DsSidebar";
 
@@ -678,6 +685,95 @@ export default function DesignSystemPage() {
                   <small>예약 마감</small>
                 </button>
               </div>
+            </div>
+          </Section>
+
+          {/* Booking Patterns */}
+          <Section title="Booking Patterns">
+            <p className="ds-section-desc">상품 상세 예약 패널은 회차 예약(기본), 문의형 예약, B2B 패키지 견적 안내의 세 가지 모드를 가집니다. 각 모드는 같은 <code>.booking-panel</code> 컨테이너 위에 mode별 보조 클래스로만 변화합니다.</p>
+
+            <h3 className="ds-subsection-title">Inline Notice — .booking-inquiry-note</h3>
+            <div className="ds-narrow">
+              <p className="booking-inquiry-note">
+                <RiChat3Line size={16} />
+                희망 일정과 인원을 남겨 주시면 호스트 일정 확인 후 24시간 안에 안내드립니다.
+              </p>
+            </div>
+
+            <h3 className="ds-subsection-title">Inquiry Form Row — .booking-inquiry-row</h3>
+            <div className="ds-narrow">
+              <form className="booking-inquiry-form">
+                <label className="field">
+                  <span>이름<abbr aria-label="필수" title="필수 입력">*</abbr></span>
+                  <input placeholder="실명을 입력해 주세요" type="text" />
+                </label>
+                <div className="booking-inquiry-row">
+                  <label className="field">
+                    <span>희망 일정</span>
+                    <input placeholder="YYYY-MM-DD" type="text" />
+                  </label>
+                  <label className="field">
+                    <span>인원</span>
+                    <input min={1} defaultValue={2} type="number" />
+                  </label>
+                </div>
+              </form>
+            </div>
+
+            <h3 className="ds-subsection-title">Package Checklist — .booking-package-points</h3>
+            <div className="ds-narrow">
+              <ul className="booking-package-points">
+                <li><RiCheckboxCircleLine size={16} />기간·프로그램을 묶어 한 번에 요청</li>
+                <li><RiCheckboxCircleLine size={16} />인원별 단체 할인(최대 15%) 자동 미리보기</li>
+                <li><RiCheckboxCircleLine size={16} />담당자가 24시간 안에 견적서 발송</li>
+              </ul>
+            </div>
+
+            <h3 className="ds-subsection-title">Cross-mode CTA — .booking-alt-cta</h3>
+            <div className="ds-narrow">
+              <a className="booking-alt-cta" href="#booking-patterns">
+                <span><RiBuilding2Line size={16} />단체 견적이 필요하신가요?</span>
+                <RiArrowRightLine size={16} />
+              </a>
+            </div>
+
+            <div className="ds-token-list">
+              <TokenRow name=".booking-inquiry-note" value="primary-50 surface · padding 16px · 16px icon + body" />
+              <TokenRow name=".booking-inquiry-form" value="display: grid · gap --space-16 (re-uses .field controls)" />
+              <TokenRow name=".booking-inquiry-row" value="1.4fr 1fr grid (1fr on ≤640px)" />
+              <TokenRow name=".booking-package-points" value="grid list · primary check icon · font-size sm" />
+              <TokenRow name=".booking-alt-cta" value="dashed border · hover → primary-50 · used as cross-mode handoff" />
+              <TokenRow name=".detail-option-bar--inquiry" value="모바일 sticky bar (문의형) · 어디서든 #reserve-form 으로 jump" />
+              <TokenRow name=".detail-option-bar--package" value="모바일 sticky bar (패키지) · /b2b/quote 로 라우팅 · primary-50 surface" />
+              <TokenRow name="detectBookingMode(experience)" value='lib/booking-mode.ts → "schedule" | "inquiry" | "package" · BookingPanel + DetailOptionSelector 공통' />
+            </div>
+          </Section>
+
+          {/* Filter Source of Truth */}
+          <Section title="Filter Source of Truth">
+            <p className="ds-section-desc">상품 리스트·검색·관리자 상품 등록 폼이 같은 모듈에서 옵션을 가져옵니다. 새 옵션은 <code>lib/experience-filters.ts</code>에 한 번만 추가하면 모든 화면에 반영됩니다.</p>
+            <div className="ds-token-list">
+              <TokenRow name="regionGroups" value="제주시 / 서귀포시 / 동부 / 서부 (areas 매핑 포함)" />
+              <TokenRow name="experienceCategories" value="쿠킹·베이킹 / 지역·전통 / 웰니스 / 아이와함께 / 캠핑·액티비티" />
+              <TokenRow name="pricePresetOptions" value="3만↓ / 3-5만 / 5-10만 / 10만↑" />
+              <TokenRow name="durationPresetOptions" value="1시간↓ / 2시간 / 반나절 / 1박2일" />
+              <TokenRow name="reservationTypeOptions" value="즉시 / 승인 / 문의 / 단체" />
+              <TokenRow name="applyExperienceFilters()" value="search/page.tsx, experiences/page.tsx 공통 술어" />
+              <TokenRow name="createExperienceFilterTabs()" value="필터 모달 탭 빌더" />
+            </div>
+          </Section>
+
+          {/* Admin Inline Patterns */}
+          <Section title="Admin Inline Patterns">
+            <p className="ds-section-desc">관리자 데이터 테이블 행에서 별도 모달 없이 즉시 결정·편집을 수행하는 인라인 폼 패턴입니다. 실패하면 <code>notifyAdminToast()</code>로 상단 토스트가 표시됩니다.</p>
+            <div className="ds-token-list">
+              <TokenRow name=".admin-inline-actions" value="행 액션 버튼 그룹 (mode='idle' | 'reject' 토글)" />
+              <TokenRow name=".admin-inline-reject" value="거절/반려 사유 입력 폼 · danger-soft surface · textarea required" />
+              <TokenRow name=".admin-stock-editor" value="회차 좌석/팀/팀당 인원 인라인 편집 · dirty 시에만 저장 활성" />
+              <TokenRow name="ReservationActionInline" value="예약 확정·안내발송·거절(사유 필수)" />
+              <TokenRow name="MemberApprovalInline" value="기업회원 승인·안내·반려(사유 필수)" />
+              <TokenRow name="ScheduleStockEditor" value="회차 마감·재고 저장" />
+              <TokenRow name="notifyAdminToast(message, tone)" value="lib/admin/toast.ts · AdminShell이 listen · 5초 자동 사라짐" />
             </div>
           </Section>
 

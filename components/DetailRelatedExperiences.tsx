@@ -18,7 +18,7 @@ export function DetailRelatedExperiences({ items }: DetailRelatedExperiencesProp
       grabCursor
       modules={[Pagination]}
       pagination={{ clickable: true }}
-      slidesPerView={1.18}
+      slidesPerView={1.5}
       spaceBetween={16}
       breakpoints={{
         560: { slidesPerView: 2.08, spaceBetween: 16 },

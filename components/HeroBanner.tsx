@@ -58,10 +58,18 @@ export function HeroBanner({ slides }: { slides: HeroSlide[] }) {
           {slides.map((slide, index) => {
             const Heading = index === 0 ? "h1" : "h2";
             const headingProps = index === 0 ? { id: "home-hero-title" } : {};
+            const isFirst = index === 0;
 
             return (
               <SwiperSlide key={slide.title}>
-                <img src={slide.image} alt={slide.title} className="hero-image" />
+                <img
+                  src={slide.image}
+                  alt={slide.title}
+                  className="hero-image"
+                  decoding={isFirst ? "sync" : "async"}
+                  fetchPriority={isFirst ? "high" : "low"}
+                  loading={isFirst ? "eager" : "lazy"}
+                />
                 <div className="hero-overlay" />
                 <div className="hero-content">
                   <span className="hero-kicker">

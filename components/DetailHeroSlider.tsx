@@ -30,7 +30,13 @@ export function DetailHeroSlider({ images, title }: DetailHeroSliderProps) {
         >
           {slides.map((image, index) => (
             <SwiperSlide key={`${image}-${index}`}>
-              <img src={image} alt={`${title} 이미지 ${index + 1}`} />
+              <img
+                src={image}
+                alt={`${title} 이미지 ${index + 1}`}
+                decoding={index === 0 ? "sync" : "async"}
+                fetchPriority={index === 0 ? "high" : "auto"}
+                loading={index === 0 ? "eager" : "lazy"}
+              />
             </SwiperSlide>
           ))}
         </Swiper>
