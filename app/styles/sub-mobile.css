@@ -188,7 +188,7 @@
     height: 44px;
   }
   .event-detail-outcome-band div + div {
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    border-top: 1px solid rgba(248, 244, 238, 0.14);
     border-left: 0;
   }
   .auth-choice-card {
@@ -697,7 +697,7 @@
     gap: var(--space-16);
     border: 1px solid rgba(223, 231, 226, 0.95);
     border-radius: var(--radius-card);
-    background: rgba(255, 255, 255, 0.96);
+    background: rgba(248, 244, 238, 0.96);
     box-shadow: var(--shadow-bottom-nav);
     padding: var(--space-16);
     backdrop-filter: blur(14px);

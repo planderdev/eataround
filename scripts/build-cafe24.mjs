@@ -6,7 +6,7 @@ const rootDir = process.cwd();
 const tempDir = join(rootDir, ".cafe24-tmp");
 const deployDir = join(rootDir, "deploy", "cafe24", "eataround");
 const command = process.platform === "win32" ? "cmd.exe" : "npx";
-const args = process.platform === "win32" ? ["/c", "npx.cmd", "next", "build"] : ["next", "build"];
+const args = process.platform === "win32" ? ["/c", "npx.cmd", "next", "build", "--webpack"] : ["next", "build", "--webpack"];
 const env = {
   ...process.env,
   CAFE24_EXPORT: "1",
@@ -26,8 +26,11 @@ const copyEntries = [
 ];
 
 const staticSearchParamPages = [
+  "app/robots.ts",
+  "app/sitemap.ts",
   "app/(site)/experiences/page.tsx",
   "app/(site)/local-experiences/page.tsx",
+  "app/(site)/booking/complete/page.tsx",
   "app/(site)/curations/page.tsx",
   "app/(site)/events/page.tsx",
   "app/(site)/events/ended/page.tsx",
@@ -47,6 +50,8 @@ function copySource() {
   }
 
   rmSync(join(tempDir, "app", "api"), { recursive: true, force: true });
+  rmSync(join(tempDir, "app", "(site)", "[...notfound]"), { recursive: true, force: true });
+  rmSync(join(tempDir, "app", "admin", "[...notfound]"), { recursive: true, force: true });
 }
 
 function copyEntry(source, destination) {

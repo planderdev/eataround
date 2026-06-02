@@ -29,10 +29,10 @@ type TooltipPayload = {
 };
 
 const categoryShare = [
-  { label: "쿠킹·베이킹", value: 42, color: "#236f55" },
-  { label: "지역·전통", value: 28, color: "#f1b940" },
-  { label: "웰니스", value: 18, color: "#3868b2" },
-  { label: "기타", value: 12, color: "#d7e5de" },
+  { label: "쿠킹·베이킹", value: 42, color: "#2A5E42" },
+  { label: "지역·전통", value: 28, color: "#F1C180" },
+  { label: "웰니스", value: 18, color: "#C9E9EB" },
+  { label: "기타", value: 12, color: "#F9A2A2" },
 ];
 
 const dayLabels = ["월", "화", "수", "목", "금", "토", "일", "월", "화", "수"];
@@ -94,15 +94,15 @@ export function AdminDashboardCharts({ bars, totalReservations, totalSales }: Ad
         <div className="admin-recharts-frame" aria-label={`${mode === "reservations" ? "예약" : "매출"} 막대 차트`}>
           <ResponsiveContainer height="100%" initialDimension={{ width: 900, height: 260 }} minWidth={0} width="100%">
             <BarChart data={chartData} margin={{ top: 12, right: 8, bottom: 0, left: -18 }} onMouseLeave={() => setActiveBar(chartData.length - 1)}>
-              <CartesianGrid stroke="#e4ece7" strokeDasharray="3 3" vertical={false} />
-              <XAxis axisLine={false} dataKey="label" tick={{ fill: "#66736d", fontSize: 13, fontWeight: 700 }} tickLine={false} />
-              <YAxis axisLine={false} tick={{ fill: "#93a099", fontSize: 12 }} tickLine={false} width={42} />
-              <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(35, 111, 85, 0.06)", radius: 8 }} />
+              <CartesianGrid stroke="#C9E9EB" strokeDasharray="3 3" vertical={false} />
+              <XAxis axisLine={false} dataKey="label" tick={{ fill: "#424241", fontSize: 13, fontWeight: 700 }} tickLine={false} />
+              <YAxis axisLine={false} tick={{ fill: "#424241", fontSize: 12 }} tickLine={false} width={42} />
+              <Tooltip content={<ChartTooltip />} cursor={{ fill: "rgba(42, 94, 66, 0.06)", radius: 8 }} />
               <Bar dataKey="value" maxBarSize={44} radius={[10, 10, 4, 4]}>
                 {chartData.map((entry, index) => (
                   <Cell
                     cursor="pointer"
-                    fill={activeBar === index ? "#236f55" : "#bfe7d5"}
+                    fill={activeBar === index ? "#2A5E42" : "#C9E9EB"}
                     key={entry.index}
                     onClick={() => setActiveBar(index)}
                     onMouseEnter={() => setActiveBar(index)}
@@ -157,7 +157,7 @@ export function AdminDashboardCharts({ bars, totalReservations, totalSales }: Ad
                 onClick={(_, index) => setActiveCategory(index)}
               >
                 {categoryShare.map((entry, index) => (
-                  <Cell fill={entry.color} key={entry.label} opacity={activeCategory === index ? 1 : 0.58} stroke="#fff" strokeWidth={4} />
+                  <Cell fill={entry.color} key={entry.label} opacity={activeCategory === index ? 1 : 0.58} stroke="#F8F4EE" strokeWidth={4} />
                 ))}
               </Pie>
             </PieChart>

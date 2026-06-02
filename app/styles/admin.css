@@ -3,9 +3,26 @@
   display: grid;
   min-height: 100dvh;
   grid-template-columns: var(--admin-sidebar-width) minmax(0, 1fr);
+  font-family: var(--admin-font-family-body);
   background:
-    radial-gradient(circle at top right, rgba(35, 111, 85, 0.08), transparent 34%),
+    radial-gradient(circle at top right, rgba(42, 94, 66, 0.08), transparent 34%),
     var(--admin-bg);
+}
+
+.admin-page-header h1,
+.admin-login-card h1,
+.admin-card-header h2,
+.admin-ops-hero h2,
+.admin-workflow-hero h2,
+.admin-confirm-dialog h2,
+.admin-slideover-header h2,
+.admin-creation-head h2,
+.admin-banner-preview h2,
+.admin-quote-document-header h1,
+.admin-quote-document-notes h2,
+.admin-status-page h1 {
+  font-family: var(--admin-font-family-title);
+  font-weight: var(--admin-font-weight-bold);
 }
 
 .admin-sidebar {
@@ -261,7 +278,7 @@
 
 .admin-topbar-link:hover,
 .admin-topbar-icon:hover {
-  border-color: rgba(35, 111, 85, 0.28);
+  border-color: rgba(42, 94, 66, 0.28);
   background: var(--admin-primary-soft);
   color: var(--admin-color-primary);
   transform: translateY(-1px);
@@ -307,7 +324,7 @@
   display: none;
   border: 1px dashed var(--admin-line-strong);
   border-radius: var(--admin-radius-card);
-  background: rgba(255, 255, 255, 0.76);
+  background: rgba(248, 244, 238, 0.76);
   padding: var(--admin-space-24);
   text-align: center;
 }
@@ -1063,7 +1080,7 @@
   min-height: 100dvh;
   place-items: center;
   background:
-    linear-gradient(135deg, rgba(35, 111, 85, 0.1), transparent 42%),
+    linear-gradient(135deg, rgba(42, 94, 66, 0.1), transparent 42%),
     var(--admin-bg);
   padding: var(--admin-space-24);
 }
@@ -1086,7 +1103,7 @@
   align-content: space-between;
   gap: var(--admin-space-32);
   overflow: hidden;
-  background: linear-gradient(135deg, rgba(16, 52, 40, 0.94), rgba(35, 111, 85, 0.84));
+  background: linear-gradient(135deg, rgba(42, 94, 66, 0.94), rgba(42, 94, 66, 0.84));
   color: var(--admin-surface);
   padding: var(--admin-space-40);
 }
@@ -1105,7 +1122,7 @@
   inset: auto -12% -18% auto;
   width: 320px;
   height: 320px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(248, 244, 238, 0.18);
   border-radius: 50%;
   content: "";
 }
@@ -1134,7 +1151,7 @@
 
 .admin-login-visual div p {
   margin: 0;
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(248, 244, 238, 0.78);
   font-size: var(--admin-font-size-sm);
   line-height: 1.8;
 }
@@ -1200,7 +1217,7 @@
 }
 
 .admin-login-visual .admin-login-brand span {
-  color: rgba(255, 255, 255, 0.78);
+  color: rgba(248, 244, 238, 0.78);
 }
 
 .admin-login-form .admin-login-remember {
@@ -1552,7 +1569,7 @@
 .admin-action-button:hover,
 .admin-inline-form button:hover,
 .admin-icon-button:hover {
-  border-color: rgba(35, 111, 85, 0.34);
+  border-color: rgba(42, 94, 66, 0.34);
   background: var(--admin-primary-soft);
   color: var(--admin-color-primary);
   transform: translateY(-1px);
@@ -2085,12 +2102,12 @@
 }
 
 .admin-data-table tbody tr[data-selected="true"] {
-  background: rgba(35, 111, 85, 0.035);
+  background: rgba(42, 94, 66, 0.035);
 }
 
 .admin-data-table tbody tr[data-selected="true"]:hover,
 .admin-data-table tbody tr[data-selected="true"]:focus-visible {
-  background: rgba(35, 111, 85, 0.06);
+  background: rgba(42, 94, 66, 0.06);
 }
 
 .admin-table-check {
@@ -2103,7 +2120,7 @@
   display: block;
   width: 16px;
   height: 16px;
-  border-color: #cad8d1;
+  border-color: var(--admin-color-brand-mint);
   border-radius: 5px;
   background: var(--admin-surface);
 }
@@ -2203,7 +2220,7 @@
 }
 
 .admin-nav-group[data-active="true"] {
-  background: rgba(35, 111, 85, 0.045);
+  background: rgba(42, 94, 66, 0.045);
 }
 
 .admin-nav-group[data-active="true"] > span {
@@ -2257,7 +2274,7 @@
   overflow: hidden;
   border-left: 4px solid var(--admin-color-primary);
   background:
-    linear-gradient(135deg, rgba(237, 246, 241, 0.96), rgba(255, 255, 255, 0.92)),
+    linear-gradient(135deg, rgba(201, 233, 235, 0.96), rgba(248, 244, 238, 0.92)),
     var(--admin-surface);
   padding: var(--admin-space-16);
 }
@@ -2296,7 +2313,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   border: 1px solid var(--admin-line-strong);
   border-radius: var(--admin-radius-control);
-  background: rgba(255, 255, 255, 0.68);
+  background: rgba(248, 244, 238, 0.68);
   overflow: hidden;
 }
 
@@ -2540,7 +2557,7 @@
   border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius-card);
   background:
-    linear-gradient(180deg, rgba(237, 246, 241, 0.52), rgba(255, 255, 255, 0.96)),
+    linear-gradient(180deg, rgba(201, 233, 235, 0.52), rgba(248, 244, 238, 0.96)),
     var(--admin-surface-soft);
   padding: var(--admin-space-12) var(--admin-space-8) var(--admin-space-8);
 }
@@ -2556,7 +2573,7 @@
 }
 
 .admin-recharts-frame .recharts-rectangle:hover {
-  filter: drop-shadow(0 8px 12px rgba(35, 111, 85, 0.16));
+  filter: drop-shadow(0 8px 12px rgba(42, 94, 66, 0.16));
 }
 
 .admin-recharts-tooltip {
@@ -2564,7 +2581,7 @@
   gap: 3px;
   border: 1px solid var(--admin-line-strong);
   border-radius: var(--admin-radius-control);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(248, 244, 238, 0.96);
   padding: var(--admin-space-8) var(--admin-space-12);
   box-shadow: var(--admin-card-shadow);
 }
@@ -2884,7 +2901,7 @@
   gap: 4px;
   border-right: 1px solid var(--admin-line);
   background:
-    linear-gradient(135deg, rgba(237, 246, 241, 0.92), rgba(255, 255, 255, 0.92)),
+    linear-gradient(135deg, rgba(201, 233, 235, 0.92), rgba(248, 244, 238, 0.92)),
     var(--admin-surface-soft);
   padding: var(--admin-space-12);
 }
@@ -2974,7 +2991,7 @@
   min-height: 42px;
   border-color: var(--admin-line-strong);
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(248, 250, 249, 0.92)),
+    linear-gradient(180deg, rgba(248, 244, 238, 0.92), rgba(248, 244, 238, 0.92)),
     var(--admin-surface);
 }
 
@@ -3052,7 +3069,7 @@
   border-left: 4px solid var(--admin-color-primary);
   border-radius: var(--admin-radius-card);
   background:
-    linear-gradient(135deg, rgba(237, 246, 241, 0.95), rgba(255, 255, 255, 0.95)),
+    linear-gradient(135deg, rgba(201, 233, 235, 0.95), rgba(248, 244, 238, 0.95)),
     var(--admin-surface);
   padding: var(--admin-space-16);
 }
@@ -3086,7 +3103,7 @@
   overflow: hidden;
   border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius-control);
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(248, 244, 238, 0.72);
 }
 
 .admin-workflow-hero dl div {
@@ -3254,7 +3271,7 @@
 
 /* Admin UX upgrade */
 .admin-action-button.secondary {
-  border-color: rgba(35, 111, 85, 0.28);
+  border-color: rgba(42, 94, 66, 0.28);
   background: var(--admin-primary-soft);
   color: var(--admin-color-primary);
 }
@@ -3549,7 +3566,7 @@
 }
 
 .admin-module-summary[data-module="corporate"] .admin-stat-card:first-child {
-  background: linear-gradient(135deg, rgba(237, 246, 241, 0.96), rgba(255, 255, 255, 0.98));
+  background: linear-gradient(135deg, rgba(201, 233, 235, 0.96), rgba(248, 244, 238, 0.98));
 }
 
 .admin-product-overview,
@@ -3614,7 +3631,7 @@
 .admin-product-overview small,
 .admin-event-showcase small {
   margin-top: var(--admin-space-4, 4px);
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(248, 244, 238, 0.82);
   font-size: var(--admin-font-size-xs);
 }
 
@@ -3862,7 +3879,7 @@
   gap: var(--admin-space-8);
   border: 1px solid var(--admin-line-strong);
   border-radius: var(--admin-radius-control);
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(248, 244, 238, 0.96);
   padding: 0 var(--admin-space-12);
   box-shadow: var(--admin-card-shadow);
   opacity: 0;
@@ -4559,7 +4576,7 @@
   overflow: hidden;
   border-radius: var(--admin-radius-card);
   background:
-    linear-gradient(180deg, rgba(16, 52, 40, 0.12) 0%, rgba(16, 52, 40, 0.82) 100%),
+    linear-gradient(180deg, rgba(42, 94, 66, 0.12) 0%, rgba(42, 94, 66, 0.82) 100%),
     var(--admin-color-primary);
   background-position: center;
   background-size: cover;
@@ -4571,7 +4588,7 @@
 .admin-banner-preview span {
   width: fit-content;
   border-radius: var(--admin-radius-pill);
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(248, 244, 238, 0.18);
   padding: 6px var(--admin-space-12);
   font-size: var(--admin-font-size-xs);
   font-weight: var(--admin-font-weight-bold);
@@ -4944,7 +4961,7 @@
     display: none !important;
   }
   .admin-quote-preview-page {
-    background: #fff;
+    background: var(--admin-surface);
     padding: 0;
   }
   .admin-quote-document {

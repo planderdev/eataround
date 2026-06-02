@@ -41,11 +41,11 @@ function TokenRow({ name, value, preview }: { name: string; value: string; previ
 
 const colors = {
   semantic: [
-    { name: "--color-ink", hex: "#1d2522", label: "Ink" },
-    { name: "--color-muted", hex: "#66736d", label: "Muted" },
-    { name: "--color-line", hex: "#dfe7e2", label: "Line" },
+    { name: "--color-ink", hex: "#171717", label: "Ink" },
+    { name: "--color-muted", hex: "#424241", label: "Muted" },
+    { name: "--color-line", hex: "#DFF3EA", label: "Line" },
     { name: "--color-surface", hex: "#ffffff", label: "Surface" },
-    { name: "--color-soft", hex: "#f7f7f9", label: "Soft" },
+    { name: "--color-soft", hex: "#F2FAF7", label: "Soft" },
   ],
   primary: [
     { name: "--color-primary-50", hex: "#F2FAF7" },
@@ -60,18 +60,17 @@ const colors = {
     { name: "--color-primary-900", hex: "#103428" },
   ],
   accent: [
-    { name: "--color-coral", hex: "#e8634d", label: "Coral" },
-    { name: "--color-blue", hex: "#3868b2", label: "Blue" },
-    { name: "--color-yellow", hex: "#f1b940", label: "Yellow" },
-    { name: "--color-red", hex: "#cf4d45", label: "Red" },
+    { name: "--color-coral", hex: "#F9A2A2", label: "Rose" },
+    { name: "--color-blue", hex: "#C9E9EB", label: "Mint" },
+    { name: "--color-yellow", hex: "#F1C180", label: "Gold" },
   ],
   badge: [
-    { name: "--color-badge-sale", hex: "#236f55", label: "Sale" },
-    { name: "--color-badge-urgent", hex: "#bb62f2", label: "Urgent" },
-    { name: "--color-badge-stock", hex: "#cf4d45", label: "Stock" },
-    { name: "--color-badge-ongoing", hex: "#169b76", label: "Ongoing" },
-    { name: "--color-badge-booking", hex: "#e8634d", label: "Booking" },
-    { name: "--color-badge-neutral", hex: "#4c5a54", label: "Neutral" },
+    { name: "--color-badge-sale", hex: "#2A5E42", label: "Sale", sample: "특가", bg: "#2A5E42", text: "#ffffff", line: "#2A5E42" },
+    { name: "--color-badge-urgent", hex: "#F1C180", label: "Urgent", sample: "마감임박", bg: "#F1C180", text: "#171717", line: "#F1C180" },
+    { name: "--color-badge-stock", hex: "#F9A2A2", label: "Stock", sample: "1자리 남음", bg: "#F9A2A2", text: "#171717", line: "#F9A2A2" },
+    { name: "--color-badge-ongoing", hex: "#C9E9EB", label: "Ongoing", sample: "진행중", bg: "#C9E9EB", text: "#171717", line: "#C9E9EB" },
+    { name: "--color-badge-booking", hex: "#F2FAF7", label: "Booking", sample: "예약중", bg: "#F2FAF7", text: "#2A5E42", line: "#2A5E42" },
+    { name: "--color-badge-neutral", hex: "#424241", label: "Neutral", sample: "일반", bg: "#424241", text: "#ffffff", line: "#424241" },
   ],
 };
 
@@ -126,9 +125,9 @@ const radii = [
 const badgeTones: { tone: BadgeTone; label: string }[] = [
   { tone: "sale", label: "특가" },
   { tone: "urgent", label: "마감임박" },
-  { tone: "stock", label: "잔여1" },
+  { tone: "stock", label: "1자리 남음" },
   { tone: "ongoing", label: "진행중" },
-  { tone: "booking", label: "예약오픈" },
+  { tone: "booking", label: "예약중" },
   { tone: "neutral", label: "일반" },
 ];
 
@@ -167,10 +166,10 @@ export default function DesignSystemPage() {
             <div className="ds-primary-scale">
               {colors.primary.map((c) => (
                 <div key={c.name} className="ds-primary-chip" style={{ background: c.hex }}>
-                  <span className="ds-primary-chip-name" style={{ color: c.hex === "#F2FAF7" || c.hex === "#DFF3EA" ? "#236f55" : "#fff" }}>
+                  <span className="ds-primary-chip-name" style={{ color: c.hex === "#F2FAF7" || c.hex === "#DFF3EA" ? "#236F55" : "#F8F4EE" }}>
                     {c.name.replace("--color-primary-", "")}
                   </span>
-                  <span className="ds-primary-chip-hex" style={{ color: c.hex === "#F2FAF7" || c.hex === "#DFF3EA" ? "#236f55" : "rgba(255,255,255,0.75)" }}>
+                  <span className="ds-primary-chip-hex" style={{ color: c.hex === "#F2FAF7" || c.hex === "#DFF3EA" ? "#236F55" : "rgba(248,244,238,0.75)" }}>
                     {c.hex}
                   </span>
                 </div>
@@ -193,7 +192,12 @@ export default function DesignSystemPage() {
             <div className="ds-color-grid">
               {colors.badge.map((c) => (
                 <div key={c.name} className="ds-color-swatch">
-                  <div className="ds-color-chip" style={{ background: c.hex }} />
+                  <div
+                    className="ds-color-chip ds-color-chip--badge"
+                    style={{ background: c.bg, color: c.text, border: `1px solid ${c.line}` }}
+                  >
+                    <span>{c.sample}</span>
+                  </div>
                   <p className="ds-color-label">{c.label}</p>
                   <code className="ds-color-token">{c.name}</code>
                   <span className="ds-color-hex">{c.hex}</span>
@@ -204,19 +208,19 @@ export default function DesignSystemPage() {
             <h3 className="ds-subsection-title">Semantic Feedback</h3>
             <div className="ds-color-grid">
               <div className="ds-color-swatch">
-                <div className="ds-color-chip" style={{ background: "#236F55" }} />
+                <div className="ds-color-chip" style={{ background: "#2A5E42" }} />
                 <p className="ds-color-label">Success</p>
                 <code className="ds-color-token">--color-success</code>
                 <span className="ds-color-hex">→ --color-primary</span>
               </div>
               <div className="ds-color-swatch">
-                <div className="ds-color-chip" style={{ background: "#cf4d45" }} />
+                <div className="ds-color-chip" style={{ background: "#F9A2A2" }} />
                 <p className="ds-color-label">Error</p>
                 <code className="ds-color-token">--color-error</code>
                 <span className="ds-color-hex">→ --color-red</span>
               </div>
               <div className="ds-color-swatch">
-                <div className="ds-color-chip" style={{ background: "#f1b940" }} />
+                <div className="ds-color-chip" style={{ background: "#F1C180" }} />
                 <p className="ds-color-label">Warning</p>
                 <code className="ds-color-token">--color-warning</code>
                 <span className="ds-color-hex">→ --color-yellow</span>
@@ -228,8 +232,8 @@ export default function DesignSystemPage() {
           <Section title="Typography">
             <h3 className="ds-subsection-title">Font Family</h3>
             <div className="ds-font-family-demo">
-              <p className="ds-font-sample">가나다라마바사 Pretendard ABCDEFG 0123456789</p>
-              <code className="ds-token-name">Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif</code>
+              <p className="ds-font-sample">가나다라마바사 WantedSans ABCDEFG 0123456789</p>
+              <code className="ds-token-name">Body: WantedSans · Title: Paperlogy</code>
             </div>
 
             <h3 className="ds-subsection-title">Font Weight</h3>
@@ -291,12 +295,12 @@ export default function DesignSystemPage() {
           <Section title="Shadow">
             <div className="ds-shadow-grid">
               {[
-                { name: "--shadow-xs", value: "0 6px 18px rgba(35,60,48,0.08)", shadow: "0 6px 18px rgba(35,60,48,0.08)" },
-                { name: "--shadow-sm", value: "0 10px 28px rgba(36,54,45,0.06)", shadow: "0 10px 28px rgba(36,54,45,0.06)" },
-                { name: "--shadow-soft", value: "0 18px 44px rgba(35,60,48,0.12)", shadow: "0 18px 44px rgba(35,60,48,0.12)" },
+                { name: "--shadow-xs", value: "0 6px 18px rgba(42,94,66,0.08)", shadow: "0 6px 18px rgba(42,94,66,0.08)" },
+                { name: "--shadow-sm", value: "0 10px 28px rgba(66,66,65,0.06)", shadow: "0 10px 28px rgba(66,66,65,0.06)" },
+                { name: "--shadow-soft", value: "0 18px 44px rgba(42,94,66,0.12)", shadow: "0 18px 44px rgba(42,94,66,0.12)" },
                 { name: "--shadow-lg", value: "0 24px 52px rgba(18,30,24,0.12)", shadow: "0 24px 52px rgba(18,30,24,0.12)" },
                 { name: "--shadow-xl", value: "0 26px 70px rgba(16,24,20,0.24)", shadow: "0 26px 70px rgba(16,24,20,0.24)" },
-                { name: "--shadow-focus", value: "0 0 0 3px rgba(35,111,85,0.08)", shadow: "0 0 0 3px rgba(35,111,85,0.08), 0 0 0 1px var(--color-primary)" },
+                { name: "--shadow-focus", value: "0 0 0 3px rgba(42,94,66,0.08)", shadow: "0 0 0 3px rgba(42,94,66,0.08), 0 0 0 1px var(--color-primary)" },
               ].map((s) => (
                 <div key={s.name} className="ds-shadow-item">
                   <div className="ds-shadow-box" style={{ boxShadow: s.shadow }} />
@@ -398,7 +402,7 @@ export default function DesignSystemPage() {
             </div>
             <h3 className="ds-subsection-title">Tokens</h3>
             <div className="ds-token-list">
-              <TokenRow name="--shadow-focus" value="0 0 0 3px rgba(35,111,85,0.08)" />
+              <TokenRow name="--shadow-focus" value="0 0 0 3px rgba(42,94,66,0.08)" />
               <TokenRow name=":focus-visible outline" value="2px solid --color-primary · offset 2px" />
               <TokenRow name=".focus-ring" value="border-color + --shadow-focus (input 스타일 포커스)" />
             </div>
@@ -533,7 +537,7 @@ export default function DesignSystemPage() {
                 <code className="ds-token-name">md</code>
               </div>
               <div className="ds-avatar-item">
-                <div className="avatar avatar-lg" style={{ background: "linear-gradient(135deg, var(--color-coral), #f5a887)" }} />
+                <div className="avatar avatar-lg" style={{ background: "linear-gradient(135deg, var(--color-coral), var(--color-yellow))" }} />
                 <code className="ds-token-name">lg</code>
               </div>
             </div>

@@ -91,7 +91,7 @@ export default async function HomePage() {
         <PackageCtaCarousel items={packageCtas} />
       </section>
 
-      <div className="section-band section-band--cream">
+      <div className="section-band">
         <section className="main-section mobile-carousel-section" data-aos="fade-up">
           <SectionHeader eyebrow="Journal" title="저널" href="/journal" />
           <div className="journal-grid">

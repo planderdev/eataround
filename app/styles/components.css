@@ -176,7 +176,7 @@
   width: 100vw;
   border-top: 1px solid var(--color-line-soft);
   border-bottom: 1px solid var(--color-line);
-  background: rgba(255, 255, 255, 0.98);
+  background: #fff;
   box-shadow: var(--shadow-lg);
   opacity: 0;
   pointer-events: none;
@@ -225,7 +225,7 @@
   box-shadow: var(--shadow-image-inset);
 }
 .mega-menu-intro span {
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(248, 244, 238, 0.82);
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
   text-transform: uppercase;
@@ -242,7 +242,7 @@
 .mega-menu-intro p {
   margin: 0;
   max-width: 310px;
-  color: rgba(255, 255, 255, 0.84);
+  color: rgba(248, 244, 238, 0.84);
   font-size: var(--font-size-sm);
   line-height: 1.7;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.24);
@@ -686,7 +686,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-16);
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(248, 244, 238, 0.88);
   pointer-events: none;
 }
 .hero-nav-progress,
@@ -709,7 +709,7 @@
   overflow: hidden;
   width: 96px;
   height: 1px;
-  background: rgba(255, 255, 255, 0.42);
+  background: rgba(248, 244, 238, 0.42);
 }
 .hero-nav-progress b {
   position: absolute;
@@ -739,7 +739,7 @@
   justify-content: center;
   justify-self: start;
   border-radius: var(--radius-sm);
-  background: var(--color-primary-50);
+  background: var(--color-primary-100);
   color: var(--color-primary-400);
   padding: var(--space-8) var(--space-8);
   font-size: var(--font-size-xs);
@@ -830,7 +830,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  background: var(--color-soft); 
+  background: var(--color-surface); 
   transition: background var(--transition-fast);
 }
 .category-item img {
@@ -895,17 +895,16 @@
 /* Section band — full-width background wrappers */
 .section-band {
   width: 100%;
+  padding: var(--space-64) 0;
 }
 .section-band > .main-section {
   margin-top: 0;
 }
 .section-band--cream {
-  background: var(--color-soft);
-  padding: var(--space-64) 0;
+  background: var(--color-primary-50);
 }
 .section-band--soft {
   background: var(--color-soft);
-  padding: var(--space-64) 0;
 }
 .experience-card,
 .event-card,
@@ -960,9 +959,9 @@
   width: 36px;
   height: 36px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(248, 244, 238, 0.72);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(248, 244, 238, 0.92);
   color: var(--color-ink);
   box-shadow: var(--shadow-wishlist-button);
   backdrop-filter: blur(8px);
@@ -1076,28 +1075,38 @@
 .badge-chip--solid {
   min-height: 24px;
   border-radius: var(--radius-sm);
-  background: var(--color-badge-neutral);
-  color: var(--color-on-image);
+  border: 1px solid var(--color-badge-neutral-line);
+  background: var(--color-badge-neutral-bg);
+  color: var(--color-badge-neutral-text);
 }
 .badge-chip--solid[data-tone] {
-  color: var(--color-on-image);
+  color: var(--color-badge-neutral-text);
 }
 .badge-chip--solid[data-tone="stock"] {
-  background: var(--color-badge-stock);
+  border-color: var(--color-badge-stock-line);
+  background: var(--color-badge-stock-bg);
+  color: var(--color-badge-stock-text);
 }
 .badge-chip--solid[data-tone="ongoing"] {
-  background: var(--color-badge-ongoing);
+  border-color: var(--color-badge-ongoing-line);
+  background: var(--color-badge-ongoing-bg);
+  color: var(--color-badge-ongoing-text);
 }
 .badge-chip--solid[data-tone="booking"] {
-  background: var(--color-badge-booking);
+  border-color: var(--color-badge-booking-line);
+  background: var(--color-badge-booking-bg);
+  color: var(--color-badge-booking-text);
 }
 .badge-chip--solid[data-tone="urgent"] {
-  background: var(--color-badge-urgent);
-  color: var(--color-on-image);
+  border-color: var(--color-badge-urgent-line);
+  background: var(--color-badge-urgent-bg);
+  color: var(--color-badge-urgent-text);
 }
 .badge-chip--solid[data-tone="sale"],
 .badge-chip--solid[data-tone="primary"] {
-  background: var(--color-badge-sale);
+  border-color: var(--color-badge-sale-line);
+  background: var(--color-badge-sale-bg);
+  color: var(--color-badge-sale-text);
 }
 .card-body {
   display: grid;
@@ -1301,7 +1310,7 @@
   font-size: var(--font-size-lg);
 }
 .last-seat-price .discount-rate {
-  color: var(--color-coral);
+  color: var(--color-primary);
   font-size: var(--font-size-lg);
 }
 .collection-grid {
@@ -1434,7 +1443,7 @@
   padding: var(--space-16);
 }
 .journal-card small {
-  color: var(--color-blue);
+  color: var(--color-primary);
   font-weight: var(--font-weight-bold);
 }
 .journal-card strong {
@@ -1773,7 +1782,7 @@
   border: 1px solid var(--color-line);
   border-bottom: 0;
   border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: rgba(255, 255, 255, 0.96);
+  background: rgba(248, 244, 238, 0.96);
   box-shadow: var(--shadow-bottom-nav);
   transition:
   transform 0.24s ease,
@@ -2414,7 +2423,7 @@
   flex: 999 1 560px;
   min-width: 0;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 251, 249, 0.88)),
+    linear-gradient(180deg, rgba(248, 244, 238, 0.96), rgba(248, 244, 238, 0.88)),
     var(--color-surface);
   box-shadow: var(--shadow-card);
 }
@@ -2645,7 +2654,7 @@
 .date-picker-trigger:hover,
 .date-picker-trigger[data-open="true"],
 .date-picker-trigger:focus-visible {
-  border-color: rgba(35, 111, 85, 0.48);
+  border-color: rgba(42, 94, 66, 0.48);
   background: var(--color-surface-soft);
   box-shadow: var(--shadow-focus);
   outline: 0;
@@ -3880,7 +3889,7 @@
   gap: var(--space-16);
   padding: var(--space-16);
   background: var(--color-ink);
-  color: #fff;
+  color: var(--color-surface);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-lg);
   font-size: var(--font-size-sm);
@@ -3907,14 +3916,14 @@
   height: 24px;
   border: none;
   border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: rgba(248, 244, 238, 0.15);
+  color: var(--color-surface);
   font-size: var(--font-size-base);
   cursor: pointer;
   transition: background var(--transition-fast);
 }
 .toast > button:hover {
-  background: rgba(255, 255, 255, 0.28);
+  background: rgba(248, 244, 238, 0.28);
 }
 @media (max-width: 640px) {
   .toast-list {
@@ -4070,7 +4079,7 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(248, 244, 238, 0.14);
   content: "";
 }
 .package-cta-copy {
@@ -4115,13 +4124,13 @@
   width: 120px;
   height: 86px;
   border-radius: 50% 50% 0 0;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(248, 244, 238, 0.18);
 }
 .package-cta-host {
   position: absolute;
   width: 72px;
   height: 72px;
-  border: 3px solid rgba(255, 255, 255, 0.85);
+  border: 3px solid rgba(248, 244, 238, 0.85);
   border-radius: 50%;
   object-fit: cover;
   box-shadow: var(--shadow-image-float);
@@ -4196,7 +4205,7 @@
   width: 42px;
   height: 42px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(248, 244, 238, 0.5);
   border-radius: 50%;
   background: rgba(17, 24, 20, 0.54);
   color: var(--color-on-image);
@@ -4452,9 +4461,9 @@
   width: 46px;
   height: 46px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(248, 244, 238, 0.18);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(248, 244, 238, 0.1);
   color: var(--color-on-image);
   padding: 0;
 }
@@ -4494,9 +4503,9 @@
   width: 52px;
   height: 52px;
   place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(248, 244, 238, 0.18);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(248, 244, 238, 0.1);
   color: var(--color-on-image);
   padding: 0;
 }
@@ -4507,7 +4516,7 @@
   width: 7px;
   height: 7px;
   margin: 0 var(--space-8) !important;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(248, 244, 238, 0.5);
   opacity: 1;
 }
 .detail-review-lightbox-swiper .swiper-pagination-bullet-active {

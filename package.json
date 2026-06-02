@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "build:cafe24": "node scripts/build-cafe24.mjs",
     "start": "next start",
@@ -11,15 +11,13 @@
   },
   "dependencies": {
     "@remixicon/react": "^4.9.0",
-    "@types/three": "^0.184.1",
     "aos": "^2.3.4",
     "mysql2": "^3.22.3",
     "next": "^16.2.6",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "recharts": "^3.8.1",
-    "swiper": "^12.1.4",
-    "three": "^0.184.0"
+    "swiper": "^12.1.4"
   },
   "devDependencies": {
     "@types/node": "latest",
