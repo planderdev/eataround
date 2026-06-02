@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 
 const rootDir = process.cwd();
@@ -114,6 +114,30 @@ function writeCafe24Files() {
   );
 }
 
+function patchCafe24FontPaths(directory) {
+  for (const entry of readdirSync(directory)) {
+    const filePath = join(directory, entry);
+    const stats = statSync(filePath);
+
+    if (stats.isDirectory()) {
+      patchCafe24FontPaths(filePath);
+      continue;
+    }
+
+    if (!entry.endsWith(".css")) continue;
+
+    const source = readFileSync(filePath, "utf8");
+    const patched = source
+      .replaceAll("url(/assets/fonts/", "url(/eataround/assets/fonts/")
+      .replaceAll('url("/assets/fonts/', 'url("/eataround/assets/fonts/')
+      .replaceAll("url('/assets/fonts/", "url('/eataround/assets/fonts/");
+
+    if (patched !== source) {
+      writeFileSync(filePath, patched);
+    }
+  }
+}
+
 copySource();
 forceStaticSearchParamPages();
 
@@ -135,4 +159,5 @@ if (result.status !== 0) {
 rmSync(deployDir, { recursive: true, force: true });
 mkdirSync(dirname(deployDir), { recursive: true });
 copyEntry(join(tempDir, "out"), deployDir);
+patchCafe24FontPaths(deployDir);
 writeCafe24Files();
