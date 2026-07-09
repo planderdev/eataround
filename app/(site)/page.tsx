@@ -1,7 +1,7 @@
 import { CategoryStrip } from "@/components/CategoryStrip";
 import { EventCard } from "@/components/EventCard";
 import { ExperienceCard } from "@/components/ExperienceCard";
-import { HeroBanner } from "@/components/HeroBanner";
+import { HeroBanner, type HeroRankingItem } from "@/components/HeroBanner";
 import { JournalCard } from "@/components/JournalCard";
 import { LastSeatSection, type LastSeatItem } from "@/components/LastSeatSection";
 import { MobileExperienceCarousel } from "@/components/MobileExperienceCarousel";
@@ -38,6 +38,21 @@ export default async function HomePage() {
     title: item.title,
     description: item.excerpt,
   }));
+  const heroRankingItems: HeroRankingItem[] = [
+    ...journals.map((item) => ({
+      title: item.title,
+      href: `/journal/${item.slug}`,
+      category: item.category,
+      author: "Journal",
+      date: item.date,
+    })),
+    ...collectionItems.map((item) => ({
+      title: item.title,
+      href: item.href,
+      category: item.eyebrow,
+      author: "Article",
+    })),
+  ].slice(0, 5);
   const lastSeatItems: LastSeatItem[] = experiences
     .map((experience) => ({
       experience,
@@ -50,7 +65,7 @@ export default async function HomePage() {
   return (
     <>
       {firstHeroImage ? <link rel="preload" as="image" href={firstHeroImage} fetchPriority="high" /> : null}
-      <HeroBanner slides={heroSlides} />
+      <HeroBanner rankingItems={heroRankingItems} slides={heroSlides} />
       <CategoryStrip items={categoryItems} />
 
       <LastSeatSection items={lastSeatItems} />

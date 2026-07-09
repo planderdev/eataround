@@ -6,10 +6,11 @@ import { ExperienceCard } from "@/components/ExperienceCard";
 import type { Experience } from "@/lib/data";
 
 type DetailRelatedExperiencesProps = {
+  desktopSlidesPerView?: number;
   items: Experience[];
 };
 
-export function DetailRelatedExperiences({ items }: DetailRelatedExperiencesProps) {
+export function DetailRelatedExperiences({ desktopSlidesPerView = 2.5, items }: DetailRelatedExperiencesProps) {
   if (!items.length) return null;
 
   return (
@@ -22,7 +23,7 @@ export function DetailRelatedExperiences({ items }: DetailRelatedExperiencesProp
       spaceBetween={16}
       breakpoints={{
         560: { slidesPerView: 2.08, spaceBetween: 16 },
-        920: { slidesPerView: 4.5, spaceBetween: 16 },
+        920: { slidesPerView: desktopSlidesPerView, spaceBetween: 16 },
       }}
     >
       {items.map((item) => (

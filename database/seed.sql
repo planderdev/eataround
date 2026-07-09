@@ -3,13 +3,13 @@ use eataround;
 insert into categories
   (label, href, icon_asset, tone, sort_order)
 values
-  ('쿠킹·베이킹', '/experiences?tag=쿠킹', '/assets/images/plat-icon-cook.png', 'coral', 1),
-  ('아이와함께', '/experiences?tag=가족', '/assets/images/plat-icon-child.png', 'yellow', 2),
-  ('지역·전통', '/experiences?tag=마을', '/assets/images/plat-icon-org.png', 'ink', 3),
-  ('혼자여행', '/experiences?tag=소규모', '/assets/images/plat-icon-travel.png', 'red', 4),
-  ('웰니스·치유', '/experiences?tag=웰니스', '/assets/images/plat-icon-heal.png', 'green', 5),
-  ('비오는날', '/experiences?tag=실내', '/assets/images/plat-icon-rain.png', 'blue', 6),
-  ('캠핑·액티비티', '/experiences?tag=피크닉', '/assets/images/plat-icon-camp.png', 'green', 7)
+  ('쿠킹·베이킹', '/experiences?tag=쿠킹', '/assets/images/plat-icon-cook.svg', 'coral', 1),
+  ('아이와함께', '/experiences?tag=가족', '/assets/images/plat-icon-child.svg', 'yellow', 2),
+  ('지역·전통', '/experiences?tag=마을', '/assets/images/plat-icon-org.svg', 'ink', 3),
+  ('혼자여행', '/experiences?tag=소규모', '/assets/images/plat-icon-travel.svg', 'red', 4),
+  ('웰니스·치유', '/experiences?tag=웰니스', '/assets/images/plat-icon-heal.svg', 'green', 5),
+  ('비오는날', '/experiences?tag=실내', '/assets/images/plat-icon-rain.svg', 'blue', 6),
+  ('캠핑·액티비티', '/experiences?tag=피크닉', '/assets/images/plat-icon-camp.svg', 'green', 7)
 on duplicate key update href = values(href), icon_asset = values(icon_asset), tone = values(tone), sort_order = values(sort_order);
 
 insert into banners

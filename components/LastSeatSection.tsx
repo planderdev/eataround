@@ -38,30 +38,32 @@ function LastSeatCard({ experience, schedule, index }: LastSeatItem & { index: n
           <ProductBadge tone="stock">1자리 남음</ProductBadge>
         </span>
       </Link>
-      <button className="last-seat-cart" type="button">
-        <RiShoppingBag3Line size={15} />
-        예약 담기
-      </button>
-      <Link className="last-seat-body" href={experiencePath(experience.slug)}>
-        <strong>{experience.title}</strong>
-        <span className="last-seat-schedule">
-          <span>
-            <RiCalendarLine size={15} />
-            {schedule.date}
+      <div className="last-seat-content">
+        <Link className="last-seat-body" href={experiencePath(experience.slug)}>
+          <strong>{experience.title}</strong>
+          <span className="last-seat-schedule">
+            <span>
+              <RiCalendarLine size={15} />
+              {schedule.date}
+            </span>
+            <span>
+              <RiTimeLine size={15} />
+              {schedule.label}
+            </span>
           </span>
-          <span>
-            <RiTimeLine size={15} />
-            {schedule.label}
+          <span className="last-seat-price">
+            {experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
+            <b>
+              {percent ? <span className="discount-rate">{percent}%</span> : null}
+              {formatWon(schedule.price)}
+            </b>
           </span>
-        </span>
-        <span className="last-seat-price">
-          {experience.originalPrice ? <del>{formatWon(experience.originalPrice)}</del> : null}
-          <b>
-            {percent ? <span className="discount-rate">{percent}%</span> : null}
-            {formatWon(schedule.price)}
-          </b>
-        </span>
-      </Link>
+        </Link>
+        <button className="last-seat-cart" type="button">
+          <RiShoppingBag3Line size={15} />
+          예약 담기
+        </button>
+      </div>
     </article>
   );
 }
@@ -100,7 +102,7 @@ export function LastSeatSection({ items }: { items: LastSeatItem[] }) {
       </div>
 
       <div className="last-seat-mobile-carousel" aria-label="원데이클래스 마감임박 슬라이드">
-        <Swiper className="last-seat-mobile-swiper" slidesPerView={1.18} spaceBetween={16}>
+        <Swiper className="last-seat-mobile-swiper" slidesPerView={1} spaceBetween={16}>
           {visibleItems.map((item, index) => (
             <SwiperSlide key={`${item.experience.slug}-mobile`}>
               <LastSeatCard {...item} index={index} />

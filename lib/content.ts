@@ -212,6 +212,10 @@ function placeholders(count: number) {
   return Array.from({ length: count }, () => "?").join(", ");
 }
 
+function normalizeCategoryIconAsset(iconAsset: string | null) {
+  return (iconAsset ?? "/assets/images/plat-icon-cook.svg").replace(/(\/assets\/images\/plat-icon-[^/.]+)\.png$/i, "$1.svg");
+}
+
 function programTypeLabel(type: ProgramRow["program_type"]): PackageProgram["type"] {
   if (type === "lecture") return "강의";
   if (type === "tour") return "투어";
@@ -496,7 +500,7 @@ export async function getCategories() {
     return rows.map<Category>((row) => ({
       label: row.label,
       href: normalizeUserHref(row.href),
-      iconAsset: row.icon_asset ?? "/assets/images/plat-icon-cook.png",
+      iconAsset: normalizeCategoryIconAsset(row.icon_asset),
       tone: row.tone ?? "green",
     }));
   }, fallbackCategories);

@@ -23,9 +23,10 @@ import { userRoutes } from "@/lib/routes";
 
 type BookingPanelProps = {
   experience: Experience;
+  variant?: "default" | "compact";
 };
 
-export function BookingPanel({ experience }: BookingPanelProps) {
+export function BookingPanel({ experience, variant = "default" }: BookingPanelProps) {
   const mode = detectBookingMode(experience);
 
   if (mode === "package") {
@@ -36,10 +37,10 @@ export function BookingPanel({ experience }: BookingPanelProps) {
     return <InquiryPanel experience={experience} />;
   }
 
-  return <SchedulePanel experience={experience} />;
+  return <SchedulePanel experience={experience} variant={variant} />;
 }
 
-function SchedulePanel({ experience }: BookingPanelProps) {
+function SchedulePanel({ experience, variant = "default" }: BookingPanelProps) {
   const router = useRouter();
   const firstSchedule = experience.schedules[0];
   const [selected, setSelected] = useState<ScheduleStock>(firstSchedule);
@@ -173,7 +174,7 @@ function SchedulePanel({ experience }: BookingPanelProps) {
       <div className="booking-step-title">
         <RiCalendarLine size={18} />
         <span>회차 선택</span>
-        <strong>팀 단위 재고</strong>
+        <strong>{variant === "compact" ? "선택 가능" : "팀 단위 재고"}</strong>
       </div>
       <div className="booking-options" aria-label="예약 회차 선택">
         {selectedDateSchedules.map((schedule) => {
@@ -205,12 +206,16 @@ function SchedulePanel({ experience }: BookingPanelProps) {
               <span className="stock-line">
                 <i style={{ width: `${Math.min(stockRatio, 100)}%` }} />
               </span>
-              <small>{getStockText(schedule.capacity, schedule.booked)}</small>
-              <span className="schedule-meta">
-                <span className="schedule-meta-pill">{getTeamStockText(maxTeams, reservedTeams)}</span>
-                <span className="schedule-meta-pill">팀당 최대 {teamCapacity}명</span>
-                <span className="schedule-meta-pill">{schedule.reservationType === "instant" && !schedule.approvalRequired ? "즉시예약" : schedule.reservationType === "inquiry" ? "문의예약" : "승인예약"}</span>
-              </span>
+              {variant === "compact" ? null : (
+                <>
+                  <small>{getStockText(schedule.capacity, schedule.booked)}</small>
+                  <span className="schedule-meta">
+                    <span className="schedule-meta-pill">{getTeamStockText(maxTeams, reservedTeams)}</span>
+                    <span className="schedule-meta-pill">팀당 최대 {teamCapacity}명</span>
+                    <span className="schedule-meta-pill">{schedule.reservationType === "instant" && !schedule.approvalRequired ? "즉시예약" : schedule.reservationType === "inquiry" ? "문의예약" : "승인예약"}</span>
+                  </span>
+                </>
+              )}
             </button>
           );
         })}

@@ -178,13 +178,13 @@ export const heroSlides: HeroSlide[] = [
 ];
 
 export const categories: Category[] = [
-  { label: "쿠킹·베이킹", href: "/local-experiences?tag=쿠킹", iconAsset: "/assets/images/plat-icon-cook.png", tone: "coral" },
-  { label: "아이와함께", href: "/local-experiences?tag=가족", iconAsset: "/assets/images/plat-icon-child.png", tone: "yellow" },
-  { label: "지역·전통", href: "/local-experiences?tag=마을", iconAsset: "/assets/images/plat-icon-org.png", tone: "ink" },
-  { label: "혼자여행", href: "/local-experiences?tag=소규모", iconAsset: "/assets/images/plat-icon-travel.png", tone: "red" },
-  { label: "웰니스·치유", href: "/local-experiences?tag=웰니스", iconAsset: "/assets/images/plat-icon-heal.png", tone: "green" },
-  { label: "비오는날", href: "/local-experiences?tag=실내", iconAsset: "/assets/images/plat-icon-rain.png", tone: "blue" },
-  { label: "캠핑·액티비티", href: "/local-experiences?tag=피크닉", iconAsset: "/assets/images/plat-icon-camp.png", tone: "green" },
+  { label: "쿠킹·베이킹", href: "/local-experiences?tag=쿠킹", iconAsset: "/assets/images/plat-icon-cook.svg", tone: "coral" },
+  { label: "아이와함께", href: "/local-experiences?tag=가족", iconAsset: "/assets/images/plat-icon-child.svg", tone: "yellow" },
+  { label: "지역·전통", href: "/local-experiences?tag=마을", iconAsset: "/assets/images/plat-icon-org.svg", tone: "ink" },
+  { label: "혼자여행", href: "/local-experiences?tag=소규모", iconAsset: "/assets/images/plat-icon-travel.svg", tone: "red" },
+  { label: "웰니스·치유", href: "/local-experiences?tag=웰니스", iconAsset: "/assets/images/plat-icon-heal.svg", tone: "green" },
+  { label: "비오는날", href: "/local-experiences?tag=실내", iconAsset: "/assets/images/plat-icon-rain.svg", tone: "blue" },
+  { label: "캠핑·액티비티", href: "/local-experiences?tag=피크닉", iconAsset: "/assets/images/plat-icon-camp.svg", tone: "green" },
 ];
 
 export const collections: CollectionItem[] = [
