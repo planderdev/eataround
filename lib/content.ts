@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "@/lib/db";
 import {
   adminQuoteRequests as fallbackAdminQuoteRequests,
   adminMembers as fallbackAdminMembers,
@@ -137,6 +137,7 @@ type PackageOptionRow = RowDataPacket & {
   description: string | null;
   price: number;
   price_type: PackageOption["priceType"];
+  category: PackageOption["category"] | null;
 };
 
 type DiscountTierRow = RowDataPacket & {
@@ -419,7 +420,7 @@ export async function getPackageOptions() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<PackageOptionRow[]>(
-      `select code, title, description, price, price_type
+      `select code, title, description, price, price_type, category
          from package_options
         where is_visible = 1
         order by sort_order asc, id asc`,
@@ -431,6 +432,7 @@ export async function getPackageOptions() {
       description: row.description ?? "",
       price: row.price,
       priceType: row.price_type,
+      category: row.category ?? undefined,
     }));
   }, fallbackPackageOptions);
 }

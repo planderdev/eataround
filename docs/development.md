@@ -7,22 +7,23 @@ npm install
 npm run dev
 ```
 
-## Cafe24 MySQL 연결
+## Supabase(Postgres) 연결
 
-`.env.local`에 아래 값을 넣으면 API Route가 MySQL에 저장을 시도합니다.
+DB는 Supabase 프로젝트 `eataround`(서울 리전)를 사용합니다. `.env.local`에 연결 문자열을 넣으면 API Route와 화면이 DB를 읽고 씁니다.
 
 ```bash
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=eataround_user
-DB_PASSWORD=비밀번호
-DB_NAME=eataround
+DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres
 ```
 
-초기 테이블은 `database/schema.sql`을 phpMyAdmin에서 먼저 실행하면 됩니다.
-샘플 데이터가 필요하면 이어서 `database/seed.sql`을 실행하세요.
+- 값은 Supabase 대시보드 > Connect > Transaction pooler(포트 6543)에서 복사합니다. Vercel에는 같은 이름의 환경변수로 등록합니다.
+- 스키마는 `database/schema.sql`, 샘플 데이터는 `database/seed.sql`입니다. 시드는 `lib/data.ts`와 같은 내용이며 여러 번 실행해도 안전합니다.
+- 모든 테이블에 RLS가 켜져 있고 정책이 없습니다. 서버가 `DATABASE_URL`로 직접 접속할 때만 읽기·쓰기가 되고, 공개 API 키로는 접근할 수 없습니다.
+- `DATABASE_URL`이 없거나 쿼리가 실패하면 화면은 샘플 데이터로 동작합니다.
+- `lib/db.ts`가 기존 mysql2 호출 형태(`?` 플레이스홀더, `[rows]` 반환)를 Postgres로 변환합니다.
 
-`.env.example`을 참고해 `.env.local`을 만들면 됩니다. DB 환경변수가 없거나 쿼리가 실패하면 화면은 샘플 데이터로 동작합니다.
+## 배포
+
+Vercel 프로젝트 `eataround`가 GitHub 저장소와 연결되어 있어 `master`에 푸시하면 프로덕션으로 배포됩니다.
 
 ## 현재 구현된 화면
 

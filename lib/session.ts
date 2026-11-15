@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 
 const SESSION_COOKIE = "session";

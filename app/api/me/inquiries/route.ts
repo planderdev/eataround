@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import { inquiryHistory } from "@/lib/mypage-data";
 import { userRoutes } from "@/lib/routes";

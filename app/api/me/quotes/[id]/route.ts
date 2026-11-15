@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import { quoteHistory } from "@/lib/mypage-data";
 import { userRoutes } from "@/lib/routes";
@@ -18,7 +18,7 @@ type QuoteRow = RowDataPacket & {
   estimated_total: number | null;
   status: "requested" | "reviewing" | "sent" | "accepted" | "closed";
   updated_at: Date;
-  program_ids: string | null;
+  program_ids: string | string[] | null;
   request_memo: string | null;
 };
 
@@ -59,7 +59,8 @@ function rowToQuote(row: QuoteRow): Quote {
   const status = STATUS_LABEL[row.status] ?? STATUS_LABEL.requested;
   let programLabel = "패키지 구성";
   try {
-    const ids = row.program_ids ? (JSON.parse(row.program_ids) as string[]) : [];
+    const raw = row.program_ids;
+    const ids = Array.isArray(raw) ? raw : raw ? (JSON.parse(raw) as string[]) : [];
     if (ids.length) programLabel = `${ids.length}개 프로그램`;
   } catch {
     // keep default label

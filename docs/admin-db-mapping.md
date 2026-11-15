@@ -1,6 +1,6 @@
 # 관리자 DB 연동 매핑
 
-프론트 화면은 `lib/content.ts`의 getter를 통해 데이터를 읽습니다. DB 연결값이 없거나 쿼리가 실패하면 `lib/data.ts`의 샘플 데이터로 fallback 됩니다.
+프론트 화면은 `lib/content.ts`의 getter를 통해 데이터를 읽습니다. `DATABASE_URL`이 없거나 쿼리가 실패하면 `lib/data.ts`의 샘플 데이터로 fallback 됩니다.
 
 ## 홈
 
