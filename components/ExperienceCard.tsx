@@ -63,8 +63,10 @@ export function ExperienceCard({ experience, compact = false }: ExperienceCardPr
                   <span className="price-currency">₩</span>
                   <span className="price-sale-amount">{salePriceAmount}</span>
                 </>
-              ) : (
+              ) : experience.price > 0 ? (
                 formatWon(experience.price)
+              ) : (
+                "가격 문의"
               )}
             </b>
           </span>

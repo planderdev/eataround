@@ -16,11 +16,13 @@ import {
   packageCtas as fallbackPackageCtas,
   packageOptions as fallbackPackageOptions,
   packagePrograms as fallbackPackagePrograms,
+  experienceDetails as fallbackExperienceDetails,
   productDetailContent as fallbackProductDetailContent,
   productReviews as fallbackProductReviews,
   type AdminMember,
   type EventItem,
   type Experience,
+  type ExperienceDetail,
   type AdminQuoteRequest,
   type AdminReservation,
   type Category,
@@ -54,6 +56,22 @@ type ProductRow = RowDataPacket & {
   host_description: string | null;
   place_name: string | null;
   place_address: string | null;
+  eyebrow: string | null;
+  rating: number | null;
+  review_count: number | null;
+};
+
+type ProductListItemRow = RowDataPacket & {
+  product_id: number;
+  content_type: "highlight" | "included" | "notice";
+  body: string;
+};
+
+type ProductDetailFieldsRow = RowDataPacket & {
+  kicker: string | null;
+  group_label: string | null;
+  booking_deadline: string | null;
+  course_intro: string | null;
 };
 
 type BannerRow = RowDataPacket & {
@@ -147,9 +165,11 @@ type DiscountTierRow = RowDataPacket & {
 };
 
 type ProductDetailRow = RowDataPacket & {
-  content_type: "recommended" | "excluded" | "schedule";
+  content_type: "recommended" | "excluded" | "schedule" | "point" | "course" | "faq";
   label: string | null;
   body: string;
+  meta: string | null;
+  note: string | null;
 };
 
 type ReviewRow = RowDataPacket & {
@@ -223,7 +243,9 @@ function programTypeLabel(type: ProgramRow["program_type"]): PackageProgram["typ
   return "체험";
 }
 
-function mapProduct(row: ProductRow, tags: string[], schedules: ScheduleStock[]): Experience {
+type ProductLists = { highlight: string[]; included: string[]; notice: string[] };
+
+function mapProduct(row: ProductRow, tags: string[], schedules: ScheduleStock[], lists?: ProductLists): Experience {
   const normalizedSchedules: ScheduleStock[] = schedules.length
     ? schedules
     : [
@@ -244,22 +266,22 @@ function mapProduct(row: ProductRow, tags: string[], schedules: ScheduleStock[])
   return {
     slug: row.slug,
     title: row.title,
-    eyebrow: row.badge ?? row.category,
+    eyebrow: row.eyebrow ?? row.badge ?? row.category,
     region: row.region,
     category: row.category,
     price: row.price,
     originalPrice: row.original_price ?? undefined,
     duration: row.duration ?? "상세 확인",
-    rating: 4.8,
-    reviewCount: 0,
+    rating: Number(row.rating ?? 0),
+    reviewCount: row.review_count ?? 0,
     image: row.image_url ?? fallbackImage,
     badge: row.badge ?? undefined,
     tags,
     summary: row.summary ?? "이더라운드가 큐레이션한 로컬 체험입니다.",
     description: row.description ?? row.summary ?? "제주의 로컬 호스트가 안내하는 체험입니다.",
-    highlights: ["로컬 호스트 진행", "예약 인원 기반 운영", "현장 안내"],
-    included: ["프로그램 진행", "예약 관리", "현장 안내"],
-    notices: ["상세 일정과 준비물은 예약 확정 후 안내됩니다."],
+    highlights: lists?.highlight.length ? lists.highlight : ["로컬 호스트 진행", "예약 인원 기반 운영", "현장 안내"],
+    included: lists?.included.length ? lists.included : ["프로그램 진행", "예약 관리", "현장 안내"],
+    notices: lists?.notice.length ? lists.notice : ["상세 일정과 준비물은 예약 확정 후 안내됩니다."],
     host: {
       name: row.host_name ?? "이더라운드 호스트",
       description: row.host_description ?? "제주의 로컬 경험을 안내하는 호스트입니다.",
@@ -276,7 +298,8 @@ async function readProducts(): Promise<Experience[]> {
   const pool = getPool();
   const [productRows] = await pool.query<ProductRow[]>(
     `select id, slug, title, summary, description, region, category, price, original_price, duration,
-            badge, image_url, host_name, host_description, place_name, place_address
+            badge, image_url, host_name, host_description, place_name, place_address,
+            eyebrow, rating, review_count
        from products
       where is_visible = 1
       order by sort_order asc, created_at desc`,
@@ -297,6 +320,22 @@ async function readProducts(): Promise<Experience[]> {
       order by schedule_date asc`,
     ids,
   );
+
+  const [listRows] = await pool.query<ProductListItemRow[]>(
+    `select product_id, content_type, body
+       from product_detail_items
+      where product_id in (${placeholders(ids.length)})
+        and content_type in ('highlight', 'included', 'notice')
+      order by sort_order asc, id asc`,
+    ids,
+  );
+
+  const listsByProduct = new Map<number, ProductLists>();
+  for (const item of listRows) {
+    const lists = listsByProduct.get(item.product_id) ?? { highlight: [], included: [], notice: [] };
+    lists[item.content_type].push(item.body);
+    listsByProduct.set(item.product_id, lists);
+  }
 
   const tagsByProduct = new Map<number, string[]>();
   for (const tag of tagRows) {
@@ -323,7 +362,7 @@ async function readProducts(): Promise<Experience[]> {
   }
 
   return productRows.map((row) =>
-    mapProduct(row, tagsByProduct.get(row.id) ?? [], schedulesByProduct.get(row.id) ?? []),
+    mapProduct(row, tagsByProduct.get(row.id) ?? [], schedulesByProduct.get(row.id) ?? [], listsByProduct.get(row.id)),
   );
 }
 
@@ -618,10 +657,10 @@ export async function getProductDetailContent(slug: string) {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<ProductDetailRow[]>(
-      `select pdi.content_type, pdi.label, pdi.body
+      `select pdi.content_type, pdi.label, pdi.body, pdi.meta, pdi.note
          from product_detail_items pdi
          join products p on p.id = pdi.product_id
-        where p.slug = ?
+        where p.slug = ? and pdi.content_type in ('recommended', 'excluded', 'schedule')
         order by pdi.sort_order asc, pdi.id asc`,
       [slug],
     );
@@ -634,6 +673,49 @@ export async function getProductDetailContent(slug: string) {
         .map((row) => ({ time: row.label ?? "", title: row.body })),
     };
   }, fallbackProductDetailContent[slug] ?? {});
+}
+
+/** 로컬체험 상세의 상품별 콘텐츠(포인트·코스·FAQ 등). 등록된 내용이 없으면 null */
+export async function getExperienceDetail(slug: string): Promise<ExperienceDetail | null> {
+  return safeQuery(async () => {
+    const pool = getPool();
+    const [fieldRows] = await pool.query<ProductDetailFieldsRow[]>(
+      `select kicker, group_label, booking_deadline, course_intro from products where slug = ? limit 1`,
+      [slug],
+    );
+    const fields = fieldRows[0];
+    if (!fields) return null;
+
+    const [rows] = await pool.query<ProductDetailRow[]>(
+      `select pdi.content_type, pdi.label, pdi.body, pdi.meta, pdi.note
+         from product_detail_items pdi
+         join products p on p.id = pdi.product_id
+        where p.slug = ? and pdi.content_type in ('point', 'course', 'faq')
+        order by pdi.sort_order asc, pdi.id asc`,
+      [slug],
+    );
+
+    return {
+      kicker: fields.kicker ?? undefined,
+      groupLabel: fields.group_label ?? undefined,
+      bookingDeadline: fields.booking_deadline ?? undefined,
+      courseIntro: fields.course_intro ?? undefined,
+      points: rows
+        .filter((row) => row.content_type === "point")
+        .map((row) => ({ title: row.label ?? "", description: row.body })),
+      courseSteps: rows
+        .filter((row) => row.content_type === "course")
+        .map((row) => ({
+          duration: row.meta ?? "",
+          title: row.label ?? "",
+          description: row.body,
+          note: row.note ?? undefined,
+        })),
+      faqs: rows
+        .filter((row) => row.content_type === "faq")
+        .map((row) => ({ question: row.label ?? "", answer: row.body })),
+    };
+  }, fallbackExperienceDetails[slug] ?? null);
 }
 
 export async function getProductReviews(slug: string) {
