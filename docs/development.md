@@ -21,6 +21,12 @@ DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-ap-northeast-2
 - `DATABASE_URL`이 없거나 쿼리가 실패하면 화면은 샘플 데이터로 동작합니다.
 - `lib/db.ts`가 기존 mysql2 호출 형태(`?` 플레이스홀더, `[rows]` 반환)를 Postgres로 변환합니다.
 
+## 로그인 세션
+
+- 세션 쿠키는 `SESSION_SECRET`으로 서명한 토큰(`lib/session-token.ts`)이며 만료 시각을 포함합니다. 서명이 맞지 않거나 만료된 쿠키는 인정하지 않습니다.
+- DB를 연결한 환경에서는 `SESSION_SECRET`(32자 이상)이 필수입니다. 없으면 로그인이 503으로 막히고 기존 쿠키도 인정되지 않습니다. `openssl rand -base64 48`로 만들어 Vercel 환경변수에 등록합니다.
+- 관리자 로그인(`/api/admin/auth/login`)과 관리자 화면은 아직 목업입니다. DB에 쓰는 `POST /api/admin/products`만 관리자 세션을 요구합니다.
+
 ## 배포
 
 Vercel 프로젝트 `eataround`가 GitHub 저장소와 연결되어 있어 `master`에 푸시하면 프로덕션으로 배포됩니다.

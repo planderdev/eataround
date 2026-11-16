@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { verifySessionToken } from "@/lib/session-token";
 
 const PROTECTED_PATHS = ["/me", "/checkout", "/b2b/quote"];
 
@@ -14,8 +15,8 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const session = request.cookies.get("session")?.value;
-  if (session) {
+  // 쿠키가 있는지만 보지 않고 서명과 만료까지 확인한다.
+  if (verifySessionToken(request.cookies.get("session")?.value)) {
     return NextResponse.next();
   }
 
