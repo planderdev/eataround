@@ -61,7 +61,7 @@ export async function POST(request: Request) {
     },
   });
   const maxAge = payload.keepSignedIn ? 60 * 60 * 24 * 14 : 60 * 60 * 6;
-  response.cookies.set(SESSION_COOKIE, createSessionToken(payload.email, maxAge), {
+  response.cookies.set(SESSION_COOKIE, createSessionToken(payload.email, maxAge, userRole), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     path: "/",

@@ -7,13 +7,17 @@ const TOKEN_VERSION = "v1";
 // DB가 연결되지 않은 샘플 모드 전용. 실제 회원 데이터가 없을 때만 쓰인다.
 const SAMPLE_MODE_SECRET = "eataround-sample-mode-only";
 
+export type SessionRole = "user" | "admin";
+
 export type SessionTokenPayload = {
   email: string;
+  /** 발급 시점의 권한. 페이지 접근 분기에만 쓰고, 데이터 접근 권한은 DB의 role로 다시 확인한다. */
+  role: SessionRole;
   /** 만료 시각 (epoch seconds) */
   exp: number;
 };
 
-function hasDatabase() {
+export function hasDatabase() {
   return Boolean(process.env.DATABASE_URL || process.env.POSTGRES_URL);
 }
 
@@ -32,11 +36,11 @@ function sign(body: string, secret: string) {
   return createHmac("sha256", secret).update(`${TOKEN_VERSION}.${body}`).digest("base64url");
 }
 
-export function createSessionToken(email: string, maxAgeSeconds: number) {
+export function createSessionToken(email: string, maxAgeSeconds: number, role: SessionRole = "user") {
   const secret = getSecret();
   if (!secret) throw new Error("SESSION_SECRET is not configured (32자 이상 필요).");
 
-  const payload: SessionTokenPayload = { email, exp: Math.floor(Date.now() / 1000) + maxAgeSeconds };
+  const payload: SessionTokenPayload = { email, role, exp: Math.floor(Date.now() / 1000) + maxAgeSeconds };
   const body = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   return `${TOKEN_VERSION}.${body}.${sign(body, secret)}`;
 }
@@ -57,7 +61,7 @@ export function verifySessionToken(token: string | undefined | null): SessionTok
     const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as Partial<SessionTokenPayload>;
     if (typeof payload.email !== "string" || !payload.email) return null;
     if (typeof payload.exp !== "number" || payload.exp <= Math.floor(Date.now() / 1000)) return null;
-    return { email: payload.email, exp: payload.exp };
+    return { email: payload.email, role: payload.role === "admin" ? "admin" : "user", exp: payload.exp };
   } catch {
     return null;
   }

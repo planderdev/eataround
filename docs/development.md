@@ -25,7 +25,24 @@ DATABASE_URL=postgresql://postgres.<project-ref>:<password>@aws-0-ap-northeast-2
 
 - 세션 쿠키는 `SESSION_SECRET`으로 서명한 토큰(`lib/session-token.ts`)이며 만료 시각을 포함합니다. 서명이 맞지 않거나 만료된 쿠키는 인정하지 않습니다.
 - DB를 연결한 환경에서는 `SESSION_SECRET`(32자 이상)이 필수입니다. 없으면 로그인이 503으로 막히고 기존 쿠키도 인정되지 않습니다. `openssl rand -base64 48`로 만들어 Vercel 환경변수에 등록합니다.
-- 관리자 로그인(`/api/admin/auth/login`)과 관리자 화면은 아직 목업입니다. DB에 쓰는 `POST /api/admin/products`만 관리자 세션을 요구합니다.
+
+## 관리자
+
+### 인증
+- DB를 연결한 환경에서는 `/admin/*`과 `/api/admin/*`이 관리자 세션을 요구합니다(`proxy.ts`). 세션이 없으면 화면은 `/admin/login`으로 이동하고 API는 401을 돌려줍니다.
+- 관리자 로그인(`POST /api/admin/auth/login`)은 `users.role = 'admin'`인 계정만 통과시킵니다. 세션은 기본 8시간, "로그인 상태 유지" 시 7일입니다.
+- DB가 없는 샘플 모드에서는 실제 데이터가 없으므로 로그인 없이 화면을 볼 수 있습니다.
+- 첫 관리자 계정 만들기: 사이트에서 일반 회원으로 가입한 뒤 Supabase SQL Editor에서 권한을 올립니다.
+
+```sql
+update users set role = 'admin' where email = '관리자 이메일';
+```
+
+### 화면별 데이터 연결 현황
+- DB에서 읽는 것: 대시보드·예약·견적·회원 목록(`lib/admin/data.ts` → `lib/content.ts`), 상품 목록.
+- 아직 목업인 것: 예약 확정/취소, 회원 승인, 견적 발송, 일정·배너·기획전·행사·리뷰 수정 등 모든 변경 동작. `/api/admin/*`의 PATCH/POST는 `lib/admin/api-data.ts`의 고정 응답을 돌려주고 DB를 바꾸지 않습니다(`POST /api/admin/products`만 실제 저장).
+- 화면의 버튼 동작은 `NEXT_PUBLIC_USE_MOCK`이 `false`가 아니면 서버를 호출하지 않고 `lib/mock/admin.ts`를 씁니다.
+- 로그인 실패 5회 잠금은 화면에서만 세는 값이라 서버에서는 강제되지 않습니다.
 
 ## 배포
 

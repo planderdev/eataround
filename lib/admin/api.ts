@@ -90,13 +90,12 @@ export const adminApi = {
         : fetchJson<AdminMutationResult<AdminNotification[]>>("/api/admin/notifications", { method: "PATCH" }),
   },
   auth: {
+    // 세션 쿠키는 서버만 발급하므로 목업 모드에서도 항상 서버에 요청한다.
     login: async (payload?: AuthLoginPayload) =>
-      useMock
-        ? mockAdminApi.auth.login()
-        : fetchJson<AdminMutationResult<{ user: AuthUser }>>("/api/admin/auth/login", {
-            method: "POST",
-            body: JSON.stringify(payload ?? {}),
-          }),
+      fetchJson<AdminMutationResult<{ user: AuthUser }>>("/api/admin/auth/login", {
+        method: "POST",
+        body: JSON.stringify(payload ?? {}),
+      }),
   },
   actions: {
     async execute(label: string): Promise<AdminMutationResult> {
