@@ -15,10 +15,34 @@ export type LastSeatItem = {
 };
 
 function formatTimer(totalSeconds: number) {
-  const hours = Math.floor(totalSeconds / 3600);
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
-  return [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
+  const clock = [hours, minutes, seconds].map((value) => String(value).padStart(2, "0")).join(":");
+  return days > 0 ? `${days}일 ${clock}` : clock;
+}
+
+/** 회차 시작 시각(한국 시간)을 epoch ms로. 날짜 형식이 아니면 null */
+function scheduleStartTime(schedule: ScheduleStock) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(schedule.date)) return null;
+
+  const match = /(\d{1,2}):(\d{2})/.exec(schedule.label);
+  if (!match) return Date.parse(`${schedule.date}T23:59:59+09:00`);
+
+  let hour = Number(match[1]);
+  if (schedule.label.includes("오후") && hour < 12) hour += 12;
+  if (schedule.label.includes("오전") && hour === 12) hour = 0;
+  return Date.parse(`${schedule.date}T${String(hour).padStart(2, "0")}:${match[2]}:00+09:00`);
+}
+
+/** 표시 중인 회차 가운데 가장 가까운, 아직 시작하지 않은 회차까지 남은 초. 없으면 null */
+function secondsUntilNextStart(items: LastSeatItem[], now: number) {
+  const upcoming = items
+    .map((item) => scheduleStartTime(item.schedule))
+    .filter((time): time is number => time !== null && time > now);
+  if (!upcoming.length) return null;
+  return Math.floor((Math.min(...upcoming) - now) / 1000);
 }
 
 function discountPercent(price: number, originalPrice?: number) {
@@ -69,16 +93,17 @@ function LastSeatCard({ experience, schedule, index }: LastSeatItem & { index: n
 }
 
 export function LastSeatSection({ items }: { items: LastSeatItem[] }) {
-  const [secondsLeft, setSecondsLeft] = useState(39010);
   const visibleItems = useMemo(() => items.slice(0, 4), [items]);
+  // 현재 시각에 따라 달라지는 값이라 서버 렌더와 어긋나지 않도록 마운트 후에 계산한다.
+  const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setSecondsLeft((current) => (current <= 0 ? 39010 : current - 1));
-    }, 1000);
+    const update = () => setSecondsLeft(secondsUntilNextStart(visibleItems, Date.now()));
+    update();
+    const timer = window.setInterval(update, 1000);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [visibleItems]);
 
   if (!visibleItems.length) return null;
 
@@ -89,10 +114,12 @@ export function LastSeatSection({ items }: { items: LastSeatItem[] }) {
           <span>원데이클래스 1자리 남음</span>
           <RiArrowRightSLine size={22} />
         </Link>
-        <div className="last-seat-timer" aria-label="마감까지 남은 시간">
-          <RiTimeLine size={18} />
-          <strong>{formatTimer(secondsLeft)}</strong>
-        </div>
+        {secondsLeft !== null ? (
+          <div className="last-seat-timer" aria-label="가장 가까운 회차 시작까지 남은 시간">
+            <RiTimeLine size={18} />
+            <strong>{formatTimer(secondsLeft)}</strong>
+          </div>
+        ) : null}
       </div>
 
       <div className="last-seat-grid">

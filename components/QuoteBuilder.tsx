@@ -75,7 +75,7 @@ const quoteSteps = ["기간 선택", "인원 입력", "프로그램 선택", "�
 
 const fullscreenSteps = [
   {
-    label: "질문 추가",
+    label: "견적 안내",
     title: "맞춤 견적에 필요한 질문을 시작할게요.",
     description: "단체 방문 조건을 순서대로 정리하면 운영팀이 일정 가능 여부와 예상 견적을 더 정확하게 안내할 수 있습니다.",
   },
