@@ -9,6 +9,8 @@ import {
   ListFrame,
 } from "@/components/admin/AdminLayoutPrimitives";
 import { AdminRowEditor } from "@/components/admin/AdminRowEditor";
+import { ProductGalleryEditor } from "@/components/admin/ProductGalleryEditor";
+import { GALLERY_MAX_IMAGES } from "@/lib/admin/gallery-rules";
 import type { AdminData } from "@/lib/admin/data";
 import { formatWon } from "@/lib/format";
 
@@ -21,6 +23,7 @@ export function ProductsPage({ data }: { data: AdminData }) {
     { key: "stock", label: "재고", align: "center", render: (row) => `${row.booked}/${row.capacity}` },
     { key: "schedules", label: "예약 가능 회차", align: "center", render: (row) => `${row.scheduleCount}개` },
     { key: "badge", label: "배지", render: (row) => row.badge ?? "-" },
+    { key: "gallery", label: "갤러리", align: "center", render: (row) => `${row.gallery.length}장` },
     {
       key: "status",
       label: "노출상태",
@@ -93,6 +96,7 @@ export function ProductsPage({ data }: { data: AdminData }) {
               key={`${row.id}-${row.title}-${row.price}-${row.originalPrice}-${row.badge}-${row.isVisible}-${row.summary}-${row.imageUrl}`}
               saveLabel="상품 저장"
             />
+            <ProductGalleryEditor images={row.gallery} maxImages={GALLERY_MAX_IMAGES} primaryImageUrl={row.imageUrl} productId={row.id} />
           </>
         )}
         rowId={(row) => row.id}

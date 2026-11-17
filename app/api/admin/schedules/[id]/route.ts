@@ -1,3 +1,4 @@
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminOk } from "@/lib/admin/api-data";
 import { adminError, parseRowId, requireAdmin } from "@/lib/admin/guard";
@@ -87,5 +88,6 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     connection.release();
   }
 
+  revalidateSite();
   return NextResponse.json(adminOk(message, { id: scheduleId }));
 }

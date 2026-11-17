@@ -31,7 +31,7 @@
   - 하이라이트/포함사항/안내: `product_detail_items` (`highlight`, `included`, `notice`)
   - 포인트(제목=label, 설명=body), 코스(제목=label, 설명=body, 소요시간=meta, 요약=note), FAQ(질문=label, 답변=body): `product_detail_items` (`point`, `course`, `faq`)
   - 등록된 내용이 없으면 하이라이트·일정 타임라인과 기본 FAQ로 채웁니다.
-  - 사진은 아직 대표 이미지 + 공용 샘플 이미지입니다. 상품별 갤러리 테이블은 없습니다.
+  - 사진: 대표 이미지(`products.image_url`) + 상품 갤러리(`product_images`, 순서대로). 갤러리가 비어 있으면 공용 샘플 이미지를 씁니다.
 - 승인된 리뷰: `product_reviews`
 
 ## 기업·기관 패키지
@@ -49,7 +49,7 @@
 ## 관리자
 
 - 회원관리: `users`
-- 상품관리: `products`, `product_tags`, `product_schedules`, `product_detail_items`
+- 상품관리: `products`, `product_tags`, `product_schedules`, `product_detail_items`, `product_images`
 - 예약관리: `reservations`
 - 견적관리: `quote_requests`
 - 행사관리: `events`

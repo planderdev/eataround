@@ -22,6 +22,8 @@ export type AdminProductRow = {
   image: string;
   /** 저장된 이미지 주소 그대로(없으면 빈 문자열). 편집 입력란에 쓴다. */
   imageUrl: string;
+  /** 갤러리 사진(순서대로) */
+  gallery: { id: number; imageUrl: string; alt: string }[];
   host: string;
   isVisible: boolean;
   scheduleCount: number;
@@ -142,6 +144,17 @@ export function getAdminProducts() {
           order by p.sort_order asc, p.created_at desc`,
       );
 
+      const [imageRows] = await getPool().query<
+        (RowDataPacket & { id: number; product_id: number; image_url: string; alt: string | null })[]
+      >("select id, product_id, image_url, alt from product_images order by product_id asc, sort_order asc, id asc");
+      const galleryByProduct = new Map<number, AdminProductRow["gallery"]>();
+      for (const image of imageRows) {
+        galleryByProduct.set(image.product_id, [
+          ...(galleryByProduct.get(image.product_id) ?? []),
+          { id: image.id, imageUrl: image.image_url, alt: image.alt ?? "" },
+        ]);
+      }
+
       return rows.map<AdminProductRow>((row) => ({
         id: row.id,
         slug: row.slug,
@@ -154,6 +167,7 @@ export function getAdminProducts() {
         summary: row.summary ?? "",
         image: row.image_url ?? fallbackImage,
         imageUrl: row.image_url ?? "",
+        gallery: galleryByProduct.get(row.id) ?? [],
         host: row.host_name ?? "이더라운드 호스트",
         isVisible: row.is_visible === 1,
         scheduleCount: Number(row.schedule_count),
@@ -173,6 +187,7 @@ export function getAdminProducts() {
         summary: experience.summary,
         image: experience.image,
         imageUrl: experience.image,
+        gallery: [],
         host: experience.host.name,
         isVisible: true,
         scheduleCount: experience.schedules.length,

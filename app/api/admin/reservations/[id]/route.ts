@@ -1,3 +1,4 @@
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminOk } from "@/lib/admin/api-data";
 import { adminError, parseRowId, requireAdmin, trimmed } from "@/lib/admin/guard";
@@ -114,5 +115,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     connection.release();
   }
 
+  // 취소·거절은 회차 재고를 되돌리므로 상세 화면의 잔여 좌석을 다시 만들게 한다.
+  if (cancelling) revalidateSite();
   return NextResponse.json(adminOk(STATUS_MESSAGE[status], { id: reservationId, status: nextStatus }));
 }

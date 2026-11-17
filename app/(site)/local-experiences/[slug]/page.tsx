@@ -14,7 +14,7 @@ import {
   type LocalExperienceMediaItem,
   type LocalExperienceTabItem,
 } from "@/components/LocalExperienceDetailClient";
-import { getExperience, getExperienceDetail, getExperiences, getProductReviews } from "@/lib/content";
+import { getExperience, getExperienceDetail, getExperiences, getProductGallery, getProductReviews } from "@/lib/content";
 import type { Experience, ExperienceDetail } from "@/lib/data";
 import { formatWon } from "@/lib/format";
 import { userRoutes } from "@/lib/routes";
@@ -86,14 +86,15 @@ export default async function LocalExperienceDetailPage({ params }: PageProps) {
   const experience = await getExperience(slug);
   if (!experience) notFound();
 
-  const [experiences, managedDetail, reviews] = await Promise.all([
+  const [experiences, managedDetail, reviews, gallery] = await Promise.all([
     getExperiences(),
     getExperienceDetail(slug),
     getProductReviews(slug),
+    getProductGallery(slug),
   ]);
 
   const detail = resolveDetail(experience, managedDetail);
-  const galleryImages = buildGalleryImages(experience.image);
+  const galleryImages = buildGalleryImages(experience.image, gallery);
   const related = experiences.filter((item) => item.slug !== experience.slug).slice(0, 6);
   const hasReviews = experience.reviewCount > 0;
   const priceLabel = experience.price > 0 ? formatWon(experience.price) : "가격 문의";
@@ -353,10 +354,11 @@ export default async function LocalExperienceDetailPage({ params }: PageProps) {
   );
 }
 
-function buildGalleryImages(primaryImage: string) {
-  return [primaryImage, ...fallbackGalleryImages]
+/** 대표 이미지를 맨 앞에 두고, 등록된 갤러리 사진이 있으면 그것을, 없으면 공용 샘플 사진을 잇는다. */
+function buildGalleryImages(primaryImage: string, gallery: string[]) {
+  return [primaryImage, ...(gallery.length ? gallery : fallbackGalleryImages)]
     .filter((image, index, images) => Boolean(image) && images.indexOf(image) === index)
-    .slice(0, 5);
+    .slice(0, gallery.length ? 13 : 5);
 }
 
 /** 등록된 상세 콘텐츠가 없으면 상품 기본 정보로 채운다. */

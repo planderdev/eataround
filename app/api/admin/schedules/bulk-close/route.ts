@@ -1,3 +1,4 @@
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminOk } from "@/lib/admin/api-data";
 import { adminError, requireAdmin } from "@/lib/admin/guard";
@@ -43,6 +44,7 @@ export async function POST(request: Request) {
     return adminError(status === "closed" ? "해당 기간에 마감할 회차가 없습니다." : "해당 기간에 다시 열 회차가 없습니다.", 404);
   }
 
+  revalidateSite();
   return NextResponse.json(
     adminOk(status === "closed" ? `회차 ${rows.length}개를 마감했습니다.` : `회차 ${rows.length}개를 다시 열었습니다.`, { count: rows.length }),
   );
