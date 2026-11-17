@@ -9,7 +9,7 @@ import { MobileSwipeCarousel, type MobileSwipeItem } from "@/components/MobileSw
 import { PackageCtaCarousel } from "@/components/PackageCtaCarousel";
 import { SectionHeader } from "@/components/SectionHeader";
 import { getCategories, getCollections, getEvents, getExperiences, getHeroSlides, getJournals, getPackageCtas } from "@/lib/content";
-import { userRoutes } from "@/lib/routes";
+import { experiencePath, userRoutes } from "@/lib/routes";
 
 export default async function HomePage() {
   const [experiences, events, journals, heroSlides, categoryItems, collectionItems, packageCtas] = await Promise.all([
@@ -38,21 +38,17 @@ export default async function HomePage() {
     title: item.title,
     description: item.excerpt,
   }));
-  const heroRankingItems: HeroRankingItem[] = [
-    ...journals.map((item) => ({
-      title: item.title,
-      href: `/journal/${item.slug}`,
-      category: item.category,
-      author: "Journal",
-      date: item.date,
-    })),
-    ...collectionItems.map((item) => ({
-      title: item.title,
-      href: item.href,
-      category: item.eyebrow,
-      author: "Article",
-    })),
-  ].slice(0, 5);
+  // "지금 많이 찾는 로컬 경험": 후기가 많은 순으로 상위 5개 체험
+  const heroRankingItems: HeroRankingItem[] = [...experiences]
+    .sort((left, right) => right.reviewCount - left.reviewCount || right.rating - left.rating)
+    .slice(0, 5)
+    .map((experience) => ({
+      title: experience.title,
+      href: experiencePath(experience.slug),
+      category: experience.eyebrow,
+      author: experience.region,
+      date: experience.reviewCount > 0 ? `후기 ${experience.reviewCount}` : undefined,
+    }));
   const lastSeatItems: LastSeatItem[] = experiences
     .map((experience) => ({
       experience,
