@@ -753,19 +753,21 @@ export async function getExperienceDetail(slug: string): Promise<ExperienceDetai
   }, fallbackExperienceDetails[slug] ?? null);
 }
 
-/** 상품 갤러리 사진 주소(순서대로). 등록된 사진이 없거나 DB가 없으면 빈 목록이고, 화면은 기본 사진을 쓴다. */
-export async function getProductGallery(slug: string): Promise<string[]> {
+export type ProductGalleryImage = { imageUrl: string; alt?: string };
+
+/** 상품 갤러리 사진(순서대로). 등록된 사진이 없거나 DB가 없으면 빈 목록이고, 화면은 기본 사진을 쓴다. */
+export async function getProductGallery(slug: string): Promise<ProductGalleryImage[]> {
   return safeQuery(async () => {
     const pool = getPool();
-    const [rows] = await pool.query<(RowDataPacket & { image_url: string })[]>(
-      `select pi.image_url
+    const [rows] = await pool.query<(RowDataPacket & { image_url: string; alt: string | null })[]>(
+      `select pi.image_url, pi.alt
          from product_images pi
          join products p on p.id = pi.product_id
         where p.slug = ?
         order by pi.sort_order asc, pi.id asc`,
       [slug],
     );
-    return rows.map((row) => row.image_url);
+    return rows.map((row) => ({ imageUrl: row.image_url, alt: row.alt ?? undefined }));
   }, []);
 }
 

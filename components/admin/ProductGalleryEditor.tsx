@@ -22,6 +22,8 @@ export function ProductGalleryEditor({ productId, images, primaryImageUrl, maxIm
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [urlDraft, setUrlDraft] = useState("");
+  // 사진별 설명 초안. 저장된 값과 다를 때만 "설명 저장"을 누를 수 있다.
+  const [altDrafts, setAltDrafts] = useState<Record<number, string>>({});
   const base = `/api/admin/products/${productId ?? "sample"}/images`;
   const full = images.length >= maxImages;
 
@@ -73,6 +75,8 @@ export function ProductGalleryEditor({ productId, images, primaryImageUrl, maxIm
         <ol>
           {images.map((image, index) => {
             const isPrimary = image.imageUrl === primaryImageUrl;
+            const altDraft = altDrafts[image.id] ?? image.alt;
+            const altChanged = altDraft.trim() !== image.alt;
             return (
               <li key={image.id}>
                 <img alt={image.alt} decoding="async" loading="lazy" src={image.imageUrl} />
@@ -80,6 +84,28 @@ export function ProductGalleryEditor({ productId, images, primaryImageUrl, maxIm
                   <span>
                     {index + 1}번째{isPrimary ? " · 대표" : ""}
                   </span>
+                  <div className="admin-gallery-editor-alt">
+                    <input
+                      aria-label={`${index + 1}번째 사진 설명`}
+                      maxLength={200}
+                      onChange={(event) => setAltDrafts((current) => ({ ...current, [image.id]: event.target.value }))}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" && altChanged && !busy) void call(`${base}/${image.id}`, "PATCH", { alt: altDraft.trim() });
+                      }}
+                      placeholder="사진 설명 (화면 낭독기·검색용, 예: 발효 밥상 차림)"
+                      type="text"
+                      value={altDraft}
+                    />
+                    <button
+                      aria-label={`${index + 1}번째 사진 설명 저장`}
+                      className="admin-action-button ghost"
+                      disabled={busy || !altChanged}
+                      onClick={() => void call(`${base}/${image.id}`, "PATCH", { alt: altDraft.trim() })}
+                      type="button"
+                    >
+                      설명 저장
+                    </button>
+                  </div>
                   <div className="admin-gallery-editor-actions">
                     <button aria-label={`${index + 1}번째 사진을 앞으로`} className="admin-action-button ghost" disabled={busy || index === 0} onClick={() => move(index, -1)} type="button">
                       앞으로

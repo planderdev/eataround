@@ -5629,6 +5629,7 @@
 }
 
 .admin-gallery-editor-actions,
+.admin-gallery-editor-alt,
 .admin-gallery-editor-url {
   display: flex;
   flex-wrap: wrap;
@@ -5640,6 +5641,7 @@
   gap: var(--admin-space-8);
 }
 
+.admin-gallery-editor-alt input,
 .admin-gallery-editor-url input {
   flex: 1 1 220px;
   border: 1px solid var(--admin-line);
