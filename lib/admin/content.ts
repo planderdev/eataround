@@ -72,7 +72,10 @@ export type AdminEventRow = {
   venue: string;
   partner: string;
   summary: string;
+  /** 화면 표시용 이미지(없으면 기본 이미지) */
   image: string;
+  /** 저장된 이미지 주소 그대로(없으면 빈 문자열). 편집 입력란에 쓴다. */
+  imageUrl: string;
 };
 
 export type AdminReviewRow = {
@@ -362,6 +365,7 @@ export function getAdminEvents() {
         partner: row.partner ?? "",
         summary: row.summary ?? "",
         image: row.image_url ?? fallbackImage,
+        imageUrl: row.image_url ?? "",
       }));
     },
     () =>
@@ -374,6 +378,7 @@ export function getAdminEvents() {
         partner: event.partner,
         summary: event.summary,
         image: event.image,
+        imageUrl: event.image,
       })),
   );
 }
@@ -395,7 +400,7 @@ export function getAdminReviews() {
            from product_reviews pr
            left join products p on p.id = pr.product_id
            left join users u on u.id = pr.user_id
-          order by pr.created_at desc
+          order by pr.created_at desc, pr.id desc
           limit 100`,
       );
 

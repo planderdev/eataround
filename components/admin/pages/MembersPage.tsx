@@ -17,18 +17,15 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
   const rows = data.members.filter((member) => (corporate ? member.type.includes("기업") || member.type.includes("기관") : member.type === "일반회원"));
   const columns: AdminTableColumn<AdminData["members"][number]>[] = corporate
     ? [
-        { key: "name", label: "기관명", render: (row) => <strong>{row.name}</strong> },
+        { key: "name", label: "기관명", render: (row) => <strong>{row.organization ?? row.name}</strong> },
         { key: "manager", label: "담당자", render: (row) => row.name },
         { key: "email", label: "이메일", render: (row) => row.email },
-        { key: "quotes", label: "견적요청", align: "center", render: () => "2건" },
         { key: "status", label: "승인 상태", render: (row) => <AdminStatusBadge tone={toneFromStatus(row.status)}>{row.status}</AdminStatusBadge> },
       ]
     : [
-        { key: "id", label: "회원번호", render: (row) => `M-${String(row.email.length * 37).padStart(4, "0")}` },
+        { key: "id", label: "회원번호", render: (row) => (row.id ? `M-${String(row.id).padStart(4, "0")}` : "-") },
         { key: "name", label: "이름", render: (row) => <strong>{row.name}</strong> },
         { key: "email", label: "이메일", render: (row) => row.email },
-        { key: "channel", label: "가입경로", render: () => "이메일" },
-        { key: "count", label: "예약", align: "center", render: () => "1건" },
         { key: "status", label: "상태", render: (row) => <AdminStatusBadge tone={toneFromStatus(row.status)}>{row.status}</AdminStatusBadge> },
       ];
 
@@ -71,7 +68,7 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
             <MemberApprovalInline
               key={`${row.id ?? row.email}-${row.status}`}
               memberId={row.id ? String(row.id) : `sample-${row.email}`}
-              memberLabel={row.name}
+              memberLabel={row.organization ?? row.name}
               status={memberApprovalStatus(row.status)}
             />
           ) : (

@@ -29,9 +29,9 @@ export function EventEditorPage({ data, closed }: { data: AdminData; closed: boo
                     { name: "period", label: "진행 기간", type: "text", value: event.period, maxLength: 120 },
                     { name: "venue", label: "장소", type: "text", value: event.venue, maxLength: 190 },
                     { name: "summary", label: "결과 요약", type: "textarea", value: event.summary, maxLength: 500 },
-                    { name: "imageUrl", label: "대표 이미지 URL", type: "text", value: event.image, maxLength: 500, wide: true },
+                    { name: "imageUrl", label: "대표 이미지 URL", type: "text", value: event.imageUrl, maxLength: 500, wide: true },
                   ]}
-                  key={`${event.id}-${event.period}-${event.venue}-${event.summary}-${event.image}`}
+                  key={`${event.id}-${event.period}-${event.venue}-${event.summary}-${event.imageUrl}`}
                   saveLabel="결과 저장"
                 />
               </div>

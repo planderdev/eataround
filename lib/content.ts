@@ -196,6 +196,8 @@ type ReservationRow = RowDataPacket & {
 type QuoteRequestRow = RowDataPacket & {
   id: number;
   admin_memo: string | null;
+  start_date: string | null;
+  end_date: string | null;
   organization_name: string | null;
   contact_name: string | null;
   people: number;
@@ -209,6 +211,7 @@ type QuoteRequestRow = RowDataPacket & {
 type MemberRow = RowDataPacket & {
   id: number;
   company_rejected_reason: string | null;
+  organization_name: string | null;
   name: string;
   member_type: "personal" | "company";
   email: string;
@@ -662,7 +665,7 @@ export async function getAdminQuoteRequests() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<QuoteRequestRow[]>(
-      `select id, admin_memo, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
+      `select id, admin_memo, start_date, end_date, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
          from quote_requests
         order by created_at desc
         limit 20`,
@@ -672,6 +675,7 @@ export async function getAdminQuoteRequests() {
       id: row.id,
       statusCode: row.status,
       adminMemo: row.admin_memo ?? undefined,
+      period: [row.start_date, row.end_date].filter(Boolean).map((date) => formatSqlDate(date)).join(" - ") || undefined,
       org: row.organization_name ?? "기관명 미입력",
       contact: row.contact_name ?? undefined,
       people: row.people,
@@ -775,7 +779,7 @@ export async function getAdminMembers() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<MemberRow[]>(
-      `select id, name, member_type, email, company_approved, company_rejected_reason, role
+      `select id, name, organization_name, member_type, email, company_approved, company_rejected_reason, role
          from users
         order by created_at desc
         limit 30`,
@@ -784,6 +788,7 @@ export async function getAdminMembers() {
     return rows.map<AdminMember>((row) => ({
       id: row.id,
       rejectedReason: row.company_rejected_reason ?? undefined,
+      organization: row.organization_name ?? undefined,
       name: row.name,
       type: row.member_type === "company" ? "기업·기관" : row.role === "admin" ? "관리자" : "일반회원",
       email: row.email,

@@ -77,7 +77,9 @@ export function AdminProductForm() {
   const [price, setPrice] = useState("");
   const [pricePreset, setPricePreset] = useState("");
   const [reservationType, setReservationType] = useState<typeof reservationTypeOptions[number]["value"]>("approval");
-  const [schedules, setSchedules] = useState<ScheduleRow[]>(() => [makeScheduleRow()]);
+  // 첫 행 id는 고정한다. 난수 id를 쓰면 서버와 브라우저의 값이 달라 하이드레이션이 어긋나고,
+  // 폼이 다시 그려지면서 입력하던 내용이 지워진다.
+  const [schedules, setSchedules] = useState<ScheduleRow[]>(() => [makeScheduleRow({ id: "s-initial" })]);
 
   function updateSchedule(id: string, patch: Partial<ScheduleRow>) {
     setSchedules((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
