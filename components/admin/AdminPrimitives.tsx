@@ -97,6 +97,8 @@ export function AdminFilterBar({ fields, resultLabel }: { fields: FilterField[];
   );
 }
 
+// data-selected, data-search-match, data-page 같은 초기 속성은 AdminShell이 화면에서 바꾸는 값이다.
+// 서버가 같은 초기값을 미리 그려 두어 하이드레이션 속성 불일치 경고가 나지 않게 한다.
 export function AdminDataTable<T>({
   actions,
   columns,
@@ -118,7 +120,7 @@ export function AdminDataTable<T>({
   const hasDetail = Boolean(detail || actions);
 
   return (
-    <div className="admin-table-wrap">
+    <div className="admin-table-wrap" data-selected-count="0">
       <div className="admin-table-toolbar">
         <details className="admin-table-column-menu">
           <summary>
@@ -168,7 +170,7 @@ export function AdminDataTable<T>({
           {rows.length ? (
             rows.map((row) => (
               <Fragment key={rowKey(row)}>
-                <tr data-row-id={rowId?.(row)} tabIndex={0}>
+                <tr data-row-id={rowId?.(row)} data-search-match="false" data-selected="false" tabIndex={0}>
                   <td>
                     <label className="admin-table-check">
                       <input aria-label={`${rowKey(row)} 선택`} type="checkbox" />
@@ -235,7 +237,7 @@ export function AdminPagination({ total }: { total: number }) {
   const visiblePages = pages <= 5 ? Array.from({ length: pages }, (_, index) => index + 1) : [1, 2, 3, pages];
 
   return (
-    <div className="admin-pagination" data-admin-pagination data-page-size={pageSize} data-total={total}>
+    <div className="admin-pagination" data-admin-pagination data-page="1" data-page-size={pageSize} data-total={total}>
       <span data-admin-pagination-summary>
         {/* AdminShell이 같은 문구를 textContent로 다시 쓰므로, 하이드레이션이 어긋나지 않게 한 덩어리 문자열로 그린다. */}
         {`총 ${total.toLocaleString("ko-KR")}건 중 ${total ? 1 : 0}-${total ? end : 0}번째 표시`}

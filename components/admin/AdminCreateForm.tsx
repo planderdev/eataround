@@ -4,7 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AdminSelect } from "@/components/admin/AdminPrimitives";
+import { ImageUploadButton } from "@/components/admin/ImageUploadButton";
 import { DatePicker } from "@/components/DatePicker";
+import type { UploadFolder } from "@/lib/admin/upload-rules";
 import { notifyAdminToast } from "@/lib/admin/toast";
 import { withBasePath } from "@/lib/paths";
 
@@ -23,6 +25,8 @@ export type AdminCreateField = {
   maxLength?: number;
   required?: boolean;
   wide?: boolean;
+  /** text 전용: 이미지 주소 입력란 옆에 파일 업로드 버튼을 붙이고, 올린 주소를 이 입력란에 넣는다. */
+  upload?: UploadFolder;
 };
 
 type AdminCreateFormProps = {
@@ -140,6 +144,23 @@ export function AdminCreateForm({ endpoint, fields, submitLabel, backHref, fixed
               <div className="admin-editor-field" data-wide={wide ? "true" : undefined} key={field.name}>
                 <span>{field.label}</span>
                 <DatePicker className="admin-date-picker" defaultValue={String(value) || undefined} label={field.label} onChange={(date) => set(field.name, date)} />
+              </div>
+            );
+          }
+          if (field.upload) {
+            // 파일 선택 버튼이 들어가므로 label 대신 div로 감싼다(label 안의 버튼은 입력란 클릭으로 오인된다).
+            return (
+              <div className="admin-editor-field" data-wide="true" key={field.name}>
+                <span>{field.label}</span>
+                <input
+                  aria-label={field.label}
+                  maxLength={field.maxLength}
+                  onChange={(event) => set(field.name, event.target.value)}
+                  placeholder={field.placeholder}
+                  type="text"
+                  value={String(value)}
+                />
+                <ImageUploadButton folder={field.upload} onUploaded={(url) => set(field.name, url)} />
               </div>
             );
           }

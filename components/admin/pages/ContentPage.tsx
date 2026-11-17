@@ -60,8 +60,9 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
                   { name: "linkUrl", label: "연결 링크", type: "text", value: row.href, maxLength: 300 },
                   { name: "sortOrder", label: "순서(작을수록 먼저)", type: "number", value: row.sortOrder },
                   { name: "isVisible", label: "노출", type: "flag", value: row.isVisible },
+                  { name: "imageUrl", label: "이미지 (파일을 올리거나 주소 입력)", type: "text", value: row.imageUrl, maxLength: 500, upload: "banners" },
                 ]}
-                key={`${row.id}-${row.title}-${row.subtitle}-${row.href}-${row.sortOrder}-${row.isVisible}`}
+                key={`${row.id}-${row.title}-${row.subtitle}-${row.href}-${row.sortOrder}-${row.isVisible}-${row.imageUrl}`}
                 saveLabel="배너 저장"
               />
             </>
@@ -112,8 +113,9 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
                   { name: "linkUrl", label: "연결 링크", type: "text", value: row.href, maxLength: 300 },
                   { name: "sortOrder", label: "순서(작을수록 먼저)", type: "number", value: row.sortOrder },
                   { name: "isVisible", label: "노출", type: "flag", value: row.isVisible },
+                  { name: "imageUrl", label: "키 비주얼 이미지 (파일을 올리거나 주소 입력)", type: "text", value: row.image, maxLength: 500, upload: "curations" },
                 ]}
-                key={`${row.id}-${row.title}-${row.description}-${row.href}-${row.sortOrder}-${row.isVisible}`}
+                key={`${row.id}-${row.title}-${row.description}-${row.href}-${row.sortOrder}-${row.isVisible}-${row.image}`}
                 saveLabel="기획전 저장"
               />
             </>
@@ -165,7 +167,7 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
                   { name: "isVisible", label: "발행", type: "flag", value: row.isVisible, flagLabels: ["발행중", "비공개"] },
                   { name: "excerpt", label: "요약", type: "textarea", value: row.excerpt, maxLength: 500 },
                   { name: "content", label: "본문", type: "textarea", value: row.content, maxLength: 20000 },
-                  { name: "imageUrl", label: "커버 이미지 URL", type: "text", value: row.image, maxLength: 500, wide: true },
+                  { name: "imageUrl", label: "커버 이미지 (파일을 올리거나 주소 입력)", type: "text", value: row.image, maxLength: 500, upload: "journals" },
                 ]}
                 key={`${row.id}-${row.title}-${row.category}-${row.isVisible}-${row.excerpt}-${row.content.length}-${row.image}`}
                 saveLabel="저널 저장"

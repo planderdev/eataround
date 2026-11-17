@@ -20,7 +20,7 @@ export function ContentEditorPage({ data, type }: { data: AdminData; type: Conte
           <div className="admin-creation-head">
             <span>Banner slot</span>
             <h2>슬롯, 문구, 링크를 한 번에 설정합니다.</h2>
-            <p>이미지는 주소(URL)로 등록합니다. 파일 업로드와 노출 기간 예약은 아직 연결되지 않았습니다.</p>
+            <p>이미지는 파일을 올리거나 주소(URL)를 직접 입력합니다. 노출 기간 예약은 아직 연결되지 않았습니다.</p>
           </div>
           <AdminCreateForm
             backHref="/admin/banners"
@@ -54,7 +54,7 @@ export function ContentEditorPage({ data, type }: { data: AdminData; type: Conte
               { name: "title", label: "제목", type: "text", maxLength: 190, required: true, wide: true },
               { name: "subtitle", label: "서브카피", type: "textarea", maxLength: 300 },
               { name: "linkUrl", label: "연결 URL", type: "text", maxLength: 300, placeholder: "/curations/...", wide: true },
-              { name: "imageUrl", label: "이미지 URL", type: "text", maxLength: 500, placeholder: "https://...", wide: true },
+              { name: "imageUrl", label: "이미지 (파일을 올리거나 주소 입력)", type: "text", maxLength: 500, placeholder: "https://...", upload: "banners" },
             ]}
             submitLabel="배너 저장"
           />
@@ -81,7 +81,7 @@ export function ContentEditorPage({ data, type }: { data: AdminData; type: Conte
               { name: "isVisible", label: "노출 상태", type: "flag", flagLabels: ["노출중", "비공개"] },
               { name: "subtitle", label: "설명", type: "textarea", maxLength: 300 },
               { name: "linkUrl", label: "연결 URL", type: "text", maxLength: 300, placeholder: "/local-experiences?tag=...", wide: true },
-              { name: "imageUrl", label: "키 비주얼 이미지 URL", type: "text", maxLength: 500, placeholder: "https://...", wide: true },
+              { name: "imageUrl", label: "키 비주얼 이미지 (파일을 올리거나 주소 입력)", type: "text", maxLength: 500, placeholder: "https://...", upload: "curations" },
               { name: "sortOrder", label: "정렬 순서(작을수록 먼저)", type: "number", defaultValue: 0 },
             ]}
             submitLabel="기획전 저장"
@@ -105,7 +105,7 @@ export function ContentEditorPage({ data, type }: { data: AdminData; type: Conte
         <div className="admin-creation-head">
           <span>Journal editor</span>
           <h2>저널 글을 작성해 발행합니다.</h2>
-          <p>커버 이미지는 주소(URL)로 등록합니다. SEO 설정과 연관 상품 연결은 저장할 곳이 없어 아직 지원하지 않습니다.</p>
+          <p>커버 이미지는 파일을 올리거나 주소(URL)를 직접 입력합니다. SEO 설정과 연관 상품 연결은 저장할 곳이 없어 아직 지원하지 않습니다.</p>
         </div>
         <AdminCreateForm
           backHref="/admin/journal"
@@ -116,7 +116,7 @@ export function ContentEditorPage({ data, type }: { data: AdminData; type: Conte
             { name: "isVisible", label: "발행 상태", type: "flag", flagLabels: ["바로 발행", "비공개 저장"] },
             { name: "excerpt", label: "요약", type: "textarea", maxLength: 500 },
             { name: "content", label: "본문", type: "textarea", maxLength: 20000 },
-            { name: "imageUrl", label: "커버 이미지 URL", type: "text", maxLength: 500, placeholder: "https://...", wide: true },
+            { name: "imageUrl", label: "커버 이미지 (파일을 올리거나 주소 입력)", type: "text", maxLength: 500, placeholder: "https://...", upload: "journals" },
           ]}
           submitLabel="저널 저장"
         />

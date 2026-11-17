@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ImageUploadButton } from "@/components/admin/ImageUploadButton";
 import { RiAddLine, RiDeleteBinLine } from "@remixicon/react";
 import { DatePicker } from "@/components/DatePicker";
 import {
@@ -77,7 +78,9 @@ export function AdminProductForm() {
   const [price, setPrice] = useState("");
   const [pricePreset, setPricePreset] = useState("");
   const [reservationType, setReservationType] = useState<typeof reservationTypeOptions[number]["value"]>("approval");
-  const [schedules, setSchedules] = useState<ScheduleRow[]>(() => [makeScheduleRow()]);
+  // 첫 행 id는 고정한다. 난수 id를 쓰면 서버와 브라우저의 값이 달라 하이드레이션이 어긋나고,
+  // 폼이 다시 그려지면서 입력하던 내용이 지워진다.
+  const [schedules, setSchedules] = useState<ScheduleRow[]>(() => [makeScheduleRow({ id: "s-initial" })]);
 
   function updateSchedule(id: string, patch: Partial<ScheduleRow>) {
     setSchedules((current) => current.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -228,7 +231,8 @@ export function AdminProductForm() {
         <section data-active={activeTab === "media"}>
           <span>미디어</span>
           <input aria-label="대표 이미지 URL" onChange={(event) => setImageUrl(event.target.value)} placeholder="대표 이미지 주소 (https://...)" value={imageUrl} />
-          <small>이미지 파일 업로드와 상품별 갤러리는 저장소가 없어 아직 연결되지 않았습니다. 대표 이미지는 주소(URL)로 등록합니다.</small>
+          <ImageUploadButton folder="products" label="대표 이미지 파일 선택" onUploaded={setImageUrl} />
+          <small>대표 이미지는 파일을 올리거나 주소(URL)를 직접 입력합니다. 상품별 갤러리(여러 장)는 저장할 테이블이 없어 아직 연결되지 않았습니다.</small>
         </section>
 
         <section data-active={activeTab === "content"}>

@@ -18,7 +18,10 @@ export type AdminProductRow = {
   originalPrice?: number;
   badge?: string;
   summary: string;
+  /** 화면 표시용 이미지(없으면 기본 이미지) */
   image: string;
+  /** 저장된 이미지 주소 그대로(없으면 빈 문자열). 편집 입력란에 쓴다. */
+  imageUrl: string;
   host: string;
   isVisible: boolean;
   scheduleCount: number;
@@ -47,7 +50,10 @@ export type AdminBannerRow = {
   title: string;
   subtitle: string;
   href: string;
+  /** 화면 표시용 이미지(이미지가 없으면 호스트 이미지) */
   image: string;
+  /** 저장된 이미지 주소 그대로(없으면 빈 문자열). 편집 입력란에 쓴다. */
+  imageUrl: string;
   isVisible: boolean;
   sortOrder: number;
 };
@@ -72,7 +78,10 @@ export type AdminEventRow = {
   venue: string;
   partner: string;
   summary: string;
+  /** 화면 표시용 이미지(없으면 기본 이미지) */
   image: string;
+  /** 저장된 이미지 주소 그대로(없으면 빈 문자열). 편집 입력란에 쓴다. */
+  imageUrl: string;
 };
 
 export type AdminReviewRow = {
@@ -144,6 +153,7 @@ export function getAdminProducts() {
         badge: row.badge ?? undefined,
         summary: row.summary ?? "",
         image: row.image_url ?? fallbackImage,
+        imageUrl: row.image_url ?? "",
         host: row.host_name ?? "이더라운드 호스트",
         isVisible: row.is_visible === 1,
         scheduleCount: Number(row.schedule_count),
@@ -162,6 +172,7 @@ export function getAdminProducts() {
         badge: experience.badge,
         summary: experience.summary,
         image: experience.image,
+        imageUrl: experience.image,
         host: experience.host.name,
         isVisible: true,
         scheduleCount: experience.schedules.length,
@@ -260,6 +271,7 @@ export function getAdminBanners() {
         subtitle: row.subtitle ?? "",
         href: row.link_url ?? "",
         image: row.image_url ?? (Array.isArray(row.host_images) ? String(row.host_images[0] ?? "") : "") ?? "",
+        imageUrl: row.image_url ?? "",
         isVisible: row.is_visible === 1,
         sortOrder: row.sort_order,
       }));
@@ -271,6 +283,7 @@ export function getAdminBanners() {
         subtitle: banner.description,
         href: banner.href,
         image: banner.image,
+        imageUrl: banner.image,
         isVisible: true,
         sortOrder: index,
       })),
@@ -280,6 +293,7 @@ export function getAdminBanners() {
         subtitle: banner.subtitle,
         href: banner.href,
         image: banner.hostImages[0],
+        imageUrl: "",
         isVisible: true,
         sortOrder: index,
       })),
@@ -362,6 +376,7 @@ export function getAdminEvents() {
         partner: row.partner ?? "",
         summary: row.summary ?? "",
         image: row.image_url ?? fallbackImage,
+        imageUrl: row.image_url ?? "",
       }));
     },
     () =>
@@ -374,6 +389,7 @@ export function getAdminEvents() {
         partner: event.partner,
         summary: event.summary,
         image: event.image,
+        imageUrl: event.image,
       })),
   );
 }
@@ -395,7 +411,7 @@ export function getAdminReviews() {
            from product_reviews pr
            left join products p on p.id = pr.product_id
            left join users u on u.id = pr.user_id
-          order by pr.created_at desc
+          order by pr.created_at desc, pr.id desc
           limit 100`,
       );
 

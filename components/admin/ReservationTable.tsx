@@ -34,7 +34,7 @@ export function ReservationTable({ compact, rows }: { compact?: boolean; rows: A
           items={[
             ["예약 유형", row.reservationType ?? "승인예약"],
             ["승인 필요", row.approvalRequired ? "필요" : "불필요"],
-            ["고객 안내", "예약 확정 후 이용 장소와 준비물을 자동 안내합니다."],
+            ["고객 안내", "자동 안내 발송은 아직 연결되지 않았습니다. 확정 후 고객에게 직접 안내해 주세요."],
             ["운영 메모", row.memo ?? "회차별 팀 재고와 결제 상태를 함께 확인하세요."],
           ]}
         />

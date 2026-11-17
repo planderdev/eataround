@@ -88,8 +88,9 @@ export function ProductsPage({ data }: { data: AdminData }) {
                 { name: "originalPrice", label: "정가(비우면 없음)", type: "number", value: row.originalPrice, nullable: true },
                 { name: "badge", label: "배지", type: "text", value: row.badge, maxLength: 40 },
                 { name: "isVisible", label: "노출", type: "flag", value: row.isVisible },
+                { name: "imageUrl", label: "대표 이미지 (파일을 올리거나 주소 입력)", type: "text", value: row.imageUrl, maxLength: 500, upload: "products" },
               ]}
-              key={`${row.id}-${row.title}-${row.price}-${row.originalPrice}-${row.badge}-${row.isVisible}-${row.summary}`}
+              key={`${row.id}-${row.title}-${row.price}-${row.originalPrice}-${row.badge}-${row.isVisible}-${row.summary}-${row.imageUrl}`}
               saveLabel="상품 저장"
             />
           </>

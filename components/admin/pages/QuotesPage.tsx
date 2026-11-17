@@ -17,7 +17,7 @@ export function QuotesPage({ data }: { data: AdminData }) {
   const columns: AdminTableColumn<AdminData["quoteRequests"][number]>[] = [
     { key: "org", label: "기관명", render: (row) => <strong>{row.org}</strong> },
     { key: "contact", label: "담당자", render: (row) => row.contact ?? "-" },
-    { key: "period", label: "희망기간", render: () => "2026-06-12 - 2026-06-13" },
+    { key: "period", label: "희망기간", render: (row) => row.period ?? "-" },
     { key: "people", label: "인원", align: "center", render: (row) => `${row.people}명` },
     { key: "program", label: "선택 프로그램", render: (row) => row.program },
     { key: "amount", label: "예상금액", align: "right", render: (row) => (row.estimatedTotal ? formatWon(row.estimatedTotal) : row.budget) },
@@ -46,11 +46,16 @@ export function QuotesPage({ data }: { data: AdminData }) {
       resultLabel="요청 접수 → 검토 → 견적 발송 → 예약 전환"
       summary={
         <div className="admin-pipeline-board">
-          {["요청 접수", "검토중", "견적 발송", "예약 전환"].map((step, index) => (
+          {[
+            { step: "요청 접수", code: "requested", note: "새 요청 확인" },
+            { step: "검토중", code: "reviewing", note: "담당자 검토" },
+            { step: "견적 발송", code: "sent", note: "고객 회신 대기" },
+            { step: "수락 완료", code: "accepted", note: "예약 진행" },
+          ].map(({ step, code, note }) => (
             <article key={step}>
               <span>{step}</span>
-              <strong>{index === 0 ? data.quoteRequests.length : index}</strong>
-              <small>{index === 0 ? "새 요청 확인" : "담당자 처리 필요"}</small>
+              <strong>{data.quoteRequests.filter((quote) => quote.statusCode === code).length}</strong>
+              <small>{note}</small>
             </article>
           ))}
         </div>

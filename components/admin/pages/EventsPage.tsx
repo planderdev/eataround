@@ -84,8 +84,9 @@ export function EventsPage({ closed, data }: { closed: boolean; data: AdminData 
                 { name: "venue", label: "장소", type: "text", value: row.venue, maxLength: 190 },
                 { name: "partner", label: "파트너", type: "text", value: row.partner, maxLength: 190 },
                 { name: "summary", label: "요약", type: "textarea", value: row.summary, maxLength: 500 },
+                { name: "imageUrl", label: "대표 이미지 (파일을 올리거나 주소 입력)", type: "text", value: row.imageUrl, maxLength: 500, upload: "events" },
               ]}
-              key={`${row.id}-${row.title}-${row.period}-${row.status}-${row.venue}-${row.partner}-${row.summary}`}
+              key={`${row.id}-${row.title}-${row.period}-${row.status}-${row.venue}-${row.partner}-${row.summary}-${row.imageUrl}`}
               saveLabel="행사 저장"
             />
           </>

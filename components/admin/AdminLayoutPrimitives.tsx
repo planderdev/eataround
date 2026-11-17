@@ -32,9 +32,10 @@ export function toneFromStatus(status: string): AdminTone {
 export function memberApprovalStatus(
   status: string,
 ): "pending" | "approved" | "rejected" | "active" | "inactive" {
-  if (/(승인완료|승인|approved)/i.test(status)) return "approved";
+  // "승인대기"에도 "승인"이 들어 있으므로 대기·반려를 먼저 가려낸다.
   if (/(반려|거절|rejected)/i.test(status)) return "rejected";
   if (/(승인대기|대기|pending)/i.test(status)) return "pending";
+  if (/(승인완료|승인|approved)/i.test(status)) return "approved";
   if (/(정상|active)/i.test(status)) return "active";
   if (/(휴면|탈퇴|inactive)/i.test(status)) return "inactive";
   return "pending";

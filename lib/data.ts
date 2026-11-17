@@ -166,6 +166,8 @@ export type AdminQuoteRequest = {
   /** DB 상태 코드(requested/reviewing/sent/accepted/closed). 샘플 데이터에는 없다. */
   statusCode?: string;
   adminMemo?: string;
+  /** 희망 기간(시작일 - 종료일). 입력이 없으면 비어 있다. */
+  period?: string;
   org: string;
   contact?: string;
   people: number;
@@ -181,6 +183,8 @@ export type AdminMember = {
   id?: number;
   /** 기업회원 반려 사유. 값이 있으면 반려 상태다. */
   rejectedReason?: string;
+  /** 기업·기관회원의 기관명 */
+  organization?: string;
   name: string;
   type: string;
   email: string;

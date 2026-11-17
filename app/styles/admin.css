@@ -5549,3 +5549,29 @@
   justify-content: center;
   margin-top: var(--admin-space-16);
 }
+
+/* 이미지 주소 입력란 + 파일 업로드 버튼 */
+.admin-image-upload {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--admin-space-8);
+}
+
+.admin-image-upload small {
+  color: var(--admin-color-muted);
+  font-size: var(--admin-font-size-xs);
+  font-weight: var(--admin-font-weight-regular, 400);
+}
+
+.admin-image-field {
+  display: grid;
+  gap: var(--admin-space-8);
+  color: var(--admin-color-muted);
+  font-size: var(--admin-font-size-xs);
+  font-weight: var(--admin-font-weight-bold);
+}
+
+.admin-image-field .admin-action-button {
+  grid-column: auto;
+}
