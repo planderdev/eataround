@@ -1,3 +1,4 @@
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
@@ -104,6 +105,9 @@ export async function POST(request: Request) {
       connection.release();
     }
   }
+
+  // 예약이 들어오면 회차의 잔여 좌석이 바뀌므로 정적으로 만들어 둔 상세 화면을 다시 만들게 한다.
+  if (hasDatabaseConfig()) revalidateSite();
 
   return NextResponse.json({
     ok: true,

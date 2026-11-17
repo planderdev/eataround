@@ -2,6 +2,7 @@ import "server-only";
 import { NextResponse } from "next/server";
 import { adminOk } from "@/lib/admin/api-data";
 import { adminError, parseRowId, requireAdmin } from "@/lib/admin/guard";
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 
 /** 관리자 PATCH에서 받을 수 있는 필드 한 개의 규칙. 여기 없는 키는 무시한다. */
@@ -92,6 +93,7 @@ export async function patchRow(request: Request, rawId: string, payload: Record<
     throw error;
   }
 
+  revalidateSite();
   return NextResponse.json(adminOk(options.okMessage, { id }));
 }
 
@@ -134,6 +136,7 @@ export async function insertRow(payload: Record<string, unknown>, options: Inser
       `insert into ${options.table} (${columns.join(", ")}) values (${columns.map(() => "?").join(", ")}) returning id`,
       values,
     );
+    revalidateSite();
     return NextResponse.json(adminOk(options.okMessage, { id: rows[0]?.id }), { status: 201 });
   } catch (error) {
     if ((error as { code?: string }).code === "ER_DUP_ENTRY") return adminError(options.duplicateMessage, 409);

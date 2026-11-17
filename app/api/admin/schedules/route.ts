@@ -1,3 +1,4 @@
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminApiData, adminOk, paginated } from "@/lib/admin/api-data";
 import { adminError, requireAdmin, trimmed } from "@/lib/admin/guard";
@@ -137,6 +138,7 @@ export async function POST(request: Request) {
     }
 
     await connection.commit();
+    if (created) revalidateSite();
 
     const skipped = dates.length - created;
     if (!created) return adminError("같은 날짜·시간의 회차가 이미 있습니다.", 409);

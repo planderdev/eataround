@@ -63,7 +63,7 @@ update users set role = 'admin' where email = '관리자 이메일';
 - 자체 저장 처리가 있는 영역은 `data-admin-own-action` 속성을 달아 `AdminShell`의 공용 버튼 처리에서 제외합니다. 그 밖의 버튼은 서버에 요청하지 않고 "아직 연결되지 않았습니다"를 안내합니다(`adminApi.actions.execute`). 이유를 함께 보여 주려면 버튼에 `data-admin-unlinked="이유"`를 답니다.
 - 아직 연결되지 않은 것(화면에서 이유와 함께 안내, 해당 API는 DB 연결 환경에서 501):
   - 메일·알림 발송이 필요한 것: 예약/회원 안내 발송, 견적서 발송, 견적 공유, 호스트 답변 요청, 관리자 초대 메일
-  - 파일이 필요한 것: 상품별 갤러리(여러 장, 저장할 테이블 없음), 회원 엑셀 내보내기
+  - 파일이 필요한 것: 회원 엑셀 내보내기
   - 저장할 테이블·컬럼이 없는 것: 패키지 묶음(`/api/admin/packages`), 약관 버전, 사이트 설정, 관리자 권한 등급·잠금·접속 로그, 일반회원 메모·휴면·마케팅 동의, 예약 노쇼·환불, 견적 담당자, 행사 노출 여부, 기획전–상품 연결, 저널 SEO·연관 상품, 배너 노출 기간 예약, 상품 상세 항목(추천 대상·일정·FAQ 등) 편집
   - 규칙이 정해지지 않은 것: 견적 → 예약 전환
 - 이미지 업로드
@@ -71,8 +71,16 @@ update users set role = 'admin' where email = '관리자 이메일';
   - 파일은 브라우저가 Blob으로 직접 올립니다(`@vercel/blob/client`의 `upload`). 함수 요청 본문 4.5MB 제한을 피하기 위해서입니다. `POST /api/admin/uploads`는 관리자에게만 일회용 토큰을 내주고, 폴더(`products`/`banners`/`curations`/`events`/`journals`/`categories`), 형식(JPG·PNG·WebP·AVIF·GIF), 크기(10MB)를 제한합니다. 규칙은 `lib/admin/upload-rules.ts`에 있습니다.
   - 화면의 `ImageUploadButton`은 올린 주소를 이미지 주소 입력란에 넣기만 합니다. DB에는 기존 저장 버튼을 눌러야 반영됩니다. 주소를 직접 입력해도 됩니다.
   - 토큰이 없는 환경이나 DB가 없는 샘플 모드에서는 올리지 않고 "이 환경에서는 업로드할 수 없습니다"를 안내합니다(`GET /api/admin/uploads`의 `enabled`).
-  - `POST /api/admin/products/{id}/images`는 `imageUrl`을 받아 상품 대표 이미지로 저장합니다.
+  - 상품 대표 이미지는 `PATCH /api/admin/products/{id}`의 `imageUrl`로 저장합니다.
   - 올린 뒤 저장하지 않았거나 다른 이미지로 바꾼 파일은 Blob에 남습니다(자동 삭제 없음).
+- 상품 갤러리(상품 한 개에 사진 여러 장)
+  - `product_images` 테이블(`product_id`, `image_url`, `alt`, `sort_order`)에 저장합니다. 대표 이미지는 여전히 `products.image_url`입니다.
+  - `GET/POST/PATCH /api/admin/products/{id}/images`: 목록, 한 장 추가(`imageUrl`, `alt`, `primary`), 순서 변경(`order`에 사진 id 전체). 상품당 12장까지이며 상품 행을 잠그고 셉니다.
+  - `PATCH/DELETE /api/admin/products/{id}/images/{imageId}`: 설명 수정, 대표 지정(`primary: true`면 그 사진 주소를 `products.image_url`에 복사), 갤러리에서 빼기.
+  - 갤러리에서 빼도 Blob 파일은 지우지 않습니다. 같은 주소가 대표 이미지나 다른 곳에 쓰이고 있을 수 있고 외부 주소일 수도 있기 때문입니다.
+  - 관리자 상품 목록의 행 "상세보기"에 `ProductGalleryEditor`가 있습니다(여러 장 올리기, 주소로 추가, 앞으로/뒤로, 대표로 지정, 빼기).
+  - 고객 상세(`/local-experiences/[slug]`, `/experiences/[slug]`)는 `getProductGallery()`로 읽어, 사진이 있으면 대표 이미지 + 갤러리를, 없으면 대표 이미지 + 공용 샘플 사진을 씁니다.
+- 고객 화면 갱신: 홈과 상품·행사·저널·기획전 상세는 빌드 때 만드는 정적 페이지입니다. 관리자 저장 라우트와 예약 접수는 `revalidateSite()`(`lib/admin/revalidate.ts`)로 전체를 무효화해 다음 요청 때 다시 만들게 합니다. 이 호출이 없으면 다음 배포 전까지 예전 내용이 보입니다.
 - 관리자 화면은 요청마다 DB를 다시 읽습니다(`loadAdminData`의 `connection()`).
 - 로그인 실패 5회 잠금은 화면에서만 세는 값이라 서버에서는 강제되지 않습니다.
 

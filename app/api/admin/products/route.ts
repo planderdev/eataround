@@ -1,3 +1,4 @@
+import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminApiData, paginated } from "@/lib/admin/api-data";
 import { getExperiences } from "@/lib/content";
@@ -152,5 +153,6 @@ export async function POST(request: Request) {
     connection.release();
   }
 
+  revalidateSite();
   return NextResponse.json({ ok: true, message: "상품이 저장되었습니다." }, { status: 201 });
 }

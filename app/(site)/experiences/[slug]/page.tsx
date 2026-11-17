@@ -31,7 +31,7 @@ import { ExperienceAnchor } from "@/components/ExperienceAnchor";
 import { ExperienceIntroMedia } from "@/components/ExperienceIntroMedia";
 import { detectBookingMode } from "@/lib/booking-mode";
 import type { Experience, ExperienceReview } from "@/lib/data";
-import { getExperience, getExperiences, getProductDetailContent, getProductReviews } from "@/lib/content";
+import { getExperience, getExperiences, getProductDetailContent, getProductGallery, getProductReviews } from "@/lib/content";
 import { userRoutes } from "@/lib/routes";
 
 type PageProps = {
@@ -320,10 +320,11 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
   const experience = await getExperience(slug);
   if (!experience) notFound();
 
-  const [experiences, managedDetail, managedReviews] = await Promise.all([
+  const [experiences, managedDetail, managedReviews, gallery] = await Promise.all([
     getExperiences(),
     getProductDetailContent(experience.slug),
     getProductReviews(experience.slug),
+    getProductGallery(experience.slug),
   ]);
 
   const copy = getDetailCopy(experience);
@@ -332,7 +333,7 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
   const scheduleSteps = chooseScheduleSteps(managedDetail.scheduleSteps, copy.scheduleSteps);
   const reviews = chooseReviews(managedReviews, copy.reviews);
   const displayExperience = applyDetailCopy(experience, copy, recommendedFor, excluded, scheduleSteps);
-  const galleryImages = buildGalleryImages(displayExperience.image);
+  const galleryImages = buildGalleryImages(displayExperience.image, gallery);
   const related = experiences.filter((item) => item.slug !== experience.slug).slice(0, 6);
   const firstSchedule = displayExperience.schedules[0];
   const reservationType =
@@ -728,8 +729,11 @@ function chooseReviews(managed: ExperienceReview[], fallback: ExperienceReview[]
   return managed;
 }
 
-function buildGalleryImages(primaryImage: string) {
-  return [primaryImage, ...extraGalleryImages].filter((image, index, images) => image && images.indexOf(image) === index).slice(0, 5);
+/** 대표 이미지를 맨 앞에 두고, 등록된 갤러리 사진이 있으면 그것을, 없으면 공용 샘플 사진을 잇는다. */
+function buildGalleryImages(primaryImage: string, gallery: string[]) {
+  return [primaryImage, ...(gallery.length ? gallery : extraGalleryImages)]
+    .filter((image, index, images) => image && images.indexOf(image) === index)
+    .slice(0, gallery.length ? 13 : 5);
 }
 
 function isBrokenText(text: string) {
