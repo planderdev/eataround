@@ -57,7 +57,8 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
         actions={(row) =>
           corporate ? (
             <MemberApprovalInline
-              memberId={row.email}
+              key={`${row.id ?? row.email}-${row.status}`}
+              memberId={row.id ? String(row.id) : `sample-${row.email}`}
               memberLabel={row.name}
               status={memberApprovalStatus(row.status)}
             />
@@ -72,6 +73,7 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
               ["회원 구분", row.type],
               ["이메일", row.email],
               ["계정 상태", row.status],
+              ...(row.rejectedReason ? ([["반려 사유", row.rejectedReason]] as [string, string][]) : []),
               ["접근 권한", corporate ? "패키지 견적 요청 가능" : "체험 예약 및 상담 요청 가능"],
             ]}
           />

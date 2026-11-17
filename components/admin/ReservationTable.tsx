@@ -24,7 +24,8 @@ export function ReservationTable({ compact, rows }: { compact?: boolean; rows: A
         <ReservationActionInline
           approvalRequired={row.approvalRequired}
           productLabel={row.product}
-          reservationId={`${row.product}-${row.user}-${row.date}`}
+          reservationId={row.id ? String(row.id) : `sample-${row.product}-${row.user}-${row.date}`}
+          statusCode={row.statusCode}
         />
       )}
       columns={compact ? columns.slice(0, 5) : columns}
@@ -34,11 +35,11 @@ export function ReservationTable({ compact, rows }: { compact?: boolean; rows: A
             ["예약 유형", row.reservationType ?? "승인예약"],
             ["승인 필요", row.approvalRequired ? "필요" : "불필요"],
             ["고객 안내", "예약 확정 후 이용 장소와 준비물을 자동 안내합니다."],
-            ["운영 메모", "회차별 팀 재고와 결제 상태를 함께 확인하세요."],
+            ["운영 메모", row.memo ?? "회차별 팀 재고와 결제 상태를 함께 확인하세요."],
           ]}
         />
       )}
-      rowKey={(row) => `${row.product}-${row.user}-${row.date}`}
+      rowKey={(row) => `${row.id ?? ""}-${row.product}-${row.user}-${row.date}`}
       rows={rows}
     />
   );

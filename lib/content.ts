@@ -179,6 +179,8 @@ type ReviewRow = RowDataPacket & {
 };
 
 type ReservationRow = RowDataPacket & {
+  id: number;
+  memo: string | null;
   product_title: string | null;
   product_slug: string | null;
   user_name: string | null;
@@ -192,6 +194,8 @@ type ReservationRow = RowDataPacket & {
 };
 
 type QuoteRequestRow = RowDataPacket & {
+  id: number;
+  admin_memo: string | null;
   organization_name: string | null;
   contact_name: string | null;
   people: number;
@@ -203,6 +207,8 @@ type QuoteRequestRow = RowDataPacket & {
 };
 
 type MemberRow = RowDataPacket & {
+  id: number;
+  company_rejected_reason: string | null;
   name: string;
   member_type: "personal" | "company";
   email: string;
@@ -596,11 +602,30 @@ export async function getPackageCtas() {
   }, fallbackPackageCtas);
 }
 
+/** 견적 상태 코드 → 관리자 화면 표시 라벨 */
+export const QUOTE_STATUS_LABEL: Record<string, string> = {
+  requested: "요청접수",
+  reviewing: "검토중",
+  sent: "발송완료",
+  accepted: "수락완료",
+  closed: "종료",
+};
+
+function reservationStatusLabel(status: string, approvalRequired: number | null) {
+  if (status === "requested") return approvalRequired === 0 ? "결제대기" : "승인대기";
+  if (status === "confirmed") return "확정";
+  if (status === "paid") return "결제완료";
+  if (status === "canceled") return "취소";
+  return status;
+}
+
 export async function getAdminReservations() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<ReservationRow[]>(
-      `select coalesce(p.title, r.product_slug) as product_title,
+      `select r.id,
+              r.memo,
+              coalesce(p.title, r.product_slug) as product_title,
               r.product_slug,
               u.name as user_name,
               r.schedule_date,
@@ -618,11 +643,14 @@ export async function getAdminReservations() {
     );
 
     return rows.map<AdminReservation>((row) => ({
+      id: row.id,
+      statusCode: row.status,
+      memo: row.memo ?? undefined,
       product: row.product_title ?? row.product_slug ?? "상품 미지정",
       user: row.user_name ?? "비회원",
       date: `${formatSqlDate(row.schedule_date)} ${row.schedule_label ?? ""}`.trim(),
       people: row.people,
-      status: row.status,
+      status: reservationStatusLabel(row.status, row.approval_required),
       amount: row.total_amount ?? undefined,
       reservationType: row.reservation_type === "instant" ? "즉시예약" : row.reservation_type === "inquiry" ? "문의예약" : "승인예약",
       approvalRequired: row.approval_required === null ? undefined : Boolean(row.approval_required),
@@ -634,19 +662,22 @@ export async function getAdminQuoteRequests() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<QuoteRequestRow[]>(
-      `select organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
+      `select id, admin_memo, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
          from quote_requests
         order by created_at desc
         limit 20`,
     );
 
     return rows.map<AdminQuoteRequest>((row) => ({
+      id: row.id,
+      statusCode: row.status,
+      adminMemo: row.admin_memo ?? undefined,
       org: row.organization_name ?? "기관명 미입력",
       contact: row.contact_name ?? undefined,
       people: row.people,
       program: parseJsonList(row.program_ids).join(", ") || "프로그램 미선택",
       budget: row.budget_label ?? "예산 미입력",
-      status: row.status,
+      status: QUOTE_STATUS_LABEL[row.status] ?? row.status,
       estimatedTotal: row.estimated_total ?? undefined,
       options: parseJsonList(row.option_ids).join(", ") || undefined,
     }));
@@ -744,17 +775,26 @@ export async function getAdminMembers() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<MemberRow[]>(
-      `select name, member_type, email, company_approved, role
+      `select id, name, member_type, email, company_approved, company_rejected_reason, role
          from users
         order by created_at desc
         limit 30`,
     );
 
     return rows.map<AdminMember>((row) => ({
+      id: row.id,
+      rejectedReason: row.company_rejected_reason ?? undefined,
       name: row.name,
       type: row.member_type === "company" ? "기업·기관" : row.role === "admin" ? "관리자" : "일반회원",
       email: row.email,
-      status: row.member_type === "company" ? (row.company_approved ? "승인완료" : "승인대기") : "정상",
+      status:
+        row.member_type === "company"
+          ? row.company_approved
+            ? "승인완료"
+            : row.company_rejected_reason
+              ? "반려"
+              : "승인대기"
+          : "정상",
     }));
   }, fallbackAdminMembers);
 }

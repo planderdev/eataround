@@ -23,6 +23,8 @@ create table users (
   organization_name varchar(160),
   business_number varchar(40),
   company_approved smallint not null default 0,
+  -- 기업회원 반려 사유. 값이 있으면 반려 상태, 승인하면 null로 되돌린다.
+  company_rejected_reason varchar(300),
   role text not null default 'user' check (role in ('user', 'admin')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()

@@ -145,6 +145,11 @@ export type PackageCta = {
 };
 
 export type AdminReservation = {
+  /** DB 행 id. 샘플 데이터에는 없다. */
+  id?: number;
+  /** DB 상태 코드(requested/confirmed/paid/canceled). 샘플 데이터에는 없다. */
+  statusCode?: string;
+  memo?: string;
   product: string;
   user: string;
   date: string;
@@ -156,6 +161,11 @@ export type AdminReservation = {
 };
 
 export type AdminQuoteRequest = {
+  /** DB 행 id. 샘플 데이터에는 없다. */
+  id?: number;
+  /** DB 상태 코드(requested/reviewing/sent/accepted/closed). 샘플 데이터에는 없다. */
+  statusCode?: string;
+  adminMemo?: string;
   org: string;
   contact?: string;
   people: number;
@@ -167,6 +177,10 @@ export type AdminQuoteRequest = {
 };
 
 export type AdminMember = {
+  /** DB 행 id. 샘플 데이터에는 없다. */
+  id?: number;
+  /** 기업회원 반려 사유. 값이 있으면 반려 상태다. */
+  rejectedReason?: string;
   name: string;
   type: string;
   email: string;

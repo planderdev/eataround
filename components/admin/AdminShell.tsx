@@ -250,7 +250,7 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
   async function runAdminAction(label: string) {
     try {
       const result = await adminApi.actions.execute(label);
-      showToast(result.message || `${label} 작업을 완료했습니다.`, "success");
+      showToast(result.message || `${label} 작업을 완료했습니다.`, result.ok === false ? "warning" : "success");
     } catch {
       showToast(`${label} 작업 중 오류가 발생했습니다.`, "error");
     }
@@ -400,6 +400,8 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     if (!action) return;
     if (action.disabled) return;
     if (action.closest(".admin-product-form")) return;
+    // 자체 핸들러로 실제 대상 id를 서버에 보내는 버튼은 라벨 추측 처리에서 제외한다.
+    if (action.closest("[data-admin-own-action]")) return;
 
     if (action.dataset.adminToast) {
       showToast(action.dataset.adminToast);

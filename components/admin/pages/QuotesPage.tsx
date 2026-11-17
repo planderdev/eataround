@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   AdminDataTable,
-  AdminSelect,
   AdminStatusBadge,
   type AdminTableColumn,
 } from "@/components/admin/AdminPrimitives";
@@ -11,6 +10,7 @@ import {
   RowActionButtons,
   toneFromStatus,
 } from "@/components/admin/AdminLayoutPrimitives";
+import { QuoteStatusEditor } from "@/components/admin/QuoteStatusEditor";
 import type { AdminData } from "@/lib/admin/data";
 import { formatWon } from "@/lib/format";
 
@@ -76,27 +76,18 @@ export function QuotesPage({ data }: { data: AdminData }) {
                 <span>관리자 조정 금액</span>
                 <input defaultValue={row.estimatedTotal ? String(row.estimatedTotal) : ""} inputMode="numeric" placeholder="최종 견적 금액" />
               </label>
-              <label>
-                <span>상태</span>
-                <AdminSelect defaultValue={row.status}>
-                  {Array.from(new Set(["REQUESTED", "IN_REVIEW", "QUOTED", "WON", "LOST", row.status])).map((status) => (
-                    <option key={status} value={status}>
-                      {status}
-                    </option>
-                  ))}
-                </AdminSelect>
-              </label>
-              <label className="admin-quote-adjustment-panel-wide">
-                <span>관리자 메모</span>
-                <textarea defaultValue={`${row.people}명 기준 ${row.program} 운영 가능 여부 확인 필요`} />
-              </label>
+              <QuoteStatusEditor
+                adminMemo={row.adminMemo}
+                quoteId={row.id ? String(row.id) : `sample-${row.org}`}
+                statusCode={row.statusCode}
+              />
               <Link className="admin-action-button info" href={`/admin/quotes/${encodeURIComponent(row.org)}/preview`}>
                 견적서 HTML 미리보기
               </Link>
             </div>
           </div>
         )}
-        rowKey={(row) => `${row.org}-${row.contact ?? ""}`}
+        rowKey={(row) => `${row.id ?? ""}-${row.org}-${row.contact ?? ""}`}
         rows={data.quoteRequests}
       />
     </ListFrame>
