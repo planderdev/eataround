@@ -421,6 +421,8 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
 
   function handleShellChange(event: React.ChangeEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
+    // 자체 저장 버튼이 있는 편집 영역의 입력은 저장 전이므로 "반영되었습니다" 안내를 띄우지 않는다.
+    if (target.closest("[data-admin-own-action]")) return;
     if (target.matches(".admin-table-check input")) {
       const input = target as HTMLInputElement;
       const table = input.closest("table");

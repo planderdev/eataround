@@ -7,27 +7,25 @@ import {
 import {
   DetailPairs,
   ListFrame,
-  RowActionButtons,
-  toneFromStatus,
 } from "@/components/admin/AdminLayoutPrimitives";
+import { AdminRowEditor } from "@/components/admin/AdminRowEditor";
 import type { AdminData } from "@/lib/admin/data";
 import { formatWon } from "@/lib/format";
 
 export function ProductsPage({ data }: { data: AdminData }) {
-  const columns: AdminTableColumn<AdminData["experiences"][number]>[] = [
+  const columns: AdminTableColumn<AdminData["adminProducts"][number]>[] = [
     { key: "title", label: "상품명", render: (row) => <strong>{row.title}</strong> },
     { key: "category", label: "카테고리", render: (row) => row.category },
     { key: "region", label: "지역", render: (row) => row.region },
     { key: "price", label: "기본가", align: "right", render: (row) => formatWon(row.price) },
+    { key: "stock", label: "재고", align: "center", render: (row) => `${row.booked}/${row.capacity}` },
+    { key: "schedules", label: "예약 가능 회차", align: "center", render: (row) => `${row.scheduleCount}개` },
+    { key: "badge", label: "배지", render: (row) => row.badge ?? "-" },
     {
-      key: "stock",
-      label: "재고",
-      align: "center",
-      render: (row) =>
-        `${row.schedules.reduce((sum, item) => sum + item.booked, 0)}/${row.schedules.reduce((sum, item) => sum + item.capacity, 0)}`,
+      key: "status",
+      label: "노출상태",
+      render: (row) => <AdminStatusBadge tone={row.isVisible ? "success" : "danger"}>{row.isVisible ? "노출중" : "비공개"}</AdminStatusBadge>,
     },
-    { key: "booking", label: "예약유형", render: (row) => row.schedules[0]?.reservationType ?? "timeslot" },
-    { key: "status", label: "노출상태", render: (row) => <AdminStatusBadge tone={toneFromStatus(row.badge ?? "노출중")}>{row.badge ?? "노출중"}</AdminStatusBadge> },
   ];
 
   return (
@@ -54,34 +52,44 @@ export function ProductsPage({ data }: { data: AdminData }) {
           ))}
         </div>
       }
-      total={data.experiences.length}
+      total={data.adminProducts.length}
     >
       <AdminDataTable
         actions={(row) => (
-          <>
-            <Link className="admin-action-button ghost" href={`/experiences/${row.slug}`} target="_blank">
-              프론트 보기
-            </Link>
-            <RowActionButtons info="회차 관리" primary="상품 수정" secondary="배지 설정" />
-          </>
+          <Link className="admin-action-button ghost" href={`/experiences/${row.slug}`} target="_blank">
+            프론트 보기
+          </Link>
         )}
         columns={columns}
         detail={(row) => (
-          <div className="admin-row-product-detail">
-            <img alt="" src={row.image} loading="lazy" decoding="async" />
-            <DetailPairs
-              items={[
-                ["요약", row.summary],
-                ["호스트", row.host.name],
-                ["장소", `${row.place.name} · ${row.place.address}`],
-                ["태그", row.tags.join(", ") || "-"],
-                ["포함사항", row.included.join(", ")],
+          <>
+            <div className="admin-row-product-detail">
+              <img alt="" src={row.image} loading="lazy" decoding="async" />
+              <DetailPairs
+                items={[
+                  ["요약", row.summary || "-"],
+                  ["호스트", row.host],
+                  ["상세 URL", `/experiences/${row.slug}`],
+                ]}
+              />
+            </div>
+            <AdminRowEditor
+              endpoint={`/api/admin/products/${row.id ?? `sample-${row.slug}`}`}
+              fields={[
+                { name: "title", label: "상품명", type: "text", value: row.title, maxLength: 190, wide: true },
+                { name: "summary", label: "요약", type: "textarea", value: row.summary, maxLength: 500 },
+                { name: "price", label: "기본가", type: "number", value: row.price },
+                { name: "originalPrice", label: "정가(비우면 없음)", type: "number", value: row.originalPrice, nullable: true },
+                { name: "badge", label: "배지", type: "text", value: row.badge, maxLength: 40 },
+                { name: "isVisible", label: "노출", type: "flag", value: row.isVisible },
               ]}
+              key={`${row.id}-${row.title}-${row.price}-${row.originalPrice}-${row.badge}-${row.isVisible}-${row.summary}`}
+              saveLabel="상품 저장"
             />
-          </div>
+          </>
         )}
         rowKey={(row) => row.slug}
-        rows={data.experiences}
+        rows={data.adminProducts}
       />
     </ListFrame>
   );

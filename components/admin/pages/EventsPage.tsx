@@ -6,19 +6,18 @@ import {
 import {
   DetailPairs,
   ListFrame,
-  RowActionButtons,
-  toneFromStatus,
 } from "@/components/admin/AdminLayoutPrimitives";
+import { AdminRowEditor } from "@/components/admin/AdminRowEditor";
 import type { AdminData } from "@/lib/admin/data";
 
 export function EventsPage({ closed, data }: { closed: boolean; data: AdminData }) {
-  const rows = data.events.filter((event) => (closed ? event.status !== "ongoing" : event.status === "ongoing"));
-  const columns: AdminTableColumn<AdminData["events"][number]>[] = [
+  const rows = data.adminEvents.filter((event) => (closed ? event.status !== "ongoing" : event.status === "ongoing"));
+  const columns: AdminTableColumn<AdminData["adminEvents"][number]>[] = [
     { key: "title", label: "행사명", render: (row) => <strong>{row.title}</strong> },
     { key: "period", label: "기간", render: (row) => row.period },
     { key: "venue", label: "장소", render: (row) => row.venue },
     { key: "partner", label: "파트너", render: (row) => row.partner },
-    { key: "status", label: "상태", render: (row) => <AdminStatusBadge tone={toneFromStatus(row.badge)}>{row.badge}</AdminStatusBadge> },
+    { key: "status", label: "상태", render: (row) => <AdminStatusBadge tone={row.status === "ongoing" ? "success" : "neutral"}>{row.status === "ongoing" ? "진행중" : "종료"}</AdminStatusBadge> },
   ];
 
   return (
@@ -46,17 +45,39 @@ export function EventsPage({ closed, data }: { closed: boolean; data: AdminData 
       total={rows.length}
     >
       <AdminDataTable
-        actions={() => <RowActionButtons info={closed ? "성과 리포트" : "참가자 안내"} primary={closed ? "결과 수정" : "행사 수정"} secondary="상세 미리보기" />}
         columns={columns}
         detail={(row) => (
-          <DetailPairs
-            items={[
-              ["요약", row.summary],
-              ["파트너", row.partner],
-              ["장소", row.venue],
-              ["프론트 노출", closed ? "종료된 행사 포트폴리오" : "진행중 행사 리스트"],
-            ]}
-          />
+          <>
+            <DetailPairs
+              items={[
+                ["요약", row.summary || "-"],
+                ["프론트 노출", row.status === "ongoing" ? "진행중 행사 리스트" : "종료된 행사 포트폴리오"],
+                ["상세 URL", `/events/${row.slug}`],
+              ]}
+            />
+            <AdminRowEditor
+              endpoint={`/api/admin/events/${row.id ?? `sample-${row.slug}`}`}
+              fields={[
+                { name: "title", label: "행사명", type: "text", value: row.title, maxLength: 190, wide: true },
+                { name: "period", label: "기간", type: "text", value: row.period, maxLength: 120 },
+                {
+                  name: "status",
+                  label: "상태",
+                  type: "select",
+                  value: row.status,
+                  options: [
+                    { value: "ongoing", label: "진행중" },
+                    { value: "ended", label: "종료" },
+                  ],
+                },
+                { name: "venue", label: "장소", type: "text", value: row.venue, maxLength: 190 },
+                { name: "partner", label: "파트너", type: "text", value: row.partner, maxLength: 190 },
+                { name: "summary", label: "요약", type: "textarea", value: row.summary, maxLength: 500 },
+              ]}
+              key={`${row.id}-${row.title}-${row.period}-${row.status}-${row.venue}-${row.partner}-${row.summary}`}
+              saveLabel="행사 저장"
+            />
+          </>
         )}
         rowKey={(row) => row.slug}
         rows={rows}
