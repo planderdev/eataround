@@ -1,4 +1,5 @@
 import "server-only";
+import { connection } from "next/server";
 import {
   getAdminMembers,
   getAdminQuoteRequests,
@@ -17,6 +18,8 @@ import {
 } from "@/lib/content";
 
 export async function loadAdminData() {
+  // 관리자 화면은 빌드 시점 결과를 굳히지 않고 요청마다 최신 데이터를 읽는다.
+  await connection();
   const [
     experiences,
     events,

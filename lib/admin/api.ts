@@ -16,6 +16,7 @@ import type {
 } from "@/types/api";
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
+const UNLINKED_ACTION_MESSAGE = "이 버튼은 아직 연결되지 않았습니다. 목록 각 행의 처리 버튼을 이용해 주세요.";
 
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(withBasePath(path), {
@@ -100,8 +101,13 @@ export const adminApi = {
   actions: {
     async execute(label: string): Promise<AdminMutationResult> {
       if (/견적서|견적/.test(label)) return adminApi.quotes.send("selected");
-      if (/예약|확정|취소|환불/.test(label)) return adminApi.reservations.update("selected", { label });
-      if (/회원|승인|권한/.test(label)) return adminApi.members.update("selected", { label });
+      // 예약·회원 변경은 실제 행 id가 필요하다. 대상을 알 수 없는 공용 버튼은 서버에 보내지 않는다.
+      if (/예약|확정|취소|환불/.test(label)) {
+        return useMock ? mockAdminApi.reservations.update() : { ok: false, message: UNLINKED_ACTION_MESSAGE };
+      }
+      if (/회원|승인|권한/.test(label)) {
+        return useMock ? mockAdminApi.members.update() : { ok: false, message: UNLINKED_ACTION_MESSAGE };
+      }
       if (/리뷰/.test(label)) return adminApi.reviews.update("selected", { label });
       if (/배너/.test(label)) return adminApi.banners.update("selected", { label });
       if (/기획전/.test(label)) return adminApi.curations.update("selected", { label });

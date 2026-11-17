@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { RiCheckLine, RiCloseLine, RiMailSendLine } from "@remixicon/react";
 import { notifyAdminToast } from "@/lib/admin/toast";
 import { withBasePath } from "@/lib/paths";
@@ -14,6 +15,7 @@ type MemberApprovalInlineProps = {
 type Mode = "idle" | "reject";
 
 export function MemberApprovalInline({ memberId, memberLabel, status }: MemberApprovalInlineProps) {
+  const router = useRouter();
   const [mode, setMode] = useState<Mode>("idle");
   const [rejectReason, setRejectReason] = useState("");
   const [busy, setBusy] = useState<"approve" | "reject" | "notify" | null>(null);
@@ -34,6 +36,7 @@ export function MemberApprovalInline({ memberId, memberLabel, status }: MemberAp
         if (nextStatus) setResolvedStatus(nextStatus);
         setMode("idle");
         setRejectReason("");
+        router.refresh();
         return;
       }
       notifyAdminToast(data.message ?? "처리 중 문제가 발생했습니다.", "error");
@@ -51,6 +54,7 @@ export function MemberApprovalInline({ memberId, memberLabel, status }: MemberAp
     return (
       <form
         className="admin-inline-reject"
+        data-admin-own-action
         onSubmit={(event) => {
           event.preventDefault();
           patch({ action: "reject", rejectReason }, "reject", `${memberLabel} 가입 요청을 반려했습니다.`, "rejected");
@@ -81,7 +85,7 @@ export function MemberApprovalInline({ memberId, memberLabel, status }: MemberAp
   }
 
   return (
-    <div className="admin-inline-actions" data-mode="idle">
+    <div className="admin-inline-actions" data-admin-own-action data-mode="idle">
       <button
         className="admin-action-button secondary"
         disabled={Boolean(busy) || isApproved}

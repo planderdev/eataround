@@ -8,7 +8,7 @@ import type { AdminData } from "@/lib/admin/data";
 
 export function ReservationsPage({ data }: { data: AdminData }) {
   const pending = data.reservations.filter((reservation) => toneFromStatus(reservation.status) === "warning");
-  const paid = data.reservations.filter((reservation) => /결제|확정/.test(reservation.status));
+  const paid = data.reservations.filter((reservation) => toneFromStatus(reservation.status) === "success");
   const canceled = data.reservations.filter((reservation) => toneFromStatus(reservation.status) === "danger");
 
   return (
