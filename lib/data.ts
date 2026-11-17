@@ -59,6 +59,21 @@ export type Experience = {
   schedules: ScheduleStock[];
 };
 
+export type ExperienceDetailPoint = { title: string; description: string };
+export type ExperienceCourseStep = { duration: string; title: string; description: string; note?: string };
+export type ExperienceFaq = { question: string; answer: string };
+
+/** 로컬체험 상세(/local-experiences/[slug])에 쓰는 상품별 상세 콘텐츠 */
+export type ExperienceDetail = {
+  kicker?: string;
+  groupLabel?: string;
+  bookingDeadline?: string;
+  courseIntro?: string;
+  points: ExperienceDetailPoint[];
+  courseSteps: ExperienceCourseStep[];
+  faqs: ExperienceFaq[];
+};
+
 export type ExperienceReview = {
   name: string;
   rating: number;
@@ -578,6 +593,169 @@ export const productDetailContent: Record<string, Pick<Experience, "recommendedF
       { time: "0:10", title: "호스트 소개와 지역 이야기" },
       { time: "0:30", title: "메인 체험 진행" },
       { time: "마무리", title: "식사 또는 시음, 질의응답" },
+    ],
+  },
+};
+
+export const experienceDetails: Record<string, ExperienceDetail> = {
+  "jeju-fermentation-table": {
+    kicker: "이더라운드 에디터 픽 · 제주 장과 발효로 차리는 한 상",
+    groupLabel: "2~12명 · 초등학생 이상",
+    bookingDeadline: "체험 2일 전 오후 6시",
+    courseIntro: "식재료 이야기를 듣고, 발효 양념을 맛본 뒤 직접 조리해 한 상을 함께 나눕니다.",
+    points: [
+      { title: "제철 식재료를 호스트 해설과 함께", description: "그날 들어온 제주 식재료의 산지와 쓰임을 먼저 듣고 시작해요." },
+      { title: "제주 장과 술지게미 테이스팅", description: "발효 양념 2종을 맛보며 차이를 직접 느껴봅니다." },
+      { title: "완성한 밥상을 함께 식사", description: "만든 반찬과 메인 메뉴로 식사하고 레시피 카드를 받아 가요." },
+    ],
+    courseSteps: [
+      { duration: "25분", title: "체크인과 식재료 이야기", description: "앞치마를 두르고 오늘 쓸 제철 식재료와 발효 양념을 소개받아요.", note: "체크인 · 테이스팅" },
+      { duration: "75분", title: "반찬과 메인 메뉴 조리", description: "호스트와 함께 손질부터 조리까지, 팀별로 한 상을 완성합니다.", note: "조리 실습" },
+      { duration: "50분", title: "완성 밥상 식사", description: "함께 식사하며 제주 생산자 이야기와 질문을 나눕니다.", note: "식사 · 질의응답" },
+    ],
+    faqs: [
+      { question: "요리를 못해도 괜찮나요?", answer: "손질부터 호스트가 함께 진행해 처음이어도 어렵지 않습니다." },
+      { question: "알레르기가 있으면 어떻게 하나요?", answer: "예약 시 요청사항에 남겨주시면 가능한 범위에서 재료를 조정합니다." },
+    ],
+  },
+  "brewery-village-walk": {
+    kicker: "이더라운드 에디터 픽 · 양조사가 안내하는 마을 한 바퀴",
+    groupLabel: "2~20명 · 성인",
+    bookingDeadline: "체험 1일 전 오후 6시",
+    courseIntro: "양조장 발효실에서 시작해 마을 골목을 걷고, 시음으로 마무리합니다.",
+    points: [
+      { title: "발효실을 직접 둘러보기", description: "술이 빚어지는 과정을 양조사의 설명으로 가까이에서 봅니다." },
+      { title: "마을 골목 산책", description: "재료가 오가는 길을 따라 걸으며 마을 이야기를 들어요." },
+      { title: "로컬 술 시음", description: "양조장에서 빚은 술을 비교해 맛봅니다." },
+    ],
+    courseSteps: [
+      { duration: "40분", title: "양조장 발효실 투어", description: "원료와 발효 과정을 설명과 함께 둘러봅니다.", note: "양조장 투어" },
+      { duration: "50분", title: "마을 골목 산책", description: "양조장 주변 골목을 천천히 걸으며 지역 이야기를 듣습니다.", note: "도보 이동" },
+      { duration: "30분", title: "시음과 마무리", description: "양조장으로 돌아와 술을 시음하고 질문을 나눕니다.", note: "시음" },
+    ],
+    faqs: [
+      { question: "술을 마시지 못해도 참여할 수 있나요?", answer: "시음은 선택이며, 투어와 산책만 참여하셔도 됩니다." },
+      { question: "차를 가져가도 되나요?", answer: "시음이 포함되어 있어 운전하시는 분은 시음을 삼가 주세요." },
+    ],
+  },
+  "haenyeo-seafood-table": {
+    kicker: "이더라운드 에디터 픽 · 해녀에게 듣는 바다와 밥상",
+    groupLabel: "2~10명 · 초등학생 이상",
+    bookingDeadline: "체험 3일 전 오후 6시",
+    courseIntro: "해녀의 바다 이야기를 듣고, 그날 들어온 해산물로 차린 밥상을 함께합니다.",
+    points: [
+      { title: "해녀가 직접 들려주는 이야기", description: "구좌 바다의 계절과 물질 이야기를 가까이에서 듣습니다." },
+      { title: "그날 들어온 제철 해산물", description: "당일 식재료에 맞춰 밥상 구성이 달라져요." },
+      { title: "소규모로 여유롭게", description: "한 회차 10명 이내로 운영합니다." },
+    ],
+    courseSteps: [
+      { duration: "40분", title: "해녀의 바다 이야기", description: "작업장에서 물질 도구와 바다의 계절 이야기를 듣습니다.", note: "스토리텔링" },
+      { duration: "40분", title: "식재료 손질 보기", description: "그날 들어온 해산물을 살펴보고 손질 과정을 함께 봅니다.", note: "식재료 안내" },
+      { duration: "100분", title: "제철 바다 밥상", description: "차려진 밥상을 함께 나누며 이야기를 이어갑니다.", note: "식사" },
+    ],
+    faqs: [
+      { question: "물에 들어가나요?", answer: "아니요. 물질 체험이 아니라 이야기와 식사 중심의 프로그램입니다." },
+      { question: "해산물을 못 먹는 메뉴가 있으면요?", answer: "예약 시 남겨주시면 가능한 범위에서 구성을 조정합니다." },
+    ],
+  },
+  "citrus-dessert-lab": {
+    kicker: "이더라운드 에디터 픽 · 아이와 함께 만드는 감귤 디저트",
+    groupLabel: "2~18명 · 5세 이상(보호자 동반)",
+    bookingDeadline: "체험 1일 전 오후 6시",
+    courseIntro: "감귤 품종 이야기를 듣고, 디저트와 음료를 만들어 포장해 갑니다.",
+    points: [
+      { title: "아이도 따라 할 수 있는 난도", description: "계량과 장식 중심이라 어린이도 쉽게 참여해요." },
+      { title: "제주 감귤 품종 이야기", description: "품종별 맛의 차이를 시식하며 배웁니다." },
+      { title: "만든 디저트는 포장", description: "완성한 디저트를 상자에 담아 가져갑니다." },
+    ],
+    courseSteps: [
+      { duration: "20분", title: "감귤 이야기와 시식", description: "품종별 감귤을 맛보고 오늘 만들 메뉴를 소개받습니다.", note: "시식" },
+      { duration: "60분", title: "디저트와 음료 만들기", description: "감귤 디저트와 음료를 단계별로 함께 만듭니다.", note: "베이킹 실습" },
+      { duration: "20분", title: "포장과 마무리", description: "완성품을 포장하고 사진을 남깁니다.", note: "포장" },
+    ],
+    faqs: [
+      { question: "아이 혼자 참여할 수 있나요?", answer: "미취학·초등 저학년은 보호자 동반이 필요합니다." },
+      { question: "준비물이 있나요?", answer: "재료와 도구, 앞치마가 모두 준비되어 있습니다." },
+    ],
+  },
+  "farm-to-market-picnic": {
+    kicker: "이더라운드 에디터 픽 · 밭에서 바구니까지",
+    groupLabel: "2~25명 · 전 연령",
+    bookingDeadline: "체험 1일 전 오후 6시",
+    courseIntro: "농장을 걷고 마켓 키트를 골라 피크닉으로 마무리합니다.",
+    points: [
+      { title: "생산자의 밭 산책", description: "농장을 걸으며 작물과 재배 이야기를 듣습니다." },
+      { title: "직접 고르는 마켓 키트", description: "로컬 재료로 피크닉 바구니를 채워요." },
+      { title: "야외 피크닉", description: "준비된 자리에서 여유롭게 즐깁니다." },
+    ],
+    courseSteps: [
+      { duration: "30분", title: "농장 산책", description: "생산자와 함께 밭을 둘러봅니다.", note: "도보 이동" },
+      { duration: "20분", title: "마켓 키트 고르기", description: "작은 마켓에서 재료를 골라 바구니를 준비합니다.", note: "키트 구성" },
+      { duration: "40분", title: "피크닉", description: "농장 한편에서 피크닉을 즐깁니다.", note: "자유 시간" },
+    ],
+    faqs: [
+      { question: "비가 오면 어떻게 되나요?", answer: "우천 시에는 일정 변경 또는 환불 기준에 맞춰 안내드립니다." },
+      { question: "반려동물과 함께할 수 있나요?", answer: "농장 운영상 반려동물 동반은 어렵습니다." },
+    ],
+  },
+  "private-fine-dining-night": {
+    kicker: "이더라운드 에디터 픽 · 제주 식재료 코스와 페어링",
+    groupLabel: "2~8명 · 성인",
+    bookingDeadline: "체험 3일 전 오후 6시",
+    courseIntro: "셰프의 코스 소개로 시작해 페어링과 함께 저녁을 즐깁니다.",
+    points: [
+      { title: "셰프가 구성한 코스", description: "제주 식재료를 중심으로 한 코스 메뉴입니다." },
+      { title: "로컬 술 페어링", description: "코스에 맞춘 로컬 술을 함께 곁들입니다." },
+      { title: "한 회차 8명 이내", description: "프라이빗한 분위기로 진행합니다." },
+    ],
+    courseSteps: [
+      { duration: "20분", title: "웰컴과 코스 소개", description: "셰프가 오늘의 식재료와 코스를 소개합니다.", note: "웰컴 드링크" },
+      { duration: "160분", title: "코스 다이닝", description: "코스와 페어링이 순서대로 제공됩니다.", note: "코스 · 페어링" },
+      { duration: "30분", title: "셰프와의 대화", description: "식사를 마친 뒤 셰프와 이야기를 나눕니다.", note: "마무리" },
+    ],
+    faqs: [
+      { question: "술 없이 코스만 가능한가요?", answer: "논알코올 페어링으로 변경할 수 있습니다. 예약 시 남겨주세요." },
+      { question: "드레스 코드가 있나요?", answer: "따로 없으며 편안한 차림으로 오시면 됩니다." },
+    ],
+  },
+  "haenyeo-private-storytelling": {
+    kicker: "이더라운드 에디터 픽 · 해녀 다섯 분이 여는 작은 살롱",
+    groupLabel: "최대 6명 · 성인",
+    bookingDeadline: "문의 후 일정 확정",
+    courseIntro: "살롱에서 해녀의 일생과 바다 이야기를 가까이에서 듣는 비공개 프로그램입니다.",
+    points: [
+      { title: "비공개 소규모 살롱", description: "회당 6명 이내로만 진행합니다." },
+      { title: "해녀의 일생 이야기", description: "물질을 시작한 날부터 지금까지의 이야기를 듣습니다." },
+      { title: "문의 후 일정 조율", description: "호스트 일정과 인원에 맞춰 날짜를 확정합니다." },
+    ],
+    courseSteps: [
+      { duration: "20분", title: "살롱 입장과 인사", description: "차를 나누며 호스트와 인사를 나눕니다.", note: "웰컴 티" },
+      { duration: "80분", title: "스토리텔링", description: "해녀의 일생과 바다 이야기를 듣고 질문합니다.", note: "이야기 · 질의응답" },
+      { duration: "20분", title: "마무리", description: "사진과 기록을 남기고 마칩니다.", note: "마무리" },
+    ],
+    faqs: [
+      { question: "가격은 어떻게 정해지나요?", answer: "인원과 일정에 따라 달라지며, 문의를 남기시면 호스트가 회신합니다." },
+      { question: "예약은 바로 확정되나요?", answer: "아니요. 문의 접수 후 운영 가능 여부를 확인해 안내드립니다." },
+    ],
+  },
+  "corporate-workshop-package": {
+    kicker: "기업·기관 전용 · 인원과 기간에 맞춘 로컬 워크숍",
+    groupLabel: "10~50명 · 단체",
+    bookingDeadline: "견적 협의 후 확정",
+    courseIntro: "체험·강의·투어를 기간과 인원에 맞춰 조합하고, 숙박·식사·이동 옵션을 더합니다.",
+    points: [
+      { title: "프로그램 조합형 패키지", description: "발효 클래스, 양조장 투어, 해녀 살롱을 원하는 대로 조합합니다." },
+      { title: "10명부터 단체 할인", description: "인원 구간에 따라 할인율이 적용됩니다." },
+      { title: "숙박·식사·이동까지 한 번에", description: "옵션을 선택하면 견적에 함께 반영됩니다." },
+    ],
+    courseSteps: [
+      { duration: "1일차 오전", title: "도착과 오리엔테이션", description: "일정 안내 후 첫 프로그램 장소로 이동합니다.", note: "집결 · 이동" },
+      { duration: "1일차 오후", title: "로컬 체험 프로그램", description: "선택한 체험 또는 투어를 진행합니다.", note: "체험 · 투어" },
+      { duration: "2일차", title: "강의와 마무리", description: "로컬 브랜드 강의 후 일정을 마칩니다.", note: "강의 · 해산" },
+    ],
+    faqs: [
+      { question: "견적은 어떻게 받나요?", answer: "단체 견적 요청에서 인원, 기간, 프로그램을 선택하면 예상 견적을 바로 확인할 수 있습니다." },
+      { question: "일정을 맞춤으로 바꿀 수 있나요?", answer: "네. 접수 후 운영팀이 희망 일정에 맞춰 조정해 안내드립니다." },
     ],
   },
 };

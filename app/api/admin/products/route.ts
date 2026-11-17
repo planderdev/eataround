@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { adminApiData, paginated } from "@/lib/admin/api-data";
 import { getExperiences } from "@/lib/content";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
+import { getAdminSessionUser } from "@/lib/session";
 
 type ProductPayload = {
   slug?: string;
@@ -49,6 +50,10 @@ export async function POST(request: Request) {
       ok: true,
       message: "상품 생성 요청을 확인했습니다.",
     });
+  }
+
+  if (!(await getAdminSessionUser(request))) {
+    return NextResponse.json({ ok: false, message: "관리자 권한이 필요합니다." }, { status: 403 });
   }
 
   const pool = getPool();

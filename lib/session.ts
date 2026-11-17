@@ -1,9 +1,9 @@
 import { cookies } from "next/headers";
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
+import { verifySessionToken } from "@/lib/session-token";
 
-const SESSION_COOKIE = "session";
-const SESSION_PREFIX = "sess:";
+export const SESSION_COOKIE = "session";
 
 type UserRow = RowDataPacket & {
   id: number;
@@ -23,25 +23,12 @@ export type SessionUser = {
   role: "user" | "admin";
 };
 
-export function encodeSessionToken(email: string) {
-  return `${SESSION_PREFIX}${Buffer.from(email, "utf8").toString("base64url")}`;
-}
-
-export function decodeSessionToken(token: string | undefined | null) {
-  if (!token || !token.startsWith(SESSION_PREFIX)) return null;
-  try {
-    return Buffer.from(token.slice(SESSION_PREFIX.length), "base64url").toString("utf8");
-  } catch {
-    return null;
-  }
-}
-
 function readSessionCookie(request?: Request): string | undefined {
   if (request) {
     const cookieHeader = request.headers.get("cookie");
     if (!cookieHeader) return undefined;
     const match = cookieHeader.split(/;\s*/).find((entry) => entry.startsWith(`${SESSION_COOKIE}=`));
-    return match ? decodeURIComponent(match.split("=")[1] ?? "") : undefined;
+    return match ? decodeURIComponent(match.slice(SESSION_COOKIE.length + 1)) : undefined;
   }
   return undefined;
 }
@@ -58,7 +45,7 @@ export async function getSessionUser(request?: Request): Promise<SessionUser | n
     }
   }
 
-  const email = decodeSessionToken(token);
+  const email = verifySessionToken(token)?.email;
   if (!email) return null;
 
   if (!hasDatabaseConfig()) {
@@ -88,4 +75,10 @@ export async function getSessionUser(request?: Request): Promise<SessionUser | n
     companyApproved: row.company_approved === 1,
     role: row.role,
   };
+}
+
+/** 관리자 세션인지 확인한다. DB가 연결된 환경에서 관리자 쓰기 API를 보호할 때 쓴다. */
+export async function getAdminSessionUser(request?: Request) {
+  const session = await getSessionUser(request);
+  return session?.role === "admin" ? session : null;
 }

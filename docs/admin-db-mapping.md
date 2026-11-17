@@ -1,6 +1,6 @@
 # 관리자 DB 연동 매핑
 
-프론트 화면은 `lib/content.ts`의 getter를 통해 데이터를 읽습니다. DB 연결값이 없거나 쿼리가 실패하면 `lib/data.ts`의 샘플 데이터로 fallback 됩니다.
+프론트 화면은 `lib/content.ts`의 getter를 통해 데이터를 읽습니다. `DATABASE_URL`이 없거나 쿼리가 실패하면 `lib/data.ts`의 샘플 데이터로 fallback 됩니다.
 
 ## 홈
 
@@ -25,6 +25,13 @@
 - 태그: `product_tags`
 - 예약 가능 회차: `product_schedules`
 - 추천 대상/불포함/일정 타임라인: `product_detail_items`
+- 로컬체험 상세(`/local-experiences/[slug]`)
+  - 히어로 라벨·평점·후기 수: `products.eyebrow`, `rating`, `review_count`
+  - 한 줄 소개·인원/연령·예약마감·코스 소개: `products.kicker`, `group_label`, `booking_deadline`, `course_intro`
+  - 하이라이트/포함사항/안내: `product_detail_items` (`highlight`, `included`, `notice`)
+  - 포인트(제목=label, 설명=body), 코스(제목=label, 설명=body, 소요시간=meta, 요약=note), FAQ(질문=label, 답변=body): `product_detail_items` (`point`, `course`, `faq`)
+  - 등록된 내용이 없으면 하이라이트·일정 타임라인과 기본 FAQ로 채웁니다.
+  - 사진은 아직 대표 이미지 + 공용 샘플 이미지입니다. 상품별 갤러리 테이블은 없습니다.
 - 승인된 리뷰: `product_reviews`
 
 ## 기업·기관 패키지

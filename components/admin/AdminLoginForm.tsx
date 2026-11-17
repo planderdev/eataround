@@ -37,9 +37,10 @@ export function AdminLoginForm() {
       return;
     }
 
-    const maxAge = remember ? "; max-age=604800" : "";
-    document.cookie = `session=mock-admin-session; path=/${maxAge}; SameSite=Lax`;
-    router.push("/admin/dashboard");
+    // 세션 쿠키는 서버가 httpOnly로 발급한다.
+    const redirect = new URLSearchParams(window.location.search).get("redirect");
+    router.push(redirect && redirect.startsWith("/admin") ? redirect : "/admin/dashboard");
+    router.refresh();
   }
 
   return (

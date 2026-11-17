@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { RowDataPacket } from "mysql2";
+import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 
 type ScheduleReservationRow = RowDataPacket & {
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
             and ps.schedule_label = ?
             and ps.status = 'open'
           limit 1
-          for update`,
+          for update of ps`,
         [payload.productSlug ?? null, payload.date ?? null, payload.timeLabel ?? null],
       );
 
