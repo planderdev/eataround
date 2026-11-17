@@ -94,7 +94,12 @@ export default async function LocalExperienceDetailPage({ params }: PageProps) {
   ]);
 
   const detail = resolveDetail(experience, managedDetail);
-  const galleryImages = buildGalleryImages(experience.image, gallery);
+  const galleryImages = buildGalleryImages(
+    experience.image,
+    gallery.map((image) => image.imageUrl),
+  );
+  // 관리자가 적은 사진 설명. 있으면 "현장 사진"의 제목·대체 텍스트로 쓴다.
+  const galleryAlts = new Map(gallery.filter((image) => image.alt).map((image) => [image.imageUrl, image.alt as string]));
   const related = experiences.filter((item) => item.slug !== experience.slug).slice(0, 6);
   const hasReviews = experience.reviewCount > 0;
   const priceLabel = experience.price > 0 ? formatWon(experience.price) : "가격 문의";
@@ -104,7 +109,7 @@ export default async function LocalExperienceDetailPage({ params }: PageProps) {
   const mapUrl = `https://map.kakao.com/link/search/${encodeURIComponent(experience.place.address)}`;
   const detailUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? "https://eataround.co.kr"}${userRoutes.experiences}/${experience.slug}`;
   const experienceCards = buildExperienceCards(experience.highlights, galleryImages);
-  const fieldPhotoItems = buildFieldPhotoItems(experience.title, galleryImages);
+  const fieldPhotoItems = buildFieldPhotoItems(experience.title, galleryImages, galleryAlts);
 
   const productJsonLd = {
     "@context": "https://schema.org",
@@ -409,9 +414,9 @@ function buildExperienceCards(highlights: string[], images: string[]): LocalExpe
   }));
 }
 
-function buildFieldPhotoItems(title: string, images: string[]): LocalExperienceMediaItem[] {
+function buildFieldPhotoItems(title: string, images: string[], alts: Map<string, string>): LocalExperienceMediaItem[] {
   return images.slice(0, 4).map((image, index) => ({
     image,
-    title: `${title} 현장 사진 ${index + 1}`,
+    title: alts.get(image) ?? `${title} 현장 사진 ${index + 1}`,
   }));
 }

@@ -333,7 +333,10 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
   const scheduleSteps = chooseScheduleSteps(managedDetail.scheduleSteps, copy.scheduleSteps);
   const reviews = chooseReviews(managedReviews, copy.reviews);
   const displayExperience = applyDetailCopy(experience, copy, recommendedFor, excluded, scheduleSteps);
-  const galleryImages = buildGalleryImages(displayExperience.image, gallery);
+  const galleryImages = buildGalleryImages(
+    displayExperience.image,
+    gallery.map((image) => image.imageUrl),
+  );
   const related = experiences.filter((item) => item.slug !== experience.slug).slice(0, 6);
   const firstSchedule = displayExperience.schedules[0];
   const reservationType =
