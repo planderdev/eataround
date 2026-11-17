@@ -11,6 +11,7 @@ type ScheduleReservationRow = RowDataPacket & {
   reserved_teams: number;
   reservation_type: "instant" | "approval" | "inquiry";
   approval_required: number;
+  status: "open" | "closed";
 };
 
 export async function POST(request: Request) {
@@ -34,19 +35,24 @@ export async function POST(request: Request) {
 
       const [scheduleRows] = await connection.query<ScheduleReservationRow[]>(
         `select ps.id, ps.product_id, ps.capacity, ps.booked, ps.max_teams, ps.reserved_teams,
-                ps.reservation_type, ps.approval_required
+                ps.reservation_type, ps.approval_required, ps.status
            from product_schedules ps
            join products p on p.id = ps.product_id
           where p.slug = ?
             and ps.schedule_date = ?
             and ps.schedule_label = ?
-            and ps.status = 'open'
+          order by (ps.status = 'open') desc, ps.id asc
           limit 1
           for update of ps`,
         [payload.productSlug ?? null, payload.date ?? null, payload.timeLabel ?? null],
       );
 
       const schedule = scheduleRows[0];
+      // 관리자가 마감한 회차는 일정 없는 문의 예약으로 흘려보내지 않고 거절한다.
+      if (schedule && schedule.status === "closed") {
+        await connection.rollback();
+        return NextResponse.json({ ok: false, message: "마감된 회차입니다. 다른 일정을 선택해 주세요." }, { status: 409 });
+      }
       if (schedule && schedule.capacity - schedule.booked < people) {
         await connection.rollback();
         return NextResponse.json({ ok: false, message: "선택한 회차의 남은 좌석이 부족합니다." }, { status: 409 });

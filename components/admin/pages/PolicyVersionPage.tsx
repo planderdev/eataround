@@ -44,7 +44,7 @@ export function PolicyVersionPage() {
             />
           </AdminField>
         </div>
-        <AdminEditorActions backHref="/admin/settings/policies" primaryLabel="새 버전 발행" />
+        <AdminEditorActions backHref="/admin/settings/policies" primaryLabel="새 버전 발행" unlinkedReason="약관 버전을 저장할 테이블이 아직 없습니다." />
       </article>
       <aside className="admin-journal-side">
         <article className="admin-preview-stack">

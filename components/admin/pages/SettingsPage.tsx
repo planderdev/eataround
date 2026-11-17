@@ -37,7 +37,7 @@ export function SettingsPage({ type }: { type: SettingsType }) {
         total={rows.length}
       >
         <AdminDataTable
-          actions={() => <RowActionButtons danger="잠금 처리" primary="권한 변경" secondary="접속 로그" />}
+          actions={() => <RowActionButtons danger="잠금 처리" primary="권한 변경" secondary="접속 로그" unlinkedReason="관리자 권한 등급·잠금·접속 로그를 저장할 항목이 아직 없습니다." />}
           columns={columns}
           detail={(row) => (
             <DetailPairs

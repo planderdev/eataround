@@ -7,7 +7,6 @@ import {
 import {
   DetailPairs,
   ListFrame,
-  RowActionButtons,
   toneFromStatus,
 } from "@/components/admin/AdminLayoutPrimitives";
 import { QuoteStatusEditor } from "@/components/admin/QuoteStatusEditor";
@@ -27,7 +26,15 @@ export function QuotesPage({ data }: { data: AdminData }) {
 
   return (
     <ListFrame
-      bulkOptions={["견적 검토", "견적서 발송", "예약 전환", "담당자 배정"]}
+      bulk={[
+        { label: "검토중으로 변경", endpoint: "/api/admin/quotes", payload: { status: "reviewing" } },
+        { label: "발송완료로 변경", endpoint: "/api/admin/quotes", payload: { status: "sent" } },
+        { label: "수락완료로 변경", endpoint: "/api/admin/quotes", payload: { status: "accepted" } },
+        { label: "종료로 변경", endpoint: "/api/admin/quotes", payload: { status: "closed" } },
+        { label: "견적서 발송", unlinked: "메일·알림 발송 수단이 없습니다." },
+        { label: "예약 전환", unlinked: "견적을 예약으로 만드는 규칙이 아직 정해지지 않았습니다." },
+        { label: "담당자 배정", unlinked: "담당자를 저장할 항목(컬럼)이 아직 없습니다." },
+      ]}
       filters={[
         { label: "검색어", name: "query", placeholder: "기관명, 견적번호, 담당자" },
         { label: "상태", name: "status", type: "select", options: ["REQUESTED", "IN_REVIEW", "QUOTED", "WON", "LOST", "CANCELED"] },
@@ -56,7 +63,7 @@ export function QuotesPage({ data }: { data: AdminData }) {
             <Link className="admin-action-button ghost" href={`/admin/quotes/${encodeURIComponent(row.org)}/preview`}>
               PDF 미리보기
             </Link>
-            <RowActionButtons info="견적서 발송" primary="예약 전환" secondary="금액 조정" />
+            <small>견적서 메일 발송과 예약 전환은 아직 연결되지 않았습니다. 금액·상태·메모는 위에서 저장합니다.</small>
           </>
         )}
         columns={columns}
@@ -72,12 +79,10 @@ export function QuotesPage({ data }: { data: AdminData }) {
               ]}
             />
             <div className="admin-quote-adjustment-panel">
-              <label>
-                <span>관리자 조정 금액</span>
-                <input defaultValue={row.estimatedTotal ? String(row.estimatedTotal) : ""} inputMode="numeric" placeholder="최종 견적 금액" />
-              </label>
               <QuoteStatusEditor
                 adminMemo={row.adminMemo}
+                estimatedTotal={row.estimatedTotal}
+                key={`${row.id}-${row.statusCode}-${row.adminMemo}-${row.estimatedTotal}`}
                 quoteId={row.id ? String(row.id) : `sample-${row.org}`}
                 statusCode={row.statusCode}
               />
@@ -87,6 +92,7 @@ export function QuotesPage({ data }: { data: AdminData }) {
             </div>
           </div>
         )}
+        rowId={(row) => row.id}
         rowKey={(row) => `${row.id ?? ""}-${row.org}-${row.contact ?? ""}`}
         rows={data.quoteRequests}
       />

@@ -39,6 +39,7 @@ export function ReservationTable({ compact, rows }: { compact?: boolean; rows: A
           ]}
         />
       )}
+      rowId={(row) => row.id}
       rowKey={(row) => `${row.id ?? ""}-${row.product}-${row.user}-${row.date}`}
       rows={rows}
     />

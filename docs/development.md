@@ -44,11 +44,29 @@ update users set role = 'admin' where email = '관리자 이메일';
   - 예약 `PATCH /api/admin/reservations/{id}`: `status`가 `confirmed`/`paid`/`requested`면 상태 변경, `cancelled`/`rejected`면 `canceled`로 바꾸고 사유를 `memo`에 남기며 회차 재고(`product_schedules.booked`, `reserved_teams`)를 되돌립니다. 이미 취소된 예약은 재고를 다시 복원하지 않고, 되돌릴 수도 없습니다(409).
   - 기업회원 `PATCH /api/admin/members/{id}`: `action`이 `approve`면 `company_approved = 1`, `reject`면 `company_approved = 0`과 `company_rejected_reason`(반려 사유) 저장. 사유가 있으면 목록에 "반려"로 표시됩니다.
   - 견적 `PATCH /api/admin/quotes/{id}`: `status`(`requested`/`reviewing`/`sent`/`accepted`/`closed`)와 `adminMemo` 저장.
-  - 상품 생성 `POST /api/admin/products`.
-- 아직 목업인 것: 안내 발송(메일/알림 발송 수단 없음, DB 연결 환경에서는 501), 견적서 발송(`/api/admin/quotes/{id}/send`), 견적 금액 조정·예약 전환, 목록 상단 일괄 처리, 일정·상품 수정·배너·기획전·행사·리뷰 수정. 이 라우트들은 `lib/admin/api-data.ts`의 고정 응답을 돌려주고 DB를 바꾸지 않습니다.
-- 자체 핸들러로 저장하는 버튼은 `data-admin-own-action` 속성을 달아 `AdminShell`의 라벨 추측 처리(`adminApi.actions.execute`)에서 제외합니다.
+  - 회차 `PATCH /api/admin/schedules/{id}`: `capacity`, `maxTeams`, `teamCapacity`, `status`(`open`/`closed`). 이미 받은 예약(`booked`, `reserved_teams`)보다 작게 줄이면 409. 마감한 회차는 `POST /api/reservations`에서도 409로 거절합니다.
+  - 상품 `PATCH /api/admin/products/{id}`: `title`, `summary`, `price`, `originalPrice`, `badge`, `isVisible`, `isFeatured`, `sortOrder`. `DELETE`는 비노출 처리.
+  - 배너 `PATCH /api/admin/banners/{id}`, 기획전 `PATCH /api/admin/curations/{id}`(`collections` 테이블): `title`, `subtitle`, `linkUrl`, `imageUrl`, `isVisible`, `sortOrder`. `DELETE`는 비노출 처리.
+  - 행사 `PATCH /api/admin/events/{id}`: `title`, `status`(`ongoing`/`ended`), `period`, `venue`, `partner`, `summary`, `imageUrl`, `sortOrder`. `DELETE`는 종료 처리.
+  - 리뷰 `PATCH /api/admin/reviews/{id}`: `status`(`pending`/`approved`/`hidden`). `DELETE`는 숨김 처리.
+  - 위 수정 라우트는 `lib/admin/patch.ts`의 `patchRow()`가 허용 필드만 골라 저장합니다. 목록 화면에서는 각 행 "상세보기"의 편집 영역(`AdminRowEditor`)이 바뀐 필드만 보냅니다.
+  - 견적 `PATCH /api/admin/quotes/{id}`는 `estimatedTotal`(관리자 조정 금액)도 저장합니다.
+  - 등록(POST): 상품 `/api/admin/products`(대표 이미지 URL·요약·소개·태그·회차를 한 트랜잭션으로), 회차 `/api/admin/schedules`(`endDate`+`weekdays`를 주면 반복 생성, 이미 있는 회차는 건너뜀), 기간 마감/다시 열기 `/api/admin/schedules/bulk-close`, 배너 `/api/admin/banners`, 기획전 `/api/admin/curations`, 행사 `/api/admin/events`, 저널 `/api/admin/journals`, 카테고리 `/api/admin/categories`. slug은 제목의 영문·숫자로 만들고, 남는 글자가 없으면 `접두사-시각`으로 만듭니다.
+  - 저널 `PATCH /api/admin/journals/{id}`, 카테고리 `PATCH /api/admin/categories/{id}`(`DELETE`는 비공개/숨김).
+  - 알림 `GET /api/admin/notifications`는 처리 대기 예약·새 견적·승인 대기 기업회원·검수 대기 리뷰 건수로 만듭니다(읽음 여부는 화면에서만 관리).
+- 화면 구성 요소
+  - `AdminRowEditor`: 목록 행 "상세보기"의 편집 영역. 바뀐 필드만 PATCH.
+  - `AdminCreateForm`: 등록 화면 공용 폼. POST 후 목록으로 이동.
+  - `AdminBulkBar`: 목록 상단 일괄 처리. 체크한 행의 `data-row-id`마다 PATCH를 보내고 성공·실패 건수를 알려 줍니다. 연결할 수 없는 항목은 "(미연결)"로 표시하고 이유를 안내합니다.
+  - `ReviewVisibilityForm`: 리뷰 일괄 검수(체크 = 노출 승인, 해제 = 숨김).
+- 관리자 목록은 `lib/admin/content.ts`의 전용 조회를 씁니다. 프론트용 조회와 달리 비노출·마감·검수 대기 행을 포함하고 DB 행 id를 돌려줍니다.
+- 자체 저장 처리가 있는 영역은 `data-admin-own-action` 속성을 달아 `AdminShell`의 공용 버튼 처리에서 제외합니다. 그 밖의 버튼은 서버에 요청하지 않고 "아직 연결되지 않았습니다"를 안내합니다(`adminApi.actions.execute`). 이유를 함께 보여 주려면 버튼에 `data-admin-unlinked="이유"`를 답니다.
+- 아직 연결되지 않은 것(화면에서 이유와 함께 안내, 해당 API는 DB 연결 환경에서 501):
+  - 메일·알림 발송이 필요한 것: 예약/회원 안내 발송, 견적서 발송, 견적 공유, 호스트 답변 요청, 관리자 초대 메일
+  - 파일이 필요한 것: 상품 이미지 업로드·갤러리(`/api/admin/products/{id}/images`), 회원 엑셀 내보내기
+  - 저장할 테이블·컬럼이 없는 것: 패키지 묶음(`/api/admin/packages`), 약관 버전, 사이트 설정, 관리자 권한 등급·잠금·접속 로그, 일반회원 메모·휴면·마케팅 동의, 예약 노쇼·환불, 견적 담당자, 행사 노출 여부, 기획전–상품 연결, 저널 SEO·연관 상품, 배너 노출 기간 예약, 상품 상세 항목(추천 대상·일정·FAQ 등) 편집
+  - 규칙이 정해지지 않은 것: 견적 → 예약 전환
 - 관리자 화면은 요청마다 DB를 다시 읽습니다(`loadAdminData`의 `connection()`).
-- 그 밖의 버튼 동작은 `NEXT_PUBLIC_USE_MOCK`이 `false`가 아니면 서버를 호출하지 않고 `lib/mock/admin.ts`를 씁니다.
 - 로그인 실패 5회 잠금은 화면에서만 세는 값이라 서버에서는 강제되지 않습니다.
 
 ## 배포

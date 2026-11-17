@@ -42,7 +42,7 @@ export function AdminInvitePage() {
             </div>
           </AdminField>
         </div>
-        <AdminEditorActions backHref="/admin/settings/admins" primaryLabel="초대 메일 발송" />
+        <AdminEditorActions backHref="/admin/settings/admins" primaryLabel="초대 메일 발송" unlinkedReason="메일 발송 수단이 없습니다. 관리자 계정은 일반 가입 후 DB에서 권한을 올려 만듭니다." />
       </article>
       <aside className="admin-creation-side">
         <article className="admin-preview-stack">

@@ -8,6 +8,18 @@ import { getAdminRouteConfig } from "@/lib/admin";
 import type { AdminData } from "@/lib/admin/data";
 import { workflowCopy } from "@/lib/admin/route-meta";
 
+// 이 화면들은 입력 양식만 있고 저장 대상이 정해지지 않았다. 저장된 것처럼 보이지 않게 이유를 함께 안내한다.
+const UNLINKED_REASON: Record<string, string> = {
+  "members/general/export": "엑셀·CSV 파일을 만들어 내려받는 기능이 없습니다.",
+  "members/corporate/approval": "기업·단체회원 목록에서 행별 승인·반려 또는 상단 일괄 처리(승인 처리)를 이용해 주세요.",
+  "members/corporate/quote-share": "메일·알림 발송 수단이 없습니다.",
+  "products/bulk-visibility": "상품 목록 상단의 일괄 처리(노출 ON/OFF)를 이용해 주세요.",
+  "reservations/confirm": "예약 목록에서 행별 버튼 또는 상단 일괄 처리(예약 확정)를 이용해 주세요.",
+  "reservations/mail": "메일·알림 발송 수단이 없습니다.",
+  "quotes/send": "메일·알림 발송 수단이 없습니다. 발송한 뒤 견적 목록에서 상태를 '발송완료'로 바꿔 주세요.",
+  "quotes/convert": "견적을 예약으로 만드는 규칙이 아직 정해지지 않았습니다.",
+};
+
 export function AdminWorkflowPage({ actionKey, data }: { actionKey: string; data: AdminData }) {
   const config = getAdminRouteConfig(actionKey);
   if (!config) return null;
@@ -18,6 +30,7 @@ export function AdminWorkflowPage({ actionKey, data }: { actionKey: string; data
     fields: ["대상", "상태", "담당자", "메모"],
     checklist: ["입력값 검토", "프론트 노출 영향 확인", "작업 로그 저장"],
   };
+  const unlinkedReason = UNLINKED_REASON[actionKey] ?? "저장할 대상이 아직 정해지지 않았습니다.";
   const referenceCount = actionKey.startsWith("reservations")
     ? data.reservations.length
     : actionKey.startsWith("quotes")
@@ -48,7 +61,7 @@ export function AdminWorkflowPage({ actionKey, data }: { actionKey: string; data
           </div>
           <div>
             <dt>처리 방식</dt>
-            <dd>검토 후 저장</dd>
+            <dd>아직 연결되지 않음</dd>
           </div>
         </dl>
       </div>
@@ -60,6 +73,9 @@ export function AdminWorkflowPage({ actionKey, data }: { actionKey: string; data
               <h2>{config.title} 상세 설정</h2>
             </div>
           </div>
+          <p role="note">
+            <strong>이 화면의 입력값은 저장되지 않습니다.</strong> {unlinkedReason}
+          </p>
           <div className="admin-workflow-fields">
             {detail.fields.map((field, index) => (
               <label data-wide={/(본문|메시지|요약|안내|메모)/.test(field)} key={field}>
@@ -82,7 +98,11 @@ export function AdminWorkflowPage({ actionKey, data }: { actionKey: string; data
             <Link className="admin-action-button ghost" href={detail.backHref}>
               취소
             </Link>
-            <button className={`admin-action-button ${actionVariant(config.primaryAction ?? config.title, true)}`} type="button">
+            <button
+              className={`admin-action-button ${actionVariant(config.primaryAction ?? config.title, true)}`}
+              data-admin-unlinked={unlinkedReason}
+              type="button"
+            >
               <ActionIcon label={config.primaryAction ?? config.title} />
               {config.primaryAction ?? "저장"}
             </button>

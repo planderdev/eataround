@@ -103,6 +103,7 @@ export function AdminDataTable<T>({
   detail,
   emptyLabel = "표시할 데이터가 없습니다.",
   rows,
+  rowId,
   rowKey,
 }: {
   actions?: (row: T) => ReactNode;
@@ -110,6 +111,8 @@ export function AdminDataTable<T>({
   detail?: (row: T) => ReactNode;
   emptyLabel?: string;
   rows: T[];
+  /** 일괄 처리에 쓸 DB 행 id. 없으면(샘플 데이터) 생략한다. */
+  rowId?: (row: T) => string | number | undefined;
   rowKey: (row: T) => string;
 }) {
   const hasDetail = Boolean(detail || actions);
@@ -165,7 +168,7 @@ export function AdminDataTable<T>({
           {rows.length ? (
             rows.map((row) => (
               <Fragment key={rowKey(row)}>
-                <tr tabIndex={0}>
+                <tr data-row-id={rowId?.(row)} tabIndex={0}>
                   <td>
                     <label className="admin-table-check">
                       <input aria-label={`${rowKey(row)} 선택`} type="checkbox" />
@@ -234,7 +237,8 @@ export function AdminPagination({ total }: { total: number }) {
   return (
     <div className="admin-pagination" data-admin-pagination data-page-size={pageSize} data-total={total}>
       <span data-admin-pagination-summary>
-        총 {total.toLocaleString("ko-KR")}건 중 {total ? `1-${end}` : "0"}번째 표시
+        {/* AdminShell이 같은 문구를 textContent로 다시 쓰므로, 하이드레이션이 어긋나지 않게 한 덩어리 문자열로 그린다. */}
+        {`총 ${total.toLocaleString("ko-KR")}건 중 ${total ? 1 : 0}-${total ? end : 0}번째 표시`}
       </span>
       <label>
         페이지당

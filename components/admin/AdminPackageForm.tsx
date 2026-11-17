@@ -117,7 +117,7 @@ export function AdminPackageForm({ programs, options, discountTiers }: AdminPack
   }
 
   return (
-    <form className="admin-package-form" onSubmit={submit}>
+    <form className="admin-package-form" data-admin-own-action onSubmit={submit}>
       <section className="admin-package-form-section">
         <header>
           <h3>기본 정보</h3>

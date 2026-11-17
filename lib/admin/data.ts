@@ -16,6 +16,16 @@ import {
   getPackagePrograms,
   getProductReviews,
 } from "@/lib/content";
+import {
+  getAdminBanners,
+  getAdminCategories,
+  getAdminCollections,
+  getAdminJournals,
+  getAdminEvents,
+  getAdminProducts,
+  getAdminReviews,
+  getAdminSchedules,
+} from "@/lib/admin/content";
 
 export async function loadAdminData() {
   // 관리자 화면은 빌드 시점 결과를 굳히지 않고 요청마다 최신 데이터를 읽는다.
@@ -34,6 +44,14 @@ export async function loadAdminData() {
     packageCtas,
     collections,
     categories,
+    adminProducts,
+    adminSchedules,
+    adminBanners,
+    adminCollections,
+    adminEvents,
+    adminReviews,
+    adminJournals,
+    adminCategories,
   ] = await Promise.all([
     getExperiences(),
     getEvents(),
@@ -48,10 +66,27 @@ export async function loadAdminData() {
     getPackageCtas(),
     getCollections(),
     getCategories(),
+    getAdminProducts(),
+    getAdminSchedules(),
+    getAdminBanners(),
+    getAdminCollections(),
+    getAdminEvents(),
+    getAdminReviews(),
+    getAdminJournals(),
+    getAdminCategories(),
   ]);
   const productReviews = await Promise.all(experiences.slice(0, 4).map((experience) => getProductReviews(experience.slug)));
 
   return {
+    // 관리자 목록 전용(비노출·마감 포함, DB 행 id 포함)
+    adminBanners,
+    adminCategories,
+    adminCollections,
+    adminEvents,
+    adminJournals,
+    adminProducts,
+    adminReviews,
+    adminSchedules,
     categories,
     collections,
     discountTiers,

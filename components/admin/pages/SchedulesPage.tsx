@@ -7,14 +7,7 @@ import { ScheduleStockEditor } from "@/components/admin/ScheduleStockEditor";
 import type { AdminData } from "@/lib/admin/data";
 
 export function SchedulesPage({ data }: { data: AdminData }) {
-  const schedules = data.experiences.flatMap((experience) =>
-    experience.schedules.map((schedule) => ({
-      ...schedule,
-      product: experience.title,
-      host: experience.host.name,
-      region: experience.region,
-    })),
-  );
+  const schedules = data.adminSchedules;
 
   return (
     <section className="admin-schedule-shell">
@@ -48,14 +41,13 @@ export function SchedulesPage({ data }: { data: AdminData }) {
             {["일", "월", "화", "수", "목", "금", "토"].map((day) => (
               <span key={day}>{day}</span>
             ))}
-            {Array.from({ length: 28 }).map((_, index) => {
-              const schedule = schedules[index % schedules.length];
-              const day = index + 1;
+            {schedules.map((schedule, index) => {
+              const day = Number(schedule.date.slice(8, 10)) || index + 1;
               const remaining = schedule.capacity - schedule.booked;
-              const isFull = remaining <= 0;
+              const isFull = remaining <= 0 || schedule.status === "closed";
               const isLow = !isFull && remaining <= 2;
               return (
-                <details className="admin-calendar-cell" data-state={isFull ? "full" : isLow ? "low" : "open"} key={`${schedule.product}-${schedule.date}-${schedule.label}-${index}`}>
+                <details className="admin-calendar-cell" data-state={isFull ? "full" : isLow ? "low" : "open"} key={`${schedule.id ?? ""}-${schedule.product}-${schedule.date}-${schedule.label}-${index}`}>
                   <summary>
                     <b>{day}</b>
                     <span className="admin-calendar-dots">
@@ -65,13 +57,13 @@ export function SchedulesPage({ data }: { data: AdminData }) {
                     <strong>{schedule.product}</strong>
                     <small>{schedule.label} · {schedule.region}</small>
                     <AdminStatusBadge tone={isFull ? "danger" : isLow ? "warning" : "success"}>
-                      {schedule.reservedTeams ?? 0}/{schedule.maxTeams ?? 4}팀
+                      {schedule.status === "closed" ? "마감" : `${schedule.reservedTeams}/${schedule.maxTeams}팀`}
                     </AdminStatusBadge>
                   </summary>
                   <div className="admin-calendar-detail-panel">
                     <header>
                       <span>Schedule Detail</span>
-                      <strong>{day}일 회차 관리</strong>
+                      <strong>{schedule.date} 회차 관리</strong>
                     </header>
                     <DetailPairs
                       items={[
@@ -81,14 +73,17 @@ export function SchedulesPage({ data }: { data: AdminData }) {
                         ["호스트", schedule.host],
                         ["팀 재고", `${schedule.reservedTeams ?? 0}/${schedule.maxTeams ?? 0}팀`],
                         ["인원 재고", `${schedule.booked}/${schedule.capacity}명`],
+                        ["상태", schedule.status === "closed" ? "마감" : "예약 가능"],
                       ]}
                     />
                     <ScheduleStockEditor
                       capacity={schedule.capacity}
-                      maxTeams={schedule.maxTeams ?? 1}
-                      scheduleId={`${schedule.product}-${schedule.date}-${schedule.label}`}
+                      key={`${schedule.id}-${schedule.capacity}-${schedule.maxTeams}-${schedule.teamCapacity}-${schedule.status}`}
+                      maxTeams={schedule.maxTeams}
+                      scheduleId={schedule.id ? String(schedule.id) : `sample-${schedule.product}-${schedule.date}-${schedule.label}`}
                       scheduleLabel={`${schedule.date} ${schedule.label}`}
-                      teamCapacity={schedule.teamCapacity ?? schedule.capacity}
+                      status={schedule.status}
+                      teamCapacity={schedule.teamCapacity}
                     />
                   </div>
                 </details>
@@ -110,10 +105,12 @@ export function SchedulesPage({ data }: { data: AdminData }) {
           {schedules[0] ? (
             <ScheduleStockEditor
               capacity={schedules[0].capacity}
-              maxTeams={schedules[0].maxTeams ?? 1}
-              scheduleId={`${schedules[0].product}-${schedules[0].date}-${schedules[0].label}`}
+              key={`${schedules[0].id}-${schedules[0].capacity}-${schedules[0].maxTeams}-${schedules[0].teamCapacity}-${schedules[0].status}`}
+              maxTeams={schedules[0].maxTeams}
+              scheduleId={schedules[0].id ? String(schedules[0].id) : `sample-${schedules[0].product}-${schedules[0].date}-${schedules[0].label}`}
               scheduleLabel={`${schedules[0].product} ${schedules[0].label}`}
-              teamCapacity={schedules[0].teamCapacity ?? schedules[0].capacity}
+              status={schedules[0].status}
+              teamCapacity={schedules[0].teamCapacity}
             />
           ) : null}
         </aside>

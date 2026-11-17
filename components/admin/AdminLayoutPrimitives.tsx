@@ -1,3 +1,4 @@
+import { AdminBulkBar, type AdminBulkAction } from "@/components/admin/AdminBulkBar";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import {
@@ -109,16 +110,25 @@ export function AdminField({ children, label, wide }: { children: ReactNode; lab
   );
 }
 
-export function AdminEditorActions({ backHref, primaryLabel }: { backHref: string; primaryLabel: string }) {
+export function AdminEditorActions({
+  backHref,
+  primaryLabel,
+  unlinkedReason,
+}: {
+  backHref: string;
+  primaryLabel: string;
+  /** 이 버튼들이 저장되지 않는 이유. 눌렀을 때 안내 문구에 함께 나온다. */
+  unlinkedReason?: string;
+}) {
   return (
     <div className="admin-editor-actions">
       <Link className="admin-action-button ghost" href={backHref}>
         취소
       </Link>
-      <button className="admin-action-button secondary" type="button">
+      <button className="admin-action-button secondary" data-admin-unlinked={unlinkedReason} type="button">
         임시저장
       </button>
-      <button className="admin-action-button primary" type="button">
+      <button className="admin-action-button primary" data-admin-unlinked={unlinkedReason} type="button">
         <ActionIcon label={primaryLabel} />
         {primaryLabel}
       </button>
@@ -131,31 +141,34 @@ export function RowActionButtons({
   info,
   primary,
   secondary,
+  unlinkedReason,
 }: {
   danger?: string;
   info?: string;
   primary?: string;
   secondary?: string;
+  /** 이 버튼들이 저장되지 않는 이유. 눌렀을 때 안내 문구에 함께 나온다. */
+  unlinkedReason?: string;
 }) {
   return (
     <>
       {secondary ? (
-        <button className="admin-action-button ghost" type="button">
+        <button className="admin-action-button ghost" data-admin-unlinked={unlinkedReason} type="button">
           {secondary}
         </button>
       ) : null}
       {info ? (
-        <button className="admin-action-button info" type="button">
+        <button className="admin-action-button info" data-admin-unlinked={unlinkedReason} type="button">
           {info}
         </button>
       ) : null}
       {danger ? (
-        <button className="admin-action-button danger" type="button">
+        <button className="admin-action-button danger" data-admin-unlinked={unlinkedReason} type="button">
           {danger}
         </button>
       ) : null}
       {primary ? (
-        <button className="admin-action-button secondary" type="button">
+        <button className="admin-action-button secondary" data-admin-unlinked={unlinkedReason} type="button">
           {primary}
         </button>
       ) : null}
@@ -179,14 +192,15 @@ export function ListFrame({
   filters,
   resultLabel,
   total,
-  bulkOptions = ["선택 항목 검토", "노출 ON", "노출 OFF", "담당자 지정"],
+  bulk,
   summary,
 }: {
   children: ReactNode;
   filters: Parameters<typeof AdminFilterBar>[0]["fields"];
   resultLabel: string;
   total: number;
-  bulkOptions?: string[];
+  /** 목록 상단 일괄 처리. 없으면 일괄 처리 영역을 그리지 않는다. */
+  bulk?: AdminBulkAction[];
   summary?: ReactNode;
 }) {
   return (
@@ -195,16 +209,7 @@ export function ListFrame({
       <AdminFilterBar fields={filters} resultLabel={resultLabel} />
       <AdminResultSummary>
         <span>총 {total.toLocaleString("ko-KR")}건</span>
-        <AdminSelect defaultValue={bulkOptions[0]}>
-          {bulkOptions.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </AdminSelect>
-        <button className="admin-action-button ghost" type="button">
-          일괄 적용
-        </button>
+        {bulk?.length ? <AdminBulkBar actions={bulk} /> : null}
       </AdminResultSummary>
       <div className="admin-table-panel">{children}</div>
       <AdminPagination total={total} />

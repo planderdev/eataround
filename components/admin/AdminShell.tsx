@@ -247,9 +247,9 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     syncTableSelection(table);
   }
 
-  async function runAdminAction(label: string) {
+  async function runAdminAction(label: string, reason?: string) {
     try {
-      const result = await adminApi.actions.execute(label);
+      const result = await adminApi.actions.execute(label, reason);
       showToast(result.message || `${label} 작업을 완료했습니다.`, result.ok === false ? "warning" : "success");
     } catch {
       showToast(`${label} 작업 중 오류가 발생했습니다.`, "error");
@@ -409,18 +409,14 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
     }
 
     const label = action.getAttribute("aria-label") || action.textContent?.trim() || "관리 작업";
-    if (action.classList.contains("danger")) {
-      setConfirmAction({
-        label,
-        run: () => runAdminAction(label),
-      });
-      return;
-    }
-    await runAdminAction(label);
+    // 여기까지 온 버튼은 자체 저장 처리가 없는 버튼이다. 저장된 것처럼 보이지 않게 미연결 안내만 띄운다.
+    await runAdminAction(label, action.dataset.adminUnlinked);
   }
 
   function handleShellChange(event: React.ChangeEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
+    // 자체 저장 버튼이 있는 편집 영역의 입력은 저장 전이므로 "반영되었습니다" 안내를 띄우지 않는다.
+    if (target.closest("[data-admin-own-action]")) return;
     if (target.matches(".admin-table-check input")) {
       const input = target as HTMLInputElement;
       const table = input.closest("table");
