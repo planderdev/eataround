@@ -10,6 +10,7 @@ const SPECS: Record<string, FieldSpec> = {
   price: { column: "price", kind: "int", label: "기본가", min: 0 },
   originalPrice: { column: "original_price", kind: "int", label: "정가", min: 0, nullable: true },
   badge: { column: "badge", kind: "text", label: "배지", max: 40 },
+  imageUrl: { column: "image_url", kind: "text", label: "대표 이미지 주소", max: 500 },
   isVisible: { column: "is_visible", kind: "flag", label: "노출 여부" },
   isFeatured: { column: "is_featured", kind: "flag", label: "추천 여부" },
   sortOrder: { column: "sort_order", kind: "int", label: "정렬 순서" },

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { ImageUploadButton } from "@/components/admin/ImageUploadButton";
 import { RiAddLine, RiDeleteBinLine } from "@remixicon/react";
 import { DatePicker } from "@/components/DatePicker";
 import {
@@ -230,7 +231,8 @@ export function AdminProductForm() {
         <section data-active={activeTab === "media"}>
           <span>미디어</span>
           <input aria-label="대표 이미지 URL" onChange={(event) => setImageUrl(event.target.value)} placeholder="대표 이미지 주소 (https://...)" value={imageUrl} />
-          <small>이미지 파일 업로드와 상품별 갤러리는 저장소가 없어 아직 연결되지 않았습니다. 대표 이미지는 주소(URL)로 등록합니다.</small>
+          <ImageUploadButton folder="products" label="대표 이미지 파일 선택" onUploaded={setImageUrl} />
+          <small>대표 이미지는 파일을 올리거나 주소(URL)를 직접 입력합니다. 상품별 갤러리(여러 장)는 저장할 테이블이 없어 아직 연결되지 않았습니다.</small>
         </section>
 
         <section data-active={activeTab === "content"}>

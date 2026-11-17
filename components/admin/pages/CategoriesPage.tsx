@@ -43,7 +43,7 @@ export function CategoriesPage({ data }: { data: AdminData }) {
             fields={[
               { name: "label", label: "카테고리명", type: "text", value: row.label, maxLength: 80 },
               { name: "href", label: "연결 경로", type: "text", value: row.href, maxLength: 300 },
-              { name: "iconAsset", label: "아이콘 에셋 경로", type: "text", value: row.iconAsset, maxLength: 300, wide: true },
+              { name: "iconAsset", label: "아이콘 (파일을 올리거나 에셋 경로 입력)", type: "text", value: row.iconAsset, maxLength: 300, upload: "categories" },
               { name: "tone", label: "톤", type: "select", value: row.tone, options: TONE_OPTIONS },
               { name: "sortOrder", label: "순서(작을수록 먼저)", type: "number", value: row.sortOrder },
               { name: "isVisible", label: "노출", type: "flag", value: row.isVisible, flagLabels: ["노출", "숨김"] },

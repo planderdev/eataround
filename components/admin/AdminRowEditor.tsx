@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { ImageUploadButton } from "@/components/admin/ImageUploadButton";
 import { AdminSelect } from "@/components/admin/AdminPrimitives";
+import type { UploadFolder } from "@/lib/admin/upload-rules";
 import { notifyAdminToast } from "@/lib/admin/toast";
 import { withBasePath } from "@/lib/paths";
 
@@ -19,6 +21,8 @@ export type AdminRowEditorField = {
   nullable?: boolean;
   maxLength?: number;
   wide?: boolean;
+  /** text 전용: 이미지 주소 입력란 옆에 파일 업로드 버튼을 붙이고, 올린 주소를 이 입력란에 넣는다. */
+  upload?: UploadFolder;
 };
 
 type AdminRowEditorProps = {
@@ -85,7 +89,21 @@ export function AdminRowEditor({ endpoint, fields, saveLabel = "변경 저장" }
 
   return (
     <div className="admin-quote-adjustment-panel" data-admin-own-action>
-      {fields.map((field) => (
+      {fields.map((field) =>
+        field.upload ? (
+          <div className="admin-quote-adjustment-panel-wide admin-image-field" key={field.name}>
+            <span>{field.label}</span>
+            <input
+              aria-label={field.label}
+              maxLength={field.maxLength}
+              onChange={(event) => set(field.name, event.target.value)}
+              placeholder="https://..."
+              type="text"
+              value={draft[field.name]}
+            />
+            <ImageUploadButton folder={field.upload} onUploaded={(url) => set(field.name, url)} />
+          </div>
+        ) : (
         <label className={field.wide || field.type === "textarea" ? "admin-quote-adjustment-panel-wide" : undefined} key={field.name}>
           <span>{field.label}</span>
           {field.type === "textarea" ? (
@@ -114,7 +132,8 @@ export function AdminRowEditor({ endpoint, fields, saveLabel = "변경 저장" }
             />
           )}
         </label>
-      ))}
+        ),
+      )}
       <button className="admin-action-button primary" disabled={busy || !changed.length} onClick={save} type="button">
         {busy ? "저장 중..." : saveLabel}
       </button>

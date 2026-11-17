@@ -15,7 +15,7 @@ export function EventEditorPage({ data, closed }: { data: AdminData; closed: boo
           <p>
             {closed
               ? "종료된 행사의 결과 요약과 대표 이미지를 고쳐 저장합니다. 참여 후기·성과 지표는 저장할 곳이 없어 아직 지원하지 않습니다."
-              : "행사명, 기간, 장소, 소개를 저장하면 행사 목록에 바로 나타납니다. 이미지는 주소(URL)로 등록합니다."}
+              : "행사명, 기간, 장소, 소개를 저장하면 행사 목록에 바로 나타납니다. 이미지는 파일을 올리거나 주소(URL)를 직접 입력합니다."}
           </p>
         </div>
         {closed ? (
@@ -29,7 +29,7 @@ export function EventEditorPage({ data, closed }: { data: AdminData; closed: boo
                     { name: "period", label: "진행 기간", type: "text", value: event.period, maxLength: 120 },
                     { name: "venue", label: "장소", type: "text", value: event.venue, maxLength: 190 },
                     { name: "summary", label: "결과 요약", type: "textarea", value: event.summary, maxLength: 500 },
-                    { name: "imageUrl", label: "대표 이미지 URL", type: "text", value: event.imageUrl, maxLength: 500, wide: true },
+                    { name: "imageUrl", label: "대표 이미지 (파일을 올리거나 주소 입력)", type: "text", value: event.imageUrl, maxLength: 500, upload: "events" },
                   ]}
                   key={`${event.id}-${event.period}-${event.venue}-${event.summary}-${event.imageUrl}`}
                   saveLabel="결과 저장"
@@ -59,7 +59,7 @@ export function EventEditorPage({ data, closed }: { data: AdminData; closed: boo
               { name: "venue", label: "장소", type: "text", maxLength: 190 },
               { name: "partner", label: "파트너", type: "text", maxLength: 190 },
               { name: "summary", label: "행사 소개", type: "textarea", maxLength: 500 },
-              { name: "imageUrl", label: "대표 이미지 URL", type: "text", maxLength: 500, placeholder: "https://...", wide: true },
+              { name: "imageUrl", label: "대표 이미지 (파일을 올리거나 주소 입력)", type: "text", maxLength: 500, placeholder: "https://...", upload: "events" },
             ]}
             submitLabel="행사 저장"
           />
