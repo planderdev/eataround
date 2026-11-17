@@ -1,9 +1,14 @@
-import { AdminSelect } from "@/components/admin/AdminPrimitives";
-import {
-  AdminEditorActions,
-  AdminField,
-} from "@/components/admin/AdminLayoutPrimitives";
+import { AdminCreateForm } from "@/components/admin/AdminCreateForm";
 import type { AdminData } from "@/lib/admin/data";
+
+const TONE_OPTIONS = [
+  { value: "green", label: "Green" },
+  { value: "coral", label: "Coral" },
+  { value: "blue", label: "Blue" },
+  { value: "yellow", label: "Yellow" },
+  { value: "red", label: "Red" },
+  { value: "ink", label: "Ink" },
+];
 
 export function CategoryEditorPage({ data }: { data: AdminData }) {
   return (
@@ -11,38 +16,22 @@ export function CategoryEditorPage({ data }: { data: AdminData }) {
       <article className="admin-creation-main">
         <div className="admin-creation-head">
           <span>Category setup</span>
-          <h2>홈 아이콘과 상품 분류를 함께 관리합니다.</h2>
-          <p>프론트 홈, 필터, 메가메뉴에서 같은 분류 체계를 사용할 수 있도록 노출 위치와 아이콘 에셋을 함께 저장합니다.</p>
+          <h2>홈 아이콘 카테고리를 등록합니다.</h2>
+          <p>저장하면 홈 아이콘 영역에 나타납니다. 아이콘은 이미 올라가 있는 에셋 경로로 지정합니다.</p>
         </div>
-        <div className="admin-editor-field-grid">
-          <AdminField label="카테고리명">
-            <input defaultValue="쿠킹·베이킹" />
-          </AdminField>
-          <AdminField label="URL 경로">
-            <input defaultValue="/experiences?category=cooking" />
-          </AdminField>
-          <AdminField label="아이콘 에셋">
-            <input defaultValue="/assets/icons/plat-cooking.png" />
-          </AdminField>
-          <AdminField label="톤">
-            <AdminSelect defaultValue="mint">
-              <option value="mint">Mint</option>
-              <option value="coral">Coral</option>
-              <option value="yellow">Yellow</option>
-            </AdminSelect>
-          </AdminField>
-          <AdminField label="노출 위치" wide>
-            <div className="admin-chip-options">
-              {["홈 아이콘 그리드", "상품 필터", "메가메뉴", "검색 카테고리"].map((item) => (
-                <label key={item}>
-                  <input defaultChecked={item !== "검색 카테고리"} type="checkbox" />
-                  {item}
-                </label>
-              ))}
-            </div>
-          </AdminField>
-        </div>
-        <AdminEditorActions backHref="/admin/products/categories" primaryLabel="카테고리 저장" />
+        <AdminCreateForm
+          backHref="/admin/products/categories"
+          endpoint="/api/admin/categories"
+          fields={[
+            { name: "label", label: "카테고리명", type: "text", maxLength: 80, required: true },
+            { name: "href", label: "연결 경로", type: "text", maxLength: 300, required: true, placeholder: "/local-experiences?tag=쿠킹" },
+            { name: "iconAsset", label: "아이콘 에셋 경로", type: "text", maxLength: 300, placeholder: "/assets/images/plat-icon-cook.svg" },
+            { name: "tone", label: "톤", type: "select", defaultValue: "green", options: TONE_OPTIONS },
+            { name: "isVisible", label: "노출", type: "flag" },
+            { name: "sortOrder", label: "정렬 순서(작을수록 먼저)", type: "number", defaultValue: 0 },
+          ]}
+          submitLabel="카테고리 저장"
+        />
       </article>
       <aside className="admin-creation-side">
         <article className="admin-preview-stack">

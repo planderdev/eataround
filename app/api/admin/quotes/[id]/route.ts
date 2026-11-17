@@ -10,6 +10,7 @@ type RouteContext = {
 type Payload = {
   status?: string;
   adminMemo?: string | null;
+  estimatedTotal?: number;
 };
 
 const QUOTE_STATUSES = ["requested", "reviewing", "sent", "accepted", "closed"];
@@ -32,7 +33,18 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   const hasStatus = payload.status !== undefined;
   const hasMemo = payload.adminMemo !== undefined;
 
-  if (!hasStatus && !hasMemo) return adminError("변경할 상태나 메모를 입력해 주세요.", 400);
+  const hasTotal = payload.estimatedTotal !== undefined;
+
+  if (!hasStatus && !hasMemo && !hasTotal) return adminError("변경할 상태, 금액 또는 메모를 입력해 주세요.", 400);
+  if (
+    hasTotal &&
+    (typeof payload.estimatedTotal !== "number" ||
+      !Number.isInteger(payload.estimatedTotal) ||
+      payload.estimatedTotal < 0 ||
+      payload.estimatedTotal > 2_000_000_000)
+  ) {
+    return adminError("견적 금액은 0 이상의 정수로 입력해 주세요.", 400);
+  }
   if (hasStatus && !QUOTE_STATUSES.includes(payload.status as string)) {
     return adminError("지원하지 않는 견적 상태입니다.", 400);
   }
@@ -55,15 +67,24 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     sets.push("admin_memo = ?");
     values.push(memo || null);
   }
+  if (hasTotal) {
+    sets.push("estimated_total = ?");
+    values.push(payload.estimatedTotal);
+  }
 
-  const [rows] = await getPool().execute<{ id: number; status: string; admin_memo: string | null }[]>(
-    `update quote_requests set ${sets.join(", ")} where id = ? returning id, status, admin_memo`,
+  const [rows] = await getPool().execute<{ id: number; status: string; admin_memo: string | null; estimated_total: number }[]>(
+    `update quote_requests set ${sets.join(", ")} where id = ? returning id, status, admin_memo, estimated_total`,
     [...values, quoteId],
   );
 
   if (!rows.length) return adminError("견적 요청을 찾을 수 없습니다.", 404);
 
   return NextResponse.json(
-    adminOk("견적 상태와 메모를 저장했습니다.", { id: quoteId, status: rows[0].status, adminMemo: rows[0].admin_memo }),
+    adminOk("견적 정보를 저장했습니다.", {
+      id: quoteId,
+      status: rows[0].status,
+      adminMemo: rows[0].admin_memo,
+      estimatedTotal: rows[0].estimated_total,
+    }),
   );
 }

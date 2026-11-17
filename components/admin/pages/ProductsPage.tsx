@@ -30,7 +30,13 @@ export function ProductsPage({ data }: { data: AdminData }) {
 
   return (
     <ListFrame
-      bulkOptions={["선택 상품 검토", "노출 ON", "노출 OFF", "특가 배지 적용", "회차 일괄 마감"]}
+      bulk={[
+        { label: "노출 ON", endpoint: "/api/admin/products", payload: { isVisible: true } },
+        { label: "노출 OFF", endpoint: "/api/admin/products", payload: { isVisible: false } },
+        { label: "특가 배지 적용", endpoint: "/api/admin/products", payload: { badge: "특가" } },
+        { label: "배지 제거", endpoint: "/api/admin/products", payload: { badge: "" } },
+        { label: "회차 일괄 마감", unlinked: "회차·재고 > 일괄 마감 화면에서 상품과 기간을 지정해 처리해 주세요." },
+      ]}
       filters={[
         { label: "검색어", name: "query", placeholder: "상품명, 태그, 호스트" },
         { label: "카테고리", name: "category", type: "select", options: data.categories.map((category) => category.label) },
@@ -88,6 +94,7 @@ export function ProductsPage({ data }: { data: AdminData }) {
             />
           </>
         )}
+        rowId={(row) => row.id}
         rowKey={(row) => row.slug}
         rows={data.adminProducts}
       />

@@ -7,7 +7,6 @@ import {
 import {
   DetailPairs,
   ListFrame,
-  RowActionButtons,
 } from "@/components/admin/AdminLayoutPrimitives";
 import { AdminRowEditor } from "@/components/admin/AdminRowEditor";
 import type { AdminData } from "@/lib/admin/data";
@@ -33,6 +32,10 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
     ];
     return (
       <ListFrame
+        bulk={[
+          { label: "노출 ON", endpoint: "/api/admin/banners", payload: { isVisible: true } },
+          { label: "노출 OFF", endpoint: "/api/admin/banners", payload: { isVisible: false } },
+        ]}
         filters={[
           { label: "슬롯", name: "slot", type: "select", options: ["MAIN_HERO", "MAIN_EVENT", "MAIN_CURATION", "MAIN_B2B_CTA", "LIST_TOP"] },
           { label: "노출상태", name: "status", type: "select", options: ["노출중", "예약노출", "비공개"] },
@@ -63,6 +66,7 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
               />
             </>
           )}
+          rowId={(row) => row.id}
           rowKey={(row) => `${row.id ?? ""}-${row.slot}-${row.title}`}
           rows={rows}
         />
@@ -83,6 +87,10 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
     ];
     return (
       <ListFrame
+        bulk={[
+          { label: "노출 ON", endpoint: "/api/admin/curations", payload: { isVisible: true } },
+          { label: "노출 OFF", endpoint: "/api/admin/curations", payload: { isVisible: false } },
+        ]}
         filters={[
           { label: "검색어", name: "query", placeholder: "기획전명, 테마" },
           { label: "상태", name: "status", type: "select", options: ["노출중", "비공개", "예약노출"] },
@@ -110,6 +118,7 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
               />
             </>
           )}
+          rowId={(row) => row.id}
           rowKey={(row) => row.slug}
           rows={data.adminCollections}
         />
@@ -118,15 +127,22 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
   }
 
   if (type === "journal") {
-    const columns: AdminTableColumn<AdminData["journals"][number]>[] = [
+    const columns: AdminTableColumn<AdminData["adminJournals"][number]>[] = [
       { key: "title", label: "제목", render: (row) => <strong>{row.title}</strong> },
-      { key: "category", label: "카테고리", render: (row) => row.category },
+      { key: "category", label: "카테고리", render: (row) => row.category || "-" },
       { key: "date", label: "발행일", render: (row) => row.date },
-      { key: "status", label: "상태", render: () => <AdminStatusBadge tone="success">PUBLISHED</AdminStatusBadge> },
-      { key: "views", label: "조회수", align: "right", render: () => "842" },
+      {
+        key: "status",
+        label: "상태",
+        render: (row) => <AdminStatusBadge tone={row.isVisible ? "success" : "danger"}>{row.isVisible ? "발행중" : "비공개"}</AdminStatusBadge>,
+      },
     ];
     return (
       <ListFrame
+        bulk={[
+          { label: "노출 ON", endpoint: "/api/admin/journals", payload: { isVisible: true } },
+          { label: "노출 OFF", endpoint: "/api/admin/journals", payload: { isVisible: false } },
+        ]}
         filters={[
           { label: "검색어", name: "query", placeholder: "제목, 태그, SEO 키워드" },
           { label: "발행상태", name: "status", type: "select", options: ["DRAFT", "PUBLISHED", "ARCHIVED"] },
@@ -134,14 +150,31 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
           { label: "발행일", name: "publishedAt", type: "date" },
         ]}
         resultLabel="저널 발행과 검색 노출 관리"
-        total={data.journals.length}
+        total={data.adminJournals.length}
       >
         <AdminDataTable
-          actions={() => <RowActionButtons primary="본문 수정" secondary="SEO 설정" />}
           columns={columns}
-          detail={(row) => <DetailPairs items={[["요약", row.excerpt], ["대표 이미지", row.image], ["상세 URL", `/journal/${row.slug}`]]} />}
+          detail={(row) => (
+            <>
+              <DetailPairs items={[["상세 URL", `/journal/${row.slug}`]]} />
+              <AdminRowEditor
+                endpoint={`/api/admin/journals/${row.id ?? `sample-${row.slug}`}`}
+                fields={[
+                  { name: "title", label: "제목", type: "text", value: row.title, maxLength: 190, wide: true },
+                  { name: "category", label: "카테고리", type: "text", value: row.category, maxLength: 80 },
+                  { name: "isVisible", label: "발행", type: "flag", value: row.isVisible, flagLabels: ["발행중", "비공개"] },
+                  { name: "excerpt", label: "요약", type: "textarea", value: row.excerpt, maxLength: 500 },
+                  { name: "content", label: "본문", type: "textarea", value: row.content, maxLength: 20000 },
+                  { name: "imageUrl", label: "커버 이미지 URL", type: "text", value: row.image, maxLength: 500, wide: true },
+                ]}
+                key={`${row.id}-${row.title}-${row.category}-${row.isVisible}-${row.excerpt}-${row.content.length}-${row.image}`}
+                saveLabel="저널 저장"
+              />
+            </>
+          )}
+          rowId={(row) => row.id}
           rowKey={(row) => row.slug}
-          rows={data.journals}
+          rows={data.adminJournals}
         />
       </ListFrame>
     );
@@ -160,7 +193,11 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
   ];
   return (
     <ListFrame
-      bulkOptions={["선택 리뷰 노출", "선택 리뷰 숨김", "호스트 답변 요청"]}
+      bulk={[
+        { label: "선택 리뷰 노출", endpoint: "/api/admin/reviews", payload: { status: "approved" } },
+        { label: "선택 리뷰 숨김", endpoint: "/api/admin/reviews", payload: { status: "hidden" } },
+        { label: "호스트 답변 요청", unlinked: "메일·알림 발송 수단이 없습니다." },
+      ]}
       filters={[
         { label: "상품", name: "product", placeholder: "상품명" },
         { label: "평점", name: "rating", type: "select", options: ["5", "4", "3", "2", "1"] },
@@ -196,6 +233,7 @@ export function ContentPage({ data, type }: { data: AdminData; type: ContentType
             />
           </div>
         )}
+        rowId={(row) => row.id}
         rowKey={(row) => `${row.id ?? ""}-${row.name}-${row.text}`}
         rows={data.adminReviews}
       />

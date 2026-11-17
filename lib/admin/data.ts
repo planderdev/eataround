@@ -18,7 +18,9 @@ import {
 } from "@/lib/content";
 import {
   getAdminBanners,
+  getAdminCategories,
   getAdminCollections,
+  getAdminJournals,
   getAdminEvents,
   getAdminProducts,
   getAdminReviews,
@@ -48,6 +50,8 @@ export async function loadAdminData() {
     adminCollections,
     adminEvents,
     adminReviews,
+    adminJournals,
+    adminCategories,
   ] = await Promise.all([
     getExperiences(),
     getEvents(),
@@ -68,14 +72,18 @@ export async function loadAdminData() {
     getAdminCollections(),
     getAdminEvents(),
     getAdminReviews(),
+    getAdminJournals(),
+    getAdminCategories(),
   ]);
   const productReviews = await Promise.all(experiences.slice(0, 4).map((experience) => getProductReviews(experience.slug)));
 
   return {
     // 관리자 목록 전용(비노출·마감 포함, DB 행 id 포함)
     adminBanners,
+    adminCategories,
     adminCollections,
     adminEvents,
+    adminJournals,
     adminProducts,
     adminReviews,
     adminSchedules,

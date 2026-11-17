@@ -22,7 +22,18 @@ export function EventsPage({ closed, data }: { closed: boolean; data: AdminData 
 
   return (
     <ListFrame
-      bulkOptions={closed ? ["포트폴리오 노출", "결과 숨김", "성과 리포트 발행"] : ["모집 시작", "모집 마감", "상단 배너 연결"]}
+      bulk={
+        closed
+          ? [
+              { label: "진행중으로 되돌리기", endpoint: "/api/admin/events", payload: { status: "ongoing" } },
+              { label: "결과 숨김", unlinked: "행사 노출 여부를 저장할 항목(컬럼)이 아직 없습니다." },
+              { label: "성과 리포트 발행", unlinked: "리포트 생성 기능이 없습니다." },
+            ]
+          : [
+              { label: "종료 처리", endpoint: "/api/admin/events", payload: { status: "ended" } },
+              { label: "상단 배너 연결", unlinked: "배너 관리에서 연결 URL을 행사 주소로 지정해 주세요." },
+            ]
+      }
       filters={[
         { label: "검색어", name: "query", placeholder: "행사명, 장소, 파트너" },
         { label: "상태", name: "status", type: "select", options: ["DRAFT", "UPCOMING", "ONGOING", "CLOSED"] },
@@ -79,6 +90,7 @@ export function EventsPage({ closed, data }: { closed: boolean; data: AdminData 
             />
           </>
         )}
+        rowId={(row) => row.id}
         rowKey={(row) => row.slug}
         rows={rows}
       />

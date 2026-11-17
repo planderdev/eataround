@@ -6,7 +6,6 @@ import {
 import {
   DetailPairs,
   ListFrame,
-  RowActionButtons,
   StatCard,
   memberApprovalStatus,
   toneFromStatus,
@@ -35,7 +34,20 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
 
   return (
     <ListFrame
-      bulkOptions={corporate ? ["승인 처리", "권한 보류", "안내 발송", "담당자 지정"] : ["선택 회원 메모", "휴면 처리", "마케팅 동의 변경"]}
+      bulk={
+        corporate
+          ? [
+              { label: "승인 처리", endpoint: "/api/admin/members", payload: { action: "approve" } },
+              { label: "권한 보류", unlinked: "보류 상태를 저장할 항목(컬럼)이 아직 없습니다." },
+              { label: "안내 발송", unlinked: "메일·알림 발송 수단이 없습니다." },
+              { label: "담당자 지정", unlinked: "담당자를 저장할 항목(컬럼)이 아직 없습니다." },
+            ]
+          : [
+              { label: "선택 회원 메모", unlinked: "회원 메모를 저장할 항목(컬럼)이 아직 없습니다." },
+              { label: "휴면 처리", unlinked: "휴면 상태를 저장할 항목(컬럼)이 아직 없습니다." },
+              { label: "마케팅 동의 변경", unlinked: "마케팅 동의를 저장할 항목(컬럼)이 아직 없습니다." },
+            ]
+      }
       filters={[
         { label: "검색어", name: "query", placeholder: corporate ? "기관명, 담당자, 이메일" : "이름, 이메일, 연락처" },
         { label: corporate ? "기관 구분" : "가입경로", name: "type", type: "select", options: corporate ? ["기업", "비영리", "공공기관", "학교"] : ["이메일", "카카오", "네이버"] },
@@ -63,7 +75,7 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
               status={memberApprovalStatus(row.status)}
             />
           ) : (
-            <RowActionButtons info="안내 발송" primary="회원 수정" secondary="예약 내역" />
+            <small>일반회원 정보 수정·예약 내역 보기·안내 발송은 아직 연결되지 않았습니다.</small>
           )
         }
         columns={columns}
@@ -78,6 +90,7 @@ export function MembersPage({ corporate, data }: { corporate: boolean; data: Adm
             ]}
           />
         )}
+        rowId={(row) => row.id}
         rowKey={(row) => `${row.email}-${row.type}`}
         rows={rows}
       />

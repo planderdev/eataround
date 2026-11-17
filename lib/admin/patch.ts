@@ -99,3 +99,67 @@ export async function readPayload(request: Request) {
   const payload = await request.json().catch(() => ({}));
   return payload && typeof payload === "object" && !Array.isArray(payload) ? (payload as Record<string, unknown>) : {};
 }
+
+type InsertOptions = {
+  /** 코드에 고정된 테이블 이름. 요청 값으로 만들지 않는다. */
+  table: string;
+  specs: Record<string, FieldSpec>;
+  /** specs 밖에서 서버가 정하는 컬럼 값(예: 만든 slug). */
+  extra?: Record<string, unknown>;
+  okMessage: string;
+  duplicateMessage: string;
+};
+
+/** 허용 필드만으로 새 행을 만드는 관리자 POST 공통 처리. 호출 전에 샘플 모드·권한 확인을 끝내야 한다. */
+export async function insertRow(payload: Record<string, unknown>, options: InsertOptions) {
+  for (const [key, spec] of Object.entries(options.specs)) {
+    if (spec.kind === "text" && spec.required && payload[key] === undefined) {
+      return adminError(`${spec.label}을(를) 입력해 주세요.`, 400);
+    }
+  }
+
+  const update = buildUpdate(payload, options.specs);
+  if (typeof update === "string") return adminError(update, 400);
+
+  const columns = update.sets.map((set) => set.replace(" = ?", ""));
+  const values = [...update.values];
+  for (const [column, value] of Object.entries(options.extra ?? {})) {
+    columns.push(column);
+    values.push(value);
+  }
+  if (!columns.length) return adminError("저장할 내용이 없습니다.", 400);
+
+  try {
+    const [rows] = await getPool().execute<{ id: number }[]>(
+      `insert into ${options.table} (${columns.join(", ")}) values (${columns.map(() => "?").join(", ")}) returning id`,
+      values,
+    );
+    return NextResponse.json(adminOk(options.okMessage, { id: rows[0]?.id }), { status: 201 });
+  } catch (error) {
+    if ((error as { code?: string }).code === "ER_DUP_ENTRY") return adminError(options.duplicateMessage, 409);
+    throw error;
+  }
+}
+
+/** 제목에서 URL용 slug를 만든다. 영문·숫자만 남기고, 남는 게 없으면(한글 제목 등) 접두사+시각으로 대신한다. */
+export function makeSlug(value: unknown, prefix: string) {
+  const base =
+    typeof value === "string"
+      ? value
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 100)
+      : "";
+  return base || `${prefix}-${Date.now().toString(36)}`;
+}
+
+/** 외부 수단이 없어 저장할 수 없는 동작의 응답. 저장된 것처럼 보이지 않게 501로 알린다. */
+export function notLinked(reason: string) {
+  return adminError(`아직 연결되지 않은 기능입니다. ${reason}`, 501);
+}
+
+export function isDateString(value: unknown): value is string {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+}

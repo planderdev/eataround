@@ -16,7 +16,6 @@ import type {
 } from "@/types/api";
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
-const UNLINKED_ACTION_MESSAGE = "이 버튼은 아직 연결되지 않았습니다. 목록 각 행의 상세보기에서 처리해 주세요.";
 
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(withBasePath(path), {
@@ -99,19 +98,13 @@ export const adminApi = {
       }),
   },
   actions: {
-    async execute(label: string): Promise<AdminMutationResult> {
-      // 공용 버튼은 어떤 행을 바꿀지 알 수 없다. 실제 저장은 각 행의 편집 영역(data-admin-own-action)이 맡고,
-      // 서버 연결 모드에서는 대상 없는 요청을 보내지 않는다.
-      if (!useMock) return { ok: false, message: UNLINKED_ACTION_MESSAGE };
-
-      if (/견적서|견적/.test(label)) return mockAdminApi.quotes.send();
-      if (/예약|확정|취소|환불/.test(label)) return mockAdminApi.reservations.update();
-      if (/회원|승인|권한/.test(label)) return mockAdminApi.members.update();
-      if (/리뷰/.test(label)) return mockAdminApi.reviews.update();
-      if (/배너/.test(label)) return mockAdminApi.banners.update();
-      if (/기획전/.test(label)) return mockAdminApi.curations.update();
-      if (/행사/.test(label)) return mockAdminApi.events.update();
-      return mockAdminApi.products.update();
+    /**
+     * 자체 저장 처리가 없는 공용 버튼의 응답. 어떤 행을 바꿀지 알 수 없으므로 서버에 요청하지 않고,
+     * 저장된 것처럼 보이지 않도록 "아직 연결되지 않음"을 돌려준다.
+     * 실제 저장은 data-admin-own-action 영역(행 편집, 등록 폼, 일괄 처리)이 맡는다.
+     */
+    async execute(label: string, reason?: string): Promise<AdminMutationResult> {
+      return { ok: false, message: `"${label}"은(는) 아직 연결되지 않았습니다.${reason ? ` ${reason}` : ""}` };
     },
   },
 };

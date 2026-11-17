@@ -1,5 +1,5 @@
 import "server-only";
-import { collections, events, experiences, heroSlides, packageCtas, productReviews } from "@/lib/data";
+import { categories, collections, events, experiences, heroSlides, journals, packageCtas, productReviews } from "@/lib/data";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 
@@ -418,5 +418,112 @@ export function getAdminReviews() {
           status: "approved",
         })),
       ),
+  );
+}
+
+export type AdminJournalRow = {
+  id?: number;
+  slug: string;
+  title: string;
+  category: string;
+  excerpt: string;
+  content: string;
+  image: string;
+  date: string;
+  isVisible: boolean;
+};
+
+export type AdminCategoryRow = {
+  id?: number;
+  label: string;
+  href: string;
+  iconAsset: string;
+  tone: string;
+  isVisible: boolean;
+  sortOrder: number;
+};
+
+export function getAdminJournals() {
+  return safeQuery(
+    async () => {
+      const [rows] = await getPool().query<
+        (RowDataPacket & {
+          id: number;
+          slug: string;
+          title: string;
+          category: string | null;
+          excerpt: string | null;
+          content: string | null;
+          image_url: string | null;
+          is_visible: number;
+          published_on: string | null;
+        })[]
+      >(
+        `select id, slug, title, category, excerpt, content, image_url, is_visible,
+                to_char(coalesce(published_at, created_at), 'YYYY.MM.DD') as published_on
+           from journals
+          order by coalesce(published_at, created_at) desc`,
+      );
+
+      return rows.map<AdminJournalRow>((row) => ({
+        id: row.id,
+        slug: row.slug,
+        title: row.title,
+        category: row.category ?? "",
+        excerpt: row.excerpt ?? "",
+        content: row.content ?? "",
+        image: row.image_url ?? "",
+        date: row.published_on ?? "",
+        isVisible: row.is_visible === 1,
+      }));
+    },
+    () =>
+      journals.map<AdminJournalRow>((journal) => ({
+        slug: journal.slug,
+        title: journal.title,
+        category: journal.category,
+        excerpt: journal.excerpt,
+        content: "",
+        image: journal.image,
+        date: journal.date,
+        isVisible: true,
+      })),
+  );
+}
+
+export function getAdminCategories() {
+  return safeQuery(
+    async () => {
+      const [rows] = await getPool().query<
+        (RowDataPacket & {
+          id: number;
+          label: string;
+          href: string;
+          icon_asset: string | null;
+          tone: string;
+          is_visible: number;
+          sort_order: number;
+        })[]
+      >("select id, label, href, icon_asset, tone, is_visible, sort_order from categories order by sort_order asc, id asc");
+
+      return rows.map<AdminCategoryRow>((row) => ({
+        id: row.id,
+        label: row.label,
+        href: row.href,
+        iconAsset: row.icon_asset ?? "",
+        tone: row.tone,
+        isVisible: row.is_visible === 1,
+        sortOrder: row.sort_order,
+      }));
+    },
+    () =>
+      categories.map<AdminCategoryRow>((category, index) => ({
+        label: category.label,
+        href: category.href,
+        iconAsset: category.iconAsset,
+        tone: category.tone,
+        isVisible: true,
+        sortOrder: index,
+      })),
   );
 }

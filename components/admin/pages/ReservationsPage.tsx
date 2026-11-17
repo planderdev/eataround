@@ -13,7 +13,13 @@ export function ReservationsPage({ data }: { data: AdminData }) {
 
   return (
     <ListFrame
-      bulkOptions={["예약 확정", "안내 메일 발송", "환불 요청 검토", "노쇼 처리"]}
+      bulk={[
+        { label: "예약 확정", endpoint: "/api/admin/reservations", payload: { status: "confirmed" } },
+        { label: "결제 확인", endpoint: "/api/admin/reservations", payload: { status: "paid" } },
+        { label: "안내 메일 발송", unlinked: "메일·알림 발송 수단이 없습니다." },
+        { label: "환불 요청 검토", unlinked: "결제·환불 연동이 없습니다." },
+        { label: "노쇼 처리", unlinked: "노쇼 상태를 저장할 항목이 아직 없습니다." },
+      ]}
       filters={[
         { label: "검색어", name: "query", placeholder: "예약번호, 예약자, 연락처" },
         { label: "예약상태", name: "status", type: "select", options: ["PENDING", "CONFIRMED", "COMPLETED", "CANCELED_BY_USER", "NO_SHOW"] },

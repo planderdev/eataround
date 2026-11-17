@@ -93,6 +93,10 @@ export function AdminProductForm() {
   const [startDate, setStartDate] = useState("2026-05-23");
   const [endDate, setEndDate] = useState("2026-06-30");
   const [activeTab, setActiveTab] = useState<ProductTab>("basic");
+  const [imageUrl, setImageUrl] = useState("");
+  const [summary, setSummary] = useState("");
+  const [description, setDescription] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitState, setSubmitState] = useState<SubmitState>({ tone: "idle", message: "" });
 
@@ -117,6 +121,10 @@ export function AdminProductForm() {
           reservationType,
           duration: `${startDate} - ${endDate}`,
           badge: "신규",
+          imageUrl,
+          summary,
+          description,
+          tags,
           schedules: schedules
             .filter((row) => row.date && row.timeLabel)
             .map((row) => ({
@@ -143,6 +151,10 @@ export function AdminProductForm() {
       setRegion("");
       setCategory("");
       setPrice("");
+      setImageUrl("");
+      setSummary("");
+      setDescription("");
+      setTags([]);
       router.refresh();
     } catch {
       setSubmitState({ tone: "error", message: "상품 등록 요청 중 오류가 발생했습니다." });
@@ -152,7 +164,7 @@ export function AdminProductForm() {
   }
 
   return (
-    <form className="admin-inline-form admin-product-form" onSubmit={handleSubmit}>
+    <form className="admin-inline-form admin-product-form" id="admin-product-form" onSubmit={handleSubmit}>
       <div className="admin-product-form-tabs" role="tablist" aria-label="상품 등록 단계">
         {productTabs.map((tab) => (
           <button
@@ -215,31 +227,15 @@ export function AdminProductForm() {
       <div className="admin-product-form-sections">
         <section data-active={activeTab === "media"}>
           <span>미디어</span>
-          <div className="admin-upload-dropzone">
-            대표 이미지를 드래그하거나 클릭해 업로드
-            <small>세로형 썸네일, 상세 이미지, 후기 이미지에 공통 사용됩니다.</small>
-          </div>
-          <div className="admin-media-grid">
-            {["대표", "상세 1", "상세 2"].map((item) => (
-              <button key={item} type="button">
-                <b>{item}</b>
-                <small>이미지 슬롯</small>
-              </button>
-            ))}
-          </div>
+          <input aria-label="대표 이미지 URL" onChange={(event) => setImageUrl(event.target.value)} placeholder="대표 이미지 주소 (https://...)" value={imageUrl} />
+          <small>이미지 파일 업로드와 상품별 갤러리는 저장소가 없어 아직 연결되지 않았습니다. 대표 이미지는 주소(URL)로 등록합니다.</small>
         </section>
 
         <section data-active={activeTab === "content"}>
           <span>상세 콘텐츠</span>
-          <textarea aria-label="상품 소개" placeholder="상품 소개, 추천 대상, 일정, 포함/불포함, 장소, 호스트, 유의사항, 환불규정을 입력하세요." />
-          <div className="admin-chip-options">
-            {["상품 소개", "추천 대상", "일정", "포함/불포함", "장소", "호스트", "환불규정"].map((item) => (
-              <label key={item}>
-                <input defaultChecked type="checkbox" />
-                {item}
-              </label>
-            ))}
-          </div>
+          <input aria-label="한 줄 요약" maxLength={500} onChange={(event) => setSummary(event.target.value)} placeholder="목록 카드에 보이는 한 줄 요약" value={summary} />
+          <textarea aria-label="상품 소개" onChange={(event) => setDescription(event.target.value)} placeholder="상품 소개를 입력하세요." value={description} />
+          <small>추천 대상·일정·포함/불포함·FAQ 같은 항목별 상세 콘텐츠 편집은 아직 연결되지 않았습니다.</small>
         </section>
 
         <section data-active={activeTab === "booking"}>
@@ -269,11 +265,6 @@ export function AdminProductForm() {
                 {item.label}
               </label>
             ))}
-          </div>
-          <div className="admin-form-mini-grid">
-            <input aria-label="최소 인원" placeholder="최소 인원" inputMode="numeric" />
-            <input aria-label="최대 인원" placeholder="최대 인원" inputMode="numeric" />
-            <input aria-label="팀당 인원" placeholder="팀당 인원" inputMode="numeric" />
           </div>
         </section>
 
@@ -373,7 +364,11 @@ export function AdminProductForm() {
           <div className="admin-chip-options">
             {["마감임박", "1자리 남음", "가족 추천", "특가", "프리미엄", "웰니스"].map((item) => (
               <label key={item}>
-                <input type="checkbox" />
+                <input
+                  checked={tags.includes(item)}
+                  onChange={(event) => setTags((current) => (event.target.checked ? [...current, item] : current.filter((tag) => tag !== item)))}
+                  type="checkbox"
+                />
                 {item}
               </label>
             ))}
