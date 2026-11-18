@@ -77,7 +77,8 @@ update users set role = 'admin' where email = '관리자 이메일';
   - `product_images` 테이블(`product_id`, `image_url`, `alt`, `sort_order`)에 저장합니다. 대표 이미지는 여전히 `products.image_url`입니다.
   - `GET/POST/PATCH /api/admin/products/{id}/images`: 목록, 한 장 추가(`imageUrl`, `alt`, `primary`), 순서 변경(`order`에 사진 id 전체). 상품당 12장까지이며 상품 행을 잠그고 셉니다.
   - `PATCH/DELETE /api/admin/products/{id}/images/{imageId}`: 설명 수정, 대표 지정(`primary: true`면 그 사진 주소를 `products.image_url`에 복사), 갤러리에서 빼기.
-  - 갤러리에서 빼도 Blob 파일은 지우지 않습니다. 같은 주소가 대표 이미지나 다른 곳에 쓰이고 있을 수 있고 외부 주소일 수도 있기 때문입니다.
+  - 갤러리에서 빼면 Blob 파일도 함께 지웁니다(`lib/admin/blob-cleanup.ts`). 관리자 업로드로 만든 주소(`*.public.blob.vercel-storage.com`의 업로드 폴더)만 지우고, 같은 주소를 다른 갤러리 행·상품 대표 이미지·배너·기획전·이벤트·저널·카테고리에서 쓰고 있으면 남깁니다. 파일은 DB 커밋 뒤에 지우며, 실패해도 요청은 성공이고 서버 로그만 남습니다. `BLOB_READ_WRITE_TOKEN`이 없는 환경에서는 건너뜁니다. 응답의 `data.file`로 결과(`deleted`/`in-use`/`external`/`no-storage`/`failed`)를 알 수 있습니다.
+  - 상품을 지우거나 대표 이미지를 바꿀 때는 파일을 정리하지 않습니다.
   - 관리자 상품 목록의 행 "상세보기"에 `ProductGalleryEditor`가 있습니다(여러 장 올리기, 주소로 추가, 사진 설명 저장, 앞으로/뒤로, 대표로 지정, 빼기).
   - 고객 상세(`/local-experiences/[slug]`, `/experiences/[slug]`)는 `getProductGallery()`로 읽어, 사진이 있으면 대표 이미지 + 갤러리를, 없으면 대표 이미지 + 공용 샘플 사진을 씁니다. 사진 설명(`alt`)은 `/local-experiences/[slug]`의 "현장 사진" 제목·대체 텍스트로 쓰입니다.
 - 고객 화면 갱신: 홈과 상품·행사·저널·기획전 상세는 빌드 때 만드는 정적 페이지입니다. 관리자 저장 라우트와 예약 접수는 `revalidateSite()`(`lib/admin/revalidate.ts`)로 전체를 무효화해 다음 요청 때 다시 만들게 합니다. 이 호출이 없으면 다음 배포 전까지 예전 내용이 보입니다.
