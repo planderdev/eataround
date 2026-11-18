@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminOk } from "@/lib/admin/api-data";
+import { isImageUrlInUse, isUploadedBlobUrl, removeUploadedBlob, type BlobCleanupResult } from "@/lib/admin/blob-cleanup";
 import { adminError, parseRowId, requireAdmin, trimmed } from "@/lib/admin/guard";
 import { readPayload } from "@/lib/admin/patch";
 import { revalidateSite } from "@/lib/admin/revalidate";
@@ -61,8 +62,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 }
 
 /**
- * 갤러리에서 사진을 뺀다. DB 행만 지우고 저장소(Blob)의 파일은 지우지 않는다.
- * 같은 주소가 상품 대표 이미지나 다른 상품·배너에 쓰이고 있을 수 있고, 외부 주소일 수도 있기 때문이다.
+ * 갤러리에서 사진을 뺀다. 관리자 화면에서 올린 파일이고 다른 곳에서 쓰지 않으면 저장소(Blob)의 파일도 지운다.
+ * 같은 주소가 상품 대표 이미지나 다른 상품·배너 등에 쓰이고 있거나 외부 주소이면 파일은 그대로 둔다.
  */
 export async function DELETE(request: Request, { params }: RouteContext) {
   const { id, imageId } = await params;
@@ -78,12 +79,36 @@ export async function DELETE(request: Request, { params }: RouteContext) {
   const rowId = parseRowId(imageId);
   if (!productId || !rowId) return adminError("상품 또는 사진 번호가 올바르지 않습니다.", 400);
 
-  const [rows] = await getPool().execute<{ id: number }[]>(
-    "delete from product_images where id = ? and product_id = ? returning id",
-    [rowId, productId],
-  );
-  if (!rows.length) return adminError("갤러리 사진을 찾을 수 없습니다.", 404);
+  let imageUrl: string;
+  let inUse = false;
+  const connection = await getPool().getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const [rows] = await connection.query<{ image_url: string }[]>(
+      "delete from product_images where id = ? and product_id = ? returning image_url",
+      [rowId, productId],
+    );
+    if (!rows.length) {
+      await connection.rollback();
+      return adminError("갤러리 사진을 찾을 수 없습니다.", 404);
+    }
+    imageUrl = rows[0].image_url;
+    // 행을 지운 뒤 같은 트랜잭션에서 확인해, 남은 참조만 센다. 외부 주소는 어차피 지우지 않으므로 확인하지 않는다.
+    if (isUploadedBlobUrl(imageUrl)) inUse = await isImageUrlInUse(connection, imageUrl);
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback().catch(() => undefined);
+    throw error;
+  } finally {
+    connection.release();
+  }
+
+  // 파일은 커밋한 뒤에 지운다. 실패해도 사진은 이미 갤러리에서 빠졌으므로 요청은 성공으로 둔다.
+  const file: BlobCleanupResult = inUse ? "in-use" : await removeUploadedBlob(imageUrl);
 
   revalidateSite();
-  return NextResponse.json(adminOk("갤러리에서 사진을 뺐습니다.", { id: rowId }));
+  const message = file === "in-use" ? "갤러리에서 사진을 뺐습니다. 다른 곳에서 쓰고 있어 저장소 파일은 남겼습니다." : "갤러리에서 사진을 뺐습니다.";
+  return NextResponse.json(adminOk(message, { id: rowId, file }));
 }
