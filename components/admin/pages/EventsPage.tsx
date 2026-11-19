@@ -9,6 +9,7 @@ import {
 } from "@/components/admin/AdminLayoutPrimitives";
 import { AdminRowEditor } from "@/components/admin/AdminRowEditor";
 import type { AdminData } from "@/lib/admin/data";
+import { isEventPeriodOver } from "@/lib/event-status";
 
 export function EventsPage({ closed, data }: { closed: boolean; data: AdminData }) {
   const rows = data.adminEvents.filter((event) => (closed ? event.status !== "ongoing" : event.status === "ongoing"));
@@ -17,7 +18,17 @@ export function EventsPage({ closed, data }: { closed: boolean; data: AdminData 
     { key: "period", label: "기간", render: (row) => row.period },
     { key: "venue", label: "장소", render: (row) => row.venue },
     { key: "partner", label: "파트너", render: (row) => row.partner },
-    { key: "status", label: "상태", render: (row) => <AdminStatusBadge tone={row.status === "ongoing" ? "success" : "neutral"}>{row.status === "ongoing" ? "진행중" : "종료"}</AdminStatusBadge> },
+    {
+      key: "status",
+      label: "상태",
+      render: (row) =>
+        isEventPeriodOver(row) ? (
+          // 기간이 끝났는데 종료 처리하지 않은 행사. 사이트에서는 이미 종료 행사로 보인다.
+          <AdminStatusBadge tone="warning">진행중 · 기간 지남</AdminStatusBadge>
+        ) : (
+          <AdminStatusBadge tone={row.status === "ongoing" ? "success" : "neutral"}>{row.status === "ongoing" ? "진행중" : "종료"}</AdminStatusBadge>
+        ),
+    },
   ];
 
   return (
