@@ -19,6 +19,7 @@ import { adminApi } from "@/lib/admin/api";
 import { ADMIN_TOAST_EVENT, type AdminToastEventDetail } from "@/lib/admin/toast";
 import { adminNavItems, getCurrentAdminNavItem } from "@/lib/admin";
 import { withBasePath } from "@/lib/paths";
+import { useSession } from "@/lib/useSession";
 
 type AdminToast = {
   id: number;
@@ -29,6 +30,7 @@ type AdminToast = {
 export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>) {
   const pathname = usePathname();
   const router = useRouter();
+  const session = useSession();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
@@ -544,9 +546,9 @@ export function AdminShell({ children }: Readonly<{ children: React.ReactNode }>
           </label>
           {searchCount !== null ? <span className="admin-search-count">{searchCount}개 결과</span> : null}
           <div className="admin-topbar-actions">
-            <span className="admin-user-chip">
-              김선재
-              <b>SUPER_ADMIN</b>
+            <span className="admin-user-chip" title={session.user?.email}>
+              {session.user ? session.user.name : session.status === "loading" ? "…" : "샘플 모드"}
+              <b>{session.user?.role === "admin" ? "관리자" : session.user ? "회원" : "로그인 없음"}</b>
             </span>
             <Link className="admin-topbar-link" href="/" target="_blank">
               사이트 보기
