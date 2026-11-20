@@ -29,8 +29,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // 회원 전용 화면
-  if (process.env.NEXT_PUBLIC_USE_MOCK !== "false") {
+  // 회원 전용 화면: DB가 연결된 환경이거나 샘플 모드를 끈 환경에서는 로그인이 있어야 한다.
+  // (DB가 연결됐는데 NEXT_PUBLIC_USE_MOCK이 빠져 있어도 마이페이지가 로그인 없이 열리지 않게 한다.)
+  if (!hasDatabase() && process.env.NEXT_PUBLIC_USE_MOCK !== "false") {
     return NextResponse.next();
   }
 

@@ -7,6 +7,7 @@ import { Pagination } from "@/components/Pagination";
 import { SectionHeader } from "@/components/SectionHeader";
 import { SortSelect } from "@/components/SortSelect";
 import { getEvents } from "@/lib/content";
+import { deriveEventStatus, periodTimestamp } from "@/lib/event-status";
 
 export const metadata: Metadata = {
   title: "진행중인 행사",
@@ -37,23 +38,6 @@ function parsePage(value?: string) {
 function normalizeSort(value?: string): string {
   if (value && sortOptions.some((option) => option.value === value)) return value;
   return "recommended";
-}
-
-function periodTimestamp(period: string, segment: 0 | 1) {
-  const dateText = period.split("-")[segment]?.trim().replace(/\./g, "-");
-  const timestamp = dateText ? Date.parse(dateText) : Number.NaN;
-  return Number.isFinite(timestamp) ? timestamp : 0;
-}
-
-function deriveEventStatus(event: EventList[number]): "upcoming" | "ongoing" | "ended" {
-  const now = new Date();
-  const start = periodTimestamp(event.period, 0);
-  const end = periodTimestamp(event.period, 1);
-
-  if (!start || !end) return event.status === "ended" ? "ended" : "ongoing";
-  if (now.getTime() < start) return "upcoming";
-  if (now.getTime() > end + 86_399_999) return "ended";
-  return "ongoing";
 }
 
 function sortEvents(events: EventList, sort: string) {

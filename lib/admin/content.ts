@@ -558,3 +558,38 @@ export function getAdminCategories() {
       })),
   );
 }
+
+export type AdminAccountRow = {
+  name: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  status: string;
+};
+
+/** 관리자 계정 목록. DB에서는 users.role = 'admin'인 계정을 읽는다. */
+export function getAdminAccounts() {
+  return safeQuery(
+    async () => {
+      const [rows] = await getPool().query<
+        (RowDataPacket & { name: string; email: string; created_at: Date | string | null })[]
+      >(
+        `select name, email, created_at
+           from users
+          where role = 'admin'
+          order by created_at asc`,
+      );
+      return rows.map<AdminAccountRow>((row) => ({
+        name: row.name,
+        email: row.email,
+        role: "관리자",
+        createdAt: row.created_at ? new Date(row.created_at).toISOString().slice(0, 10) : "-",
+        status: "활성",
+      }));
+    },
+    () => [
+      { name: "김선재", email: "hello@eataround.co.kr", role: "SUPER_ADMIN", createdAt: "2026-05-19", status: "활성" },
+      { name: "운영팀", email: "ops@eataround.co.kr", role: "OPERATOR", createdAt: "2026-05-18", status: "활성" },
+    ],
+  );
+}
