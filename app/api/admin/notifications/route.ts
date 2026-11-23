@@ -13,11 +13,12 @@ const sampleNotifications: AdminNotification[] = [
 async function loadNotifications(): Promise<AdminNotification[]> {
   if (!hasDatabaseConfig()) return sampleNotifications;
 
-  const [rows] = await getPool().query<{ reservations: number; quotes: number; members: number; reviews: number }[]>(
+  const [rows] = await getPool().query<{ reservations: number; quotes: number; members: number; reviews: number; inquiries: number }[]>(
     `select (select count(*) from reservations where status = 'requested') as reservations,
             (select count(*) from quote_requests where status = 'requested') as quotes,
             (select count(*) from users where member_type = 'company' and company_approved = 0 and company_rejected_reason is null) as members,
-            (select count(*) from product_reviews where status = 'pending') as reviews`,
+            (select count(*) from product_reviews where status = 'pending') as reviews,
+            (select count(*) from inquiries where status = 'open') as inquiries`,
   );
   const counts = rows[0];
   const items: AdminNotification[] = [];
@@ -25,6 +26,7 @@ async function loadNotifications(): Promise<AdminNotification[]> {
   if (counts.quotes) items.push({ id: "quotes", category: "견적", title: `새 견적 요청 ${counts.quotes}건`, href: "/admin/quotes", unread: true });
   if (counts.members) items.push({ id: "members", category: "회원", title: `승인 대기 기업회원 ${counts.members}건`, href: "/admin/members/corporate", unread: true });
   if (counts.reviews) items.push({ id: "reviews", category: "리뷰", title: `검수 대기 리뷰 ${counts.reviews}건`, href: "/admin/reviews", unread: true });
+  if (counts.inquiries) items.push({ id: "inquiries", category: "문의", title: `답변 대기 문의 ${counts.inquiries}건`, href: "/admin/inquiries", unread: true });
   return items;
 }
 

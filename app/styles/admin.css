@@ -3489,6 +3489,12 @@
   gap: var(--admin-space-16);
 }
 
+.admin-inquiry-body {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
 .admin-quote-adjustment-panel {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -5657,4 +5663,25 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+.admin-member-export-list {
+  display: grid;
+  gap: var(--admin-space-12, 12px);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-top: var(--admin-space-16);
+}
+
+.admin-member-export-list a {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  height: auto;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+.admin-member-export-list a[aria-disabled="true"] {
+  opacity: 0.5;
+  pointer-events: none;
 }

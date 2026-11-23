@@ -3,6 +3,7 @@ import {
   RiArticleLine,
   RiBarChartBoxLine,
   RiBookOpenLine,
+  RiQuestionAnswerLine,
   RiBuilding2Line,
   RiCalendarCheckLine,
   RiCalendarLine,
@@ -57,12 +58,20 @@ export const adminNavItems: AdminNavItem[] = [
   { id: "packages", label: "패키지관리", href: "/admin/packages", icon: RiBuilding2Line, group: "B2B" },
   { id: "quotes", label: "견적관리", href: "/admin/quotes", icon: RiFileTextLine, group: "B2B" },
   { id: "reviews", label: "리뷰관리", href: "/admin/reviews", icon: RiShieldUserLine, group: "콘텐츠관리" },
+  { id: "inquiries", label: "고객 문의", href: "/admin/inquiries", icon: RiQuestionAnswerLine, group: "예약관리" },
   { id: "settings-admins", label: "관리자 계정", href: "/admin/settings/admins", icon: RiUserSettingsLine, group: "설정", badge: "SUPER" },
   { id: "settings-site", label: "사이트 기본정보", href: "/admin/settings/site", icon: RiSettings3Line, group: "설정" },
   { id: "settings-policies", label: "약관·정책", href: "/admin/settings/policies", icon: RiLockPasswordLine, group: "설정", badge: "SUPER" },
 ];
 
 export const adminRouteConfigs: AdminRouteConfig[] = [
+  {
+    key: "inquiries",
+    title: "고객 문의",
+    eyebrow: "Inquiries",
+    description: "상품 상세와 고객센터에서 들어온 문의에 답변하고 처리 상태를 관리합니다. 답변은 고객 마이페이지 문의 내역에 보입니다.",
+    mode: "list",
+  },
   {
     key: "dashboard",
     title: "대시보드",
@@ -84,8 +93,7 @@ export const adminRouteConfigs: AdminRouteConfig[] = [
     key: "members/general/export",
     title: "회원 내보내기",
     eyebrow: "Members Export",
-    description: "일반회원 목록을 조건별로 필터링하고 개인정보 마스킹 기준을 설정해 내보냅니다.",
-    primaryAction: "내보내기 실행",
+    description: "회원 목록을 CSV 파일로 내려받습니다. 엑셀에서 바로 열 수 있습니다.",
     mode: "form",
   },
   {
