@@ -36,6 +36,7 @@ import {
   type PackageProgram,
   type ScheduleStock,
 } from "@/lib/data";
+import { deriveEventStatus } from "@/lib/event-status";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import { curationPath, normalizeUserHref, userRoutes } from "@/lib/routes";
 
@@ -326,6 +327,8 @@ async function readProducts(): Promise<Experience[]> {
             max_teams, reserved_teams, team_capacity, reservation_type, approval_required
        from product_schedules
       where product_id in (${placeholders(ids.length)}) and status = 'open'
+        -- 지난 날짜 회차는 예약 화면에 내놓지 않는다(서울 기준 오늘부터).
+        and schedule_date >= (now() at time zone 'Asia/Seoul')::date
       order by schedule_date asc`,
     ids,
   );
@@ -387,6 +390,16 @@ export async function getExperience(slug: string) {
 }
 
 export async function getEvents() {
+  const events = await readEvents();
+  // 저장 상태가 진행중이어도 기간이 끝난 행사는 사이트·대시보드에서 종료로 다룬다.
+  return events.map<EventItem>((event) =>
+    event.status === "ongoing" && deriveEventStatus(event) === "ended"
+      ? { ...event, status: "ended", badge: "포트폴리오" }
+      : event,
+  );
+}
+
+async function readEvents() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<EventRow[]>(

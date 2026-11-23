@@ -26,6 +26,12 @@ export async function POST(request: Request) {
     approvalRequired?: boolean;
   };
 
+  // 지난 날짜 회차로는 예약을 받지 않는다(서울 기준 오늘부터). "상시 협의" 같은 문의 일정은 그대로 둔다.
+  const todayInSeoul = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul" }).format(new Date());
+  if (payload.date && /^\d{4}-\d{2}-\d{2}$/.test(payload.date) && payload.date < todayInSeoul) {
+    return NextResponse.json({ ok: false, message: "지난 날짜의 회차는 예약할 수 없습니다. 다른 일정을 선택해 주세요." }, { status: 409 });
+  }
+
   if (hasDatabaseConfig()) {
     const pool = getPool();
     const people = Math.max(Number(payload.people ?? 1), 1);

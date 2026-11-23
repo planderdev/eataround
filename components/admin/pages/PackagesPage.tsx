@@ -36,7 +36,7 @@ export function PackagesPage({ data }: { data: AdminData }) {
             {data.discountTiers.map((tier) => (
               <p key={tier.min}>
                 {tier.label}
-                <b>{tier.rate}%</b>
+                <b>{tier.rate ? `${Math.round(tier.rate * 100)}%` : "정상가"}</b>
               </p>
             ))}
           </div>

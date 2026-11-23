@@ -10,27 +10,25 @@ import {
   ListFrame,
   RowActionButtons,
 } from "@/components/admin/AdminLayoutPrimitives";
+import type { AdminAccountRow } from "@/lib/admin/content";
 
 type SettingsType = "admins" | "site" | "policies";
 
-export function SettingsPage({ type }: { type: SettingsType }) {
+export function SettingsPage({ type, admins }: { type: SettingsType; admins?: AdminAccountRow[] }) {
   if (type === "admins") {
-    const rows = [
-      { name: "김선재", email: "hello@eataround.co.kr", role: "SUPER_ADMIN", lastLogin: "2026-05-19 10:30", status: "활성" },
-      { name: "운영팀", email: "ops@eataround.co.kr", role: "OPERATOR", lastLogin: "2026-05-18 18:20", status: "활성" },
-    ];
+    const rows = admins ?? [];
     const columns: AdminTableColumn<(typeof rows)[number]>[] = [
       { key: "name", label: "이름", render: (row) => <strong>{row.name}</strong> },
       { key: "email", label: "이메일", render: (row) => row.email },
       { key: "role", label: "역할", render: (row) => row.role },
-      { key: "lastLogin", label: "마지막 로그인", render: (row) => row.lastLogin },
+      { key: "createdAt", label: "등록일", render: (row) => row.createdAt },
       { key: "status", label: "상태", render: (row) => <AdminStatusBadge tone="success">{row.status}</AdminStatusBadge> },
     ];
     return (
       <ListFrame
         filters={[
           { label: "검색어", name: "query", placeholder: "이름, 이메일" },
-          { label: "역할", name: "role", type: "select", options: ["SUPER_ADMIN", "OPERATOR"] },
+          { label: "역할", name: "role", type: "select", options: ["관리자"] },
           { label: "상태", name: "status", type: "select", options: ["활성", "잠금", "초대중"] },
         ]}
         resultLabel="관리자 계정과 권한"
@@ -44,8 +42,8 @@ export function SettingsPage({ type }: { type: SettingsType }) {
               items={[
                 ["계정", row.email],
                 ["역할", row.role],
-                ["마지막 로그인", row.lastLogin],
-                ["권한 범위", row.role === "SUPER_ADMIN" ? "전체 메뉴" : "운영 메뉴"],
+                ["등록일", row.createdAt],
+                ["권한 범위", row.role === "OPERATOR" ? "운영 메뉴" : "전체 메뉴"],
               ]}
             />
           )}
