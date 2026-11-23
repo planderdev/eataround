@@ -1,5 +1,6 @@
 "use client";
 
+import { safeRedirectPath } from "@/lib/routes";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -39,7 +40,8 @@ export function AdminLoginForm() {
 
     // 세션 쿠키는 서버가 httpOnly로 발급한다.
     const redirect = new URLSearchParams(window.location.search).get("redirect");
-    router.push(redirect && redirect.startsWith("/admin") ? redirect : "/admin/dashboard");
+    const target = safeRedirectPath(redirect, "/admin/dashboard");
+    router.push(target.startsWith("/admin") ? target : "/admin/dashboard");
     router.refresh();
   }
 

@@ -84,8 +84,8 @@ export function SettingsPage({ type, admins }: { type: SettingsType; admins?: Ad
       </article>
       <aside className="admin-card admin-settings-guard">
         <RiShieldCheckLine size={22} />
-        <strong>변경 시 운영팀 알림</strong>
-        <p>주요 설정 변경은 운영팀에 자동으로 안내되며, 변경 이력은 감사 로그로 저장됩니다.</p>
+        <strong>변경 기록 안내</strong>
+        <p>설정 변경 이력과 운영팀 자동 안내는 아직 저장·발송하지 않습니다.</p>
       </aside>
     </section>
   );

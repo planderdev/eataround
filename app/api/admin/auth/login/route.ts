@@ -1,19 +1,11 @@
 import { NextResponse } from "next/server";
-import type { RowDataPacket } from "@/lib/db";
-import { getPool, hasDatabaseConfig } from "@/lib/db";
-import { verifyPassword } from "@/lib/password";
+import { hasDatabaseConfig } from "@/lib/db";
+import { checkLogin } from "@/lib/login-guard";
 import { SESSION_COOKIE } from "@/lib/session";
 import { createSessionToken, isSessionSigningReady } from "@/lib/session-token";
 import type { AuthLoginPayload } from "@/types/api";
 
 export const runtime = "nodejs";
-
-type AdminRow = RowDataPacket & {
-  id: number;
-  name: string;
-  password_hash: string;
-  role: "user" | "admin";
-};
 
 // 관리자 세션은 일반 회원보다 짧게 유지한다.
 const ADMIN_SESSION_SECONDS = 60 * 60 * 8;
@@ -37,16 +29,10 @@ export async function POST(request: Request) {
   // DB가 연결된 환경에서는 users.role = 'admin' 계정만 통과시킨다.
   // DB가 없는 샘플 모드에서는 실제 데이터가 없으므로 화면 확인용으로 통과시킨다.
   if (hasDatabaseConfig()) {
-    const pool = getPool();
-    const [rows] = await pool.query<AdminRow[]>(
-      "select id, name, password_hash, role from users where email = ? limit 1",
-      [payload.email],
-    );
-    const user = rows[0];
-
-    if (!user || !verifyPassword(payload.password, user.password_hash) || user.role !== "admin") {
-      return NextResponse.json({ ok: false, message: "이메일 또는 비밀번호를 확인해 주세요." }, { status: 401 });
-    }
+    // 비밀번호를 5번 연속 틀리면 30분 동안 잠근다(회원 로그인과 같은 규칙).
+    const result = await checkLogin(payload.email, payload.password, (user) => user.role === "admin");
+    if (!result.ok) return NextResponse.json({ ok: false, message: result.message }, { status: result.status });
+    const user = result.user;
 
     userId = String(user.id);
     userName = user.name;

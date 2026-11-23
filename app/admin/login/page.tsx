@@ -19,7 +19,7 @@ export default function AdminLoginPage() {
         <div>
           <span>OPERATIONS</span>
           <strong>예약, 견적, 상품, 콘텐츠를 한 흐름에서 관리합니다.</strong>
-          <p>이더라운드 운영팀 전용 콘솔입니다. 관리자 작업은 감사 로그와 권한 정책 기준으로 기록됩니다.</p>
+          <p>이더라운드 운영팀 전용 콘솔입니다. 관리자 권한이 있는 계정만 로그인할 수 있습니다.</p>
         </div>
       </aside>
       <article className="admin-login-card">

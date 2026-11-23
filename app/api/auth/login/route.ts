@@ -1,21 +1,11 @@
 import { NextResponse } from "next/server";
-import type { RowDataPacket } from "@/lib/db";
-import { getPool, hasDatabaseConfig } from "@/lib/db";
-import { verifyPassword } from "@/lib/password";
+import { hasDatabaseConfig } from "@/lib/db";
+import { checkLogin } from "@/lib/login-guard";
 import { SESSION_COOKIE } from "@/lib/session";
 import { createSessionToken, isSessionSigningReady } from "@/lib/session-token";
 import type { AuthLoginPayload } from "@/types/api";
 
 export const runtime = "nodejs";
-
-type UserRow = RowDataPacket & {
-  id: number;
-  email: string;
-  name: string;
-  password_hash: string;
-  member_type: "personal" | "company";
-  role: "user" | "admin";
-};
 
 export async function POST(request: Request) {
   const payload = (await request.json().catch(() => ({}))) as Partial<AuthLoginPayload>;
@@ -34,16 +24,9 @@ export async function POST(request: Request) {
   let userRole: "user" | "admin" = "user";
 
   if (hasDatabaseConfig()) {
-    const pool = getPool();
-    const [rows] = await pool.query<UserRow[]>(
-      "select id, email, name, password_hash, member_type, role from users where email = ? limit 1",
-      [payload.email],
-    );
-    const user = rows[0];
-
-    if (!user || !verifyPassword(payload.password, user.password_hash)) {
-      return NextResponse.json({ ok: false, message: "이메일 또는 비밀번호를 확인해 주세요." }, { status: 401 });
-    }
+    const result = await checkLogin(payload.email, payload.password);
+    if (!result.ok) return NextResponse.json({ ok: false, message: result.message }, { status: result.status });
+    const user = result.user;
 
     userId = String(user.id);
     userName = user.name;
