@@ -1,4 +1,5 @@
 import { CategoryStrip } from "@/components/CategoryStrip";
+import { EmptyState } from "@/components/EmptyState";
 import { EventCard } from "@/components/EventCard";
 import { ExperienceCard } from "@/components/ExperienceCard";
 import { HeroBanner, type HeroRankingItem } from "@/components/HeroBanner";
@@ -89,12 +90,21 @@ export default async function HomePage() {
       <div className="section-band section-band--soft">
         <section className="main-section mobile-carousel-section" data-aos="fade-up">
           <SectionHeader eyebrow="Live Events" title="진행중인 행사" href="/events" actionLabel="행사 전체보기" />
-          <div className="event-grid">
-            {ongoingEvents.map((event) => (
-              <EventCard event={event} key={event.slug} />
-            ))}
-          </div>
-          <MobileSwipeCarousel ctaHref="/events" ctaLabel="행사 전체보기" items={eventSwipeItems} />
+          {ongoingEvents.length ? (
+            <>
+              <div className="event-grid">
+                {ongoingEvents.map((event) => (
+                  <EventCard event={event} key={event.slug} />
+                ))}
+              </div>
+              <MobileSwipeCarousel ctaHref="/events" ctaLabel="행사 전체보기" items={eventSwipeItems} />
+            </>
+          ) : (
+            <EmptyState
+              title="지금 진행중인 행사가 없습니다."
+              description="지난 행사는 행사 페이지의 종료된 행사에서 볼 수 있습니다."
+            />
+          )}
         </section>
       </div>
 

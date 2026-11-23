@@ -36,6 +36,7 @@ import {
   type PackageProgram,
   type ScheduleStock,
 } from "@/lib/data";
+import { deriveEventStatus } from "@/lib/event-status";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import { curationPath, normalizeUserHref, userRoutes } from "@/lib/routes";
 
@@ -387,6 +388,16 @@ export async function getExperience(slug: string) {
 }
 
 export async function getEvents() {
+  const events = await readEvents();
+  // 저장 상태가 진행중이어도 기간이 끝난 행사는 사이트·대시보드에서 종료로 다룬다.
+  return events.map<EventItem>((event) =>
+    event.status === "ongoing" && deriveEventStatus(event) === "ended"
+      ? { ...event, status: "ended", badge: "포트폴리오" }
+      : event,
+  );
+}
+
+async function readEvents() {
   return safeQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<EventRow[]>(
