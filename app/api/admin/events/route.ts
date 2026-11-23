@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { adminApiData, adminOk, paginated } from "@/lib/admin/api-data";
-import { requireAdmin } from "@/lib/admin/guard";
+import { requireAdmin, requireAdminWhenConnected } from "@/lib/admin/guard";
 import { insertRow, makeSlug, readPayload, type FieldSpec } from "@/lib/admin/patch";
 import { hasDatabaseConfig } from "@/lib/db";
 
@@ -16,6 +16,8 @@ const SPECS: Record<string, FieldSpec> = {
 };
 
 export async function GET(request: Request) {
+  const denied = await requireAdminWhenConnected(request);
+  if (denied) return denied;
   return NextResponse.json(paginated(request, adminApiData.events));
 }
 

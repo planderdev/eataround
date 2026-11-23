@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { connection } from "next/server";
 import { QuotePrintButton } from "@/components/admin/QuotePrintButton";
+import { requireAdminPage } from "@/lib/admin/data";
 import { withStrictDatabase } from "@/lib/db-strict";
 import { getAdminQuoteRequest } from "@/lib/content";
 import { formatWon } from "@/lib/format";
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default async function AdminQuotePreviewPage({ params }: PageProps) {
   // 저장한 금액·상태가 바로 반영되도록 요청마다 DB에서 읽는다.
-  await connection();
+  await requireAdminPage();
   const { id } = await params;
   const quote = await withStrictDatabase(() => getAdminQuoteRequest(decodeURIComponent(id)));
 
