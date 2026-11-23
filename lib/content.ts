@@ -36,6 +36,7 @@ import {
   type PackageProgram,
   type ScheduleStock,
 } from "@/lib/data";
+import { isStrictDatabase } from "@/lib/db-strict";
 import { deriveEventStatus } from "@/lib/event-status";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import { curationPath, normalizeUserHref, userRoutes } from "@/lib/routes";
@@ -234,9 +235,17 @@ async function safeQuery<T>(query: () => Promise<T>, fallback: T) {
   try {
     return await query();
   } catch (error) {
+    // 관리자 화면 안에서는 샘플로 바꾸지 않고 오류를 그대로 올린다(lib/db-strict.ts).
+    if (isStrictDatabase()) throw error;
     console.warn("Database query failed. Falling back to bundled sample data.", error);
     return fallback;
   }
+}
+
+/** 관리자 전용 조회. DB가 연결돼 있으면 실패해도 샘플 데이터를 돌려주지 않는다. */
+async function adminQuery<T>(query: () => Promise<T>, fallback: T) {
+  if (!hasDatabaseConfig()) return fallback;
+  return query();
 }
 
 function placeholders(count: number) {
@@ -636,7 +645,7 @@ function reservationStatusLabel(status: string, approvalRequired: number | null)
 }
 
 export async function getAdminReservations() {
-  return safeQuery(async () => {
+  return adminQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<ReservationRow[]>(
       `select r.id,
@@ -675,7 +684,7 @@ export async function getAdminReservations() {
 }
 
 export async function getAdminQuoteRequests() {
-  return safeQuery(async () => {
+  return adminQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<QuoteRequestRow[]>(
       `select id, admin_memo, start_date, end_date, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
@@ -807,7 +816,7 @@ export async function getProductReviews(slug: string) {
 }
 
 export async function getAdminMembers() {
-  return safeQuery(async () => {
+  return adminQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<MemberRow[]>(
       `select id, name, organization_name, member_type, email, company_approved, company_rejected_reason, role

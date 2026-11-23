@@ -1,5 +1,6 @@
 import "server-only";
 import { connection } from "next/server";
+import { withStrictDatabase } from "@/lib/db-strict";
 import {
   getAdminMembers,
   getAdminQuoteRequests,
@@ -52,7 +53,7 @@ export async function loadAdminData() {
     adminReviews,
     adminJournals,
     adminCategories,
-  ] = await Promise.all([
+  ] = await withStrictDatabase(() => Promise.all([
     getExperiences(),
     getEvents(),
     getJournals(),
@@ -74,8 +75,10 @@ export async function loadAdminData() {
     getAdminReviews(),
     getAdminJournals(),
     getAdminCategories(),
-  ]);
-  const productReviews = await Promise.all(experiences.slice(0, 4).map((experience) => getProductReviews(experience.slug)));
+  ]));
+  const productReviews = await withStrictDatabase(() =>
+    Promise.all(experiences.slice(0, 4).map((experience) => getProductReviews(experience.slug))),
+  );
 
   return {
     // 관리자 목록 전용(비노출·마감 포함, DB 행 id 포함)

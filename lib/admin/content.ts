@@ -95,14 +95,11 @@ export type AdminReviewRow = {
   status: "pending" | "approved" | "hidden";
 };
 
+// 관리자 조회는 DB가 연결돼 있으면 실패해도 샘플 데이터로 바꾸지 않는다.
+// 운영자가 예시 데이터를 실제 데이터로 오해하지 않도록 오류 화면을 보인다.
 async function safeQuery<T>(query: () => Promise<T>, fallback: () => T) {
   if (!hasDatabaseConfig()) return fallback();
-  try {
-    return await query();
-  } catch (error) {
-    console.warn("Admin query failed. Falling back to bundled sample data.", error);
-    return fallback();
-  }
+  return query();
 }
 
 const BANNER_SLOT: Record<string, string> = {

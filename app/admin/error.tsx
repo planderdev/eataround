@@ -21,6 +21,8 @@ export default function AdminError({ error, reset }: { error: Error & { digest?:
         <h1>관리자 화면을 불러오지 못했습니다</h1>
         <p>
           일시적인 오류가 발생했습니다. 잠시 후 다시 시도하거나 대시보드로 돌아가 주세요.
+          <br />
+          데이터베이스 조회에 실패하면 예시 데이터 대신 이 화면을 보여 줍니다.
           {error.digest ? <><br /><small>오류 코드: {error.digest}</small></> : null}
         </p>
         <div className="admin-status-page-actions">
