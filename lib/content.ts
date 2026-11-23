@@ -327,6 +327,8 @@ async function readProducts(): Promise<Experience[]> {
             max_teams, reserved_teams, team_capacity, reservation_type, approval_required
        from product_schedules
       where product_id in (${placeholders(ids.length)}) and status = 'open'
+        -- 지난 날짜 회차는 예약 화면에 내놓지 않는다(서울 기준 오늘부터).
+        and schedule_date >= (now() at time zone 'Asia/Seoul')::date
       order by schedule_date asc`,
     ids,
   );
