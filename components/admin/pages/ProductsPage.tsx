@@ -9,6 +9,7 @@ import {
   ListFrame,
 } from "@/components/admin/AdminLayoutPrimitives";
 import { AdminRowEditor } from "@/components/admin/AdminRowEditor";
+import { ProductDetailContentEditor } from "@/components/admin/ProductDetailContentEditor";
 import { ProductGalleryEditor } from "@/components/admin/ProductGalleryEditor";
 import { GALLERY_MAX_IMAGES } from "@/lib/admin/gallery-rules";
 import type { AdminData } from "@/lib/admin/data";
@@ -97,6 +98,7 @@ export function ProductsPage({ data }: { data: AdminData }) {
               saveLabel="상품 저장"
             />
             <ProductGalleryEditor images={row.gallery} maxImages={GALLERY_MAX_IMAGES} primaryImageUrl={row.imageUrl} productId={row.id} />
+            <ProductDetailContentEditor productId={row.id} />
           </>
         )}
         rowId={(row) => row.id}
