@@ -27,7 +27,9 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`Request failed: ${response.status}`);
+    // 서버가 알려 준 이유가 있으면 그 문구로 실패를 알린다.
+    const body = (await response.json().catch(() => null)) as { message?: string } | null;
+    throw new Error(body?.message ?? `요청을 처리하지 못했습니다. (${response.status})`);
   }
 
   return response.json() as Promise<T>;
