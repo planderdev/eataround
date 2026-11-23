@@ -683,31 +683,53 @@ export async function getAdminReservations() {
   }, fallbackAdminReservations);
 }
 
+const ADMIN_QUOTE_COLUMNS =
+  "id, admin_memo, start_date, end_date, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids";
+
+function mapAdminQuote(row: QuoteRequestRow): AdminQuoteRequest {
+  return {
+    id: row.id,
+    statusCode: row.status,
+    adminMemo: row.admin_memo ?? undefined,
+    period: [row.start_date, row.end_date].filter(Boolean).map((date) => formatSqlDate(date)).join(" - ") || undefined,
+    org: row.organization_name ?? "기관명 미입력",
+    contact: row.contact_name ?? undefined,
+    people: row.people,
+    program: parseJsonList(row.program_ids).join(", ") || "프로그램 미선택",
+    budget: row.budget_label ?? "예산 미입력",
+    status: QUOTE_STATUS_LABEL[row.status] ?? row.status,
+    estimatedTotal: row.estimated_total ?? undefined,
+    options: parseJsonList(row.option_ids).join(", ") || undefined,
+  };
+}
+
 export async function getAdminQuoteRequests() {
   return adminQuery(async () => {
     const pool = getPool();
     const [rows] = await pool.query<QuoteRequestRow[]>(
-      `select id, admin_memo, start_date, end_date, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
+      `select ${ADMIN_QUOTE_COLUMNS}
          from quote_requests
         order by created_at desc
         limit 500`,
     );
 
-    return rows.map<AdminQuoteRequest>((row) => ({
-      id: row.id,
-      statusCode: row.status,
-      adminMemo: row.admin_memo ?? undefined,
-      period: [row.start_date, row.end_date].filter(Boolean).map((date) => formatSqlDate(date)).join(" - ") || undefined,
-      org: row.organization_name ?? "기관명 미입력",
-      contact: row.contact_name ?? undefined,
-      people: row.people,
-      program: parseJsonList(row.program_ids).join(", ") || "프로그램 미선택",
-      budget: row.budget_label ?? "예산 미입력",
-      status: QUOTE_STATUS_LABEL[row.status] ?? row.status,
-      estimatedTotal: row.estimated_total ?? undefined,
-      options: parseJsonList(row.option_ids).join(", ") || undefined,
-    }));
+    return rows.map(mapAdminQuote);
   }, fallbackAdminQuoteRequests);
+}
+
+/** 견적 한 건을 번호로 찾는다(기관명으로 찾지 않는다). */
+export async function getAdminQuoteRequest(key: string): Promise<AdminQuoteRequest | null> {
+  if (!hasDatabaseConfig()) {
+    const match = /^sample-(\d+)$/.exec(key);
+    return match ? (fallbackAdminQuoteRequests[Number(match[1]) - 1] ?? null) : null;
+  }
+  if (!/^[1-9]\d{0,15}$/.test(key)) return null;
+
+  const [rows] = await getPool().query<QuoteRequestRow[]>(
+    `select ${ADMIN_QUOTE_COLUMNS} from quote_requests where id = ? limit 1`,
+    [Number(key)],
+  );
+  return rows[0] ? mapAdminQuote(rows[0]) : null;
 }
 
 export async function getProductDetailContent(slug: string) {
