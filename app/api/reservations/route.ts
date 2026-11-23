@@ -63,6 +63,11 @@ export async function POST(request: Request) {
   if (!payload.productSlug || !payload.date || !payload.timeLabel) {
     return fail("예약할 회차를 선택해 주세요.", 400);
   }
+  // 형식만 맞고 없는 날짜(2026-13-45 등)는 DB 오류(500)가 되기 전에 막는다.
+  const parsedDate = new Date(`${payload.date}T00:00:00Z`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(payload.date) || Number.isNaN(parsedDate.getTime()) || parsedDate.toISOString().slice(0, 10) !== payload.date) {
+    return fail("예약 날짜를 다시 확인해 주세요.", 400);
+  }
 
   const pool = getPool();
   const connection = await pool.getConnection();
@@ -87,6 +92,7 @@ export async function POST(request: Request) {
 
     const schedule = scheduleRows[0];
     // 회차가 없으면 재고를 확인할 수 없으므로 받지 않는다. 일정이 없는 상품은 문의 양식으로 접수한다.
+    // 문의형 회차는 회차 정보와 함께 reservation_type='inquiry' 예약으로 저장한다.
     if (!schedule) {
       await connection.rollback();
       return fail("선택한 회차를 찾을 수 없습니다. 일정을 다시 선택해 주세요.", 409);
@@ -95,10 +101,6 @@ export async function POST(request: Request) {
     if (schedule.status === "closed") {
       await connection.rollback();
       return fail("마감된 회차입니다. 다른 일정을 선택해 주세요.", 409);
-    }
-    if (schedule.reservation_type === "inquiry") {
-      await connection.rollback();
-      return fail("이 회차는 문의로 접수합니다. 문의 양식을 이용해 주세요.", 409);
     }
     if (schedule.capacity - schedule.booked < people) {
       await connection.rollback();

@@ -86,7 +86,8 @@ export async function getDashboardStats(sample: SampleInput): Promise<DashboardS
     pool.query<(RowDataPacket & { label: string; count: number })[]>(
       `select coalesce(nullif(p.category, ''), '미분류') as label, count(*)::int as count
          from reservations r
-         left join products p on p.id = r.product_id
+         -- 예전 방식으로 저장돼 product_id가 빈 예약은 상품 주소(slug)로 찾는다(예약 목록과 같은 기준).
+         left join products p on p.id = r.product_id or (r.product_id is null and p.slug = r.product_slug)
         where r.status <> 'canceled'
         group by 1
         order by 2 desc, 1 asc`,

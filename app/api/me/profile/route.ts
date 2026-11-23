@@ -97,11 +97,12 @@ export async function PATCH(request: Request) {
     values.push(phone);
   }
   if (profilePayload.organization !== undefined) {
-    if (user.memberType !== "company") return fail("기관명은 기업·단체회원만 바꿀 수 있습니다.", 400);
+    // 일반회원은 소속을 비워 둘 수 있고, 기업·단체회원은 기관명이 있어야 한다.
     const organization = String(profilePayload.organization).trim();
-    if (!organization || organization.length > 160) return fail("기관명은 1~160자로 입력해 주세요.", 400);
+    if (organization.length > 160) return fail("소속은 160자 이내로 입력해 주세요.", 400);
+    if (!organization && user.memberType === "company") return fail("기관명을 입력해 주세요.", 400);
     updates.push("organization_name = ?");
-    values.push(organization);
+    values.push(organization || null);
   }
 
   if (!updates.length) return fail("바꿀 정보가 없습니다.", 400);
