@@ -108,9 +108,6 @@ function SchedulePanel({ experience, variant = "default" }: BookingPanelProps) {
           date: selected.date,
           timeLabel: selected.label,
           people,
-          totalAmount: total,
-          reservationType: selected.reservationType ?? "approval",
-          approvalRequired: selected.approvalRequired ?? true,
         }),
       });
       const contentType = response.headers.get("content-type") ?? "";
@@ -119,6 +116,11 @@ function SchedulePanel({ experience, variant = "default" }: BookingPanelProps) {
 
       if (response.ok || isStaticPreviewMiss) {
         router.push(`${userRoutes.bookingComplete}?product=${encodeURIComponent(experience.slug)}`);
+        return;
+      }
+
+      if (response.status === 401) {
+        router.push(`${userRoutes.login}?redirect=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`);
         return;
       }
 

@@ -15,6 +15,7 @@ import {
   RiSubtractLine,
 } from "@remixicon/react";
 import { detectBookingMode } from "@/lib/booking-mode";
+import { bookingOptionPrices, calculateBookingTotal, recommendedBookingOptions } from "@/lib/booking-price";
 import type { Experience, ScheduleStock } from "@/lib/data";
 import { formatWon, getStockText, getTeamStockText } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
@@ -33,26 +34,7 @@ type OptionItem = {
   price: number;
 };
 
-const recommendedOptions = [
-  {
-    title: "제주 로컬 키친 근처 산책 코스",
-    summary: "체험 전후로 함께 둘러보기 좋은 동네 산책 루트",
-    price: 30500,
-    image: "https://cdn.imweb.me/thumbnail/20230831/65c0d9fa53fd2.jpg",
-  },
-  {
-    title: "공항 출발 프라이빗 픽업",
-    summary: "차량 이동이 필요한 팀을 위한 편도 픽업 옵션",
-    price: 34800,
-    image: "https://cdn.imweb.me/thumbnail/20230831/c0504b329b735.jpg",
-  },
-  {
-    title: "로컬 마켓 티켓 포함 코스",
-    summary: "체험 후 로컬 마켓에서 사용할 수 있는 연계 티켓",
-    price: 40661,
-    image: "https://cdn.imweb.me/thumbnail/20230831/dca60ec8c7676.jpg",
-  },
-];
+const recommendedOptions = recommendedBookingOptions;
 
 export function DetailOptionSelector({ experience }: DetailOptionSelectorProps) {
   const mode = detectBookingMode(experience);
@@ -110,16 +92,18 @@ function DetailOptionSelectorSchedule({ experience }: DetailOptionSelectorProps)
 
   const selectedDateSchedules = schedulesByDate[selectedDate] ?? [];
   const selectedPrice = selectedSchedule?.price ?? experience.price;
+  const optionPrices = bookingOptionPrices(selectedPrice);
   const optionItems: OptionItem[] = [
-    { key: "adult", title: "성인", description: "1인 기준", price: selectedPrice },
-    { key: "teen", title: "청소년", description: "만 13세 이상", price: Math.round(selectedPrice * 0.85) },
-    { key: "child", title: "아동", description: "보호자 동반, 만 3세 이상", price: Math.round(selectedPrice * 0.7) },
-    { key: "privateGuide", title: "프라이빗 안내 추가", description: "업체로부터 안내 시 확정", price: 50000 },
+    { key: "adult", title: "성인", description: "1인 기준", price: optionPrices.adult },
+    { key: "teen", title: "청소년", description: "만 13세 이상", price: optionPrices.teen },
+    { key: "child", title: "아동", description: "보호자 동반, 만 3세 이상", price: optionPrices.child },
+    { key: "privateGuide", title: "프라이빗 안내 추가", description: "업체로부터 안내 시 확정", price: optionPrices.privateGuide },
   ];
   const totalPeople = counts.adult + counts.teen + counts.child;
-  const totalOptionAmount = optionItems.reduce((sum, option) => sum + option.price * counts[option.key], 0);
-  const totalRecommendedAmount = recommendedOptions.reduce((sum, item) => sum + (recommendedChecked[item.title] ? item.price : 0), 0);
-  const total = totalOptionAmount + totalRecommendedAmount;
+  const checkedRecommended = Object.entries(recommendedChecked)
+    .filter(([, checked]) => checked)
+    .map(([title]) => title);
+  const total = calculateBookingTotal(selectedPrice, counts, checkedRecommended);
   const canReserve = Boolean(selectedSchedule) && totalPeople > 0;
 
 
@@ -155,13 +139,8 @@ function DetailOptionSelectorSchedule({ experience }: DetailOptionSelectorProps)
           date: selectedSchedule.date,
           timeLabel: selectedSchedule.label,
           people: totalPeople,
-          totalAmount: total,
-          reservationType: selectedSchedule.reservationType ?? "approval",
-          approvalRequired: selectedSchedule.approvalRequired ?? true,
           options: counts,
-          recommendedOptions: Object.entries(recommendedChecked)
-            .filter(([, checked]) => checked)
-            .map(([title]) => title),
+          recommendedOptions: checkedRecommended,
         }),
       });
       const contentType = response.headers.get("content-type") ?? "";
@@ -170,6 +149,11 @@ function DetailOptionSelectorSchedule({ experience }: DetailOptionSelectorProps)
 
       if (response.ok || isStaticPreviewMiss) {
         router.push(`${userRoutes.bookingComplete}?product=${encodeURIComponent(experience.slug)}`);
+        return;
+      }
+
+      if (response.status === 401) {
+        router.push(`${userRoutes.login}?redirect=${encodeURIComponent(`${window.location.pathname}${window.location.search}`)}`);
         return;
       }
 
