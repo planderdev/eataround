@@ -32,6 +32,7 @@ import { ExperienceIntroMedia } from "@/components/ExperienceIntroMedia";
 import { detectBookingMode } from "@/lib/booking-mode";
 import type { Experience, ExperienceReview } from "@/lib/data";
 import { getExperience, getExperiences, getProductDetailContent, getProductGallery, getProductReviews } from "@/lib/content";
+import { hasDatabaseConfig } from "@/lib/db";
 import { userRoutes } from "@/lib/routes";
 
 type PageProps = {
@@ -657,6 +658,14 @@ export default async function ExperienceDetailPage({ params }: PageProps) {
 }
 
 function getDetailCopy(experience: Experience) {
+  // DB가 연결되면 관리자에서 고친 상품명·요약·지역·소요 시간·포함 사항·호스트·장소·회차 시간이
+  // 그대로 보이도록 처음 넣은 고정 문구(DETAIL_COPY)로 덮어쓰지 않는다.
+  // 고정 문구의 회차 시간이 DB 회차와 다르면 예약 요청이 회차를 찾지 못했다(409).
+  // 후기 표시는 운영 정책 결정 전까지 기존 방식을 유지한다.
+  if (hasDatabaseConfig()) {
+    const live = makeFallbackCopy(experience);
+    return { ...live, reviews: DETAIL_COPY[experience.slug]?.reviews ?? live.reviews };
+  }
   return DETAIL_COPY[experience.slug] ?? makeFallbackCopy(experience);
 }
 
