@@ -19,7 +19,6 @@ import { adminActionTargets } from "@/lib/admin/route-meta";
 
 export type AdminButtonVariant = "primary" | "secondary" | "info" | "warning" | "danger" | "ghost";
 
-export const dashboardBars = [38, 58, 46, 68, 74, 62, 88, 54, 71, 96];
 
 export function toneFromStatus(status: string): AdminTone {
   if (/(취소|환불|종료|마감|반려|삭제|CANCELED|REFUNDED|CLOSED|HIDDEN|LOST)/i.test(status)) return "danger";

@@ -15,7 +15,8 @@ import {
 } from "recharts";
 
 type AdminDashboardChartsProps = {
-  bars: number[];
+  days: { date: string; label: string; count: number; sales: number }[];
+  categories: { label: string; count: number }[];
   totalReservations: number;
   totalSales: number;
 };
@@ -28,14 +29,7 @@ type TooltipPayload = {
   };
 };
 
-const categoryShare = [
-  { label: "쿠킹·베이킹", value: 42, color: "#2A5E42" },
-  { label: "지역·전통", value: 28, color: "#F1C180" },
-  { label: "웰니스", value: 18, color: "#C9E9EB" },
-  { label: "기타", value: 12, color: "#F9A2A2" },
-];
-
-const dayLabels = ["월", "화", "수", "목", "금", "토", "일", "월", "화", "수"];
+const CATEGORY_COLORS = ["#2A5E42", "#F1C180", "#C9E9EB", "#F9A2A2"];
 
 function ChartTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayload[] }) {
   const item = payload?.[0]?.payload;
@@ -49,28 +43,32 @@ function ChartTooltip({ active, payload }: { active?: boolean; payload?: Tooltip
   );
 }
 
-export function AdminDashboardCharts({ bars, totalReservations, totalSales }: AdminDashboardChartsProps) {
+export function AdminDashboardCharts({ days, categories, totalReservations, totalSales }: AdminDashboardChartsProps) {
   const [mode, setMode] = useState<ChartMode>("reservations");
-  const [activeBar, setActiveBar] = useState(Math.max(0, bars.length - 1));
+  const [activeBar, setActiveBar] = useState(Math.max(0, days.length - 1));
   const [activeCategory, setActiveCategory] = useState(0);
 
   const chartData = useMemo(() => {
-    return bars.map((height, index) => {
-      const reservationValue = Math.max(1, Math.round((height / 100) * Math.max(totalReservations, 1)));
-      const salesValue = Math.max(120000, Math.round((height / 100) * Math.max(totalSales, 1)));
-      const value = mode === "reservations" ? reservationValue : salesValue;
+    return days.map((day, index) => ({
+      index,
+      label: day.label,
+      value: mode === "reservations" ? day.count : day.sales,
+      displayValue: mode === "reservations" ? `${day.count}건` : `${day.sales.toLocaleString("ko-KR")}원`,
+    }));
+  }, [days, mode]);
 
-      return {
-        index,
-        label: dayLabels[index] ?? `${index + 1}일`,
-        value,
-        displayValue: mode === "reservations" ? `${reservationValue}건` : `${salesValue.toLocaleString("ko-KR")}원`,
-      };
-    });
-  }, [bars, mode, totalReservations, totalSales]);
+  // 카테고리 비율은 취소를 뺀 예약 건수로 계산한다.
+  const categoryShare = useMemo(() => {
+    const total = categories.reduce((sum, item) => sum + item.count, 0);
+    return categories.map((item, index) => ({
+      label: item.label,
+      value: total ? Math.round((item.count / total) * 100) : 0,
+      color: CATEGORY_COLORS[index % CATEGORY_COLORS.length],
+    }));
+  }, [categories]);
 
   const selectedBar = chartData[activeBar] ?? chartData[0];
-  const selectedCategory = categoryShare[activeCategory] ?? categoryShare[0];
+  const selectedCategory = categoryShare[activeCategory] ?? categoryShare[0] ?? { label: "예약 없음", value: 0, color: CATEGORY_COLORS[0] };
   const modeTotal = mode === "reservations" ? `${totalReservations.toLocaleString("ko-KR")}건` : `${totalSales.toLocaleString("ko-KR")}원`;
 
   return (
@@ -168,7 +166,13 @@ export function AdminDashboardCharts({ bars, totalReservations, totalSales }: Ad
           </div>
         </div>
         <p className="admin-donut-caption">
-          가장 높은 예약 카테고리는 <strong>{selectedCategory.label}</strong>입니다.
+          {categoryShare.length ? (
+            <>
+              가장 높은 예약 카테고리는 <strong>{categoryShare[0].label}</strong>입니다.
+            </>
+          ) : (
+            "아직 예약이 없어 비율을 계산할 수 없습니다."
+          )}
         </p>
         <ul className="admin-chart-legend">
           {categoryShare.map((item, index) => (

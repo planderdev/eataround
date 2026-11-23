@@ -664,7 +664,7 @@ export async function getAdminReservations() {
          left join users u on u.id = r.user_id
          left join products p on p.id = r.product_id or p.slug = r.product_slug
         order by r.created_at desc
-        limit 20`,
+        limit 500`,
     );
 
     return rows.map<AdminReservation>((row) => ({
@@ -690,7 +690,7 @@ export async function getAdminQuoteRequests() {
       `select id, admin_memo, start_date, end_date, organization_name, contact_name, people, program_ids, budget_label, estimated_total, status, option_ids
          from quote_requests
         order by created_at desc
-        limit 20`,
+        limit 500`,
     );
 
     return rows.map<AdminQuoteRequest>((row) => ({
@@ -822,7 +822,7 @@ export async function getAdminMembers() {
       `select id, name, organization_name, member_type, email, company_approved, company_rejected_reason, role
          from users
         order by created_at desc
-        limit 30`,
+        limit 500`,
     );
 
     return rows.map<AdminMember>((row) => ({

@@ -217,8 +217,11 @@ export function getAdminSchedules() {
                 ps.capacity, ps.booked, ps.max_teams, ps.reserved_teams, ps.team_capacity, ps.status
            from product_schedules ps
            join products p on p.id = ps.product_id
-          order by ps.schedule_date asc, ps.id asc
-          limit 200`,
+          -- 다가오는 회차를 먼저(가까운 날짜순), 지난 회차는 그 뒤에 최근 것부터 보인다.
+          order by (ps.schedule_date >= (now() at time zone 'Asia/Seoul')::date) desc,
+                   case when ps.schedule_date >= (now() at time zone 'Asia/Seoul')::date then ps.schedule_date end asc,
+                   ps.schedule_date desc, ps.id asc
+          limit 500`,
       );
 
       return rows.map<AdminScheduleRow>((row) => ({
@@ -424,7 +427,7 @@ export function getAdminReviews() {
            left join products p on p.id = pr.product_id
            left join users u on u.id = pr.user_id
           order by pr.created_at desc, pr.id desc
-          limit 100`,
+          limit 500`,
       );
 
       return rows.map<AdminReviewRow>((row) => ({
