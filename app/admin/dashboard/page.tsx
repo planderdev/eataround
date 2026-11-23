@@ -31,7 +31,9 @@ export default async function DashboardPage() {
   const pendingReservations = data.reservations.filter((reservation) => toneFromStatus(reservation.status) === "warning");
   const pendingQuotes = data.quoteRequests.filter((quote) => toneFromStatus(quote.status) === "warning");
   const ongoingEvents = data.events.filter((event) => event.status === "ongoing");
-  const corporateMembers = data.members.filter((member) => member.type.includes("기업") || member.type.includes("기관"));
+  // 관리자 계정은 회원 수에서 뺀다(회원관리 목록과 같은 기준).
+  const customerMembers = data.members.filter((member) => member.type !== "관리자");
+  const corporateMembers = customerMembers.filter((member) => member.type.includes("기업") || member.type.includes("기관"));
 
   return (
     <AdminRouteShell routeKey={ROUTE_KEY}>
@@ -46,10 +48,10 @@ export default async function DashboardPage() {
             <StatCard detail="기업·기관 응대" icon={<RiFileTextLine size={18} />} label="미처리 견적" value={pendingQuotes.length} />
             <StatCard detail="모집/운영 중" icon={<RiMegaphoneLine size={18} />} label="진행 행사" value={ongoingEvents.length} />
             <StatCard
-              detail={`일반 ${data.members.length - corporateMembers.length} / 기관 ${corporateMembers.length}`}
+              detail={`일반 ${customerMembers.length - corporateMembers.length} / 기관 ${corporateMembers.length}`}
               icon={<RiTeamLine size={18} />}
               label="회원"
-              value={data.members.length}
+              value={customerMembers.length}
             />
             <StatCard detail="예약 기준 추정" label="매출" value={formatWon(estimatedSales)} />
           </div>
