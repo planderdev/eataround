@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
+import { INQUIRY_STATUS } from "@/lib/me/inquiries";
 import { readProfile } from "@/lib/me/profile";
 import { listMyQuotes } from "@/lib/me/quotes";
 import { listMyReservations, rowToReservation, todayInSeoul } from "@/lib/me/reservations";
@@ -45,11 +46,19 @@ async function countInquiries(userId: number) {
     "select status from inquiries where user_id = ? order by created_at desc limit 200",
     [userId],
   );
-  const tone = { open: "pending", answered: "received", closed: "done" } as const;
-  return rows.map((row) => ({ statusTone: tone[row.status] ?? "pending" }));
+  return rows.map((row) => ({ statusTone: (INQUIRY_STATUS[row.status] ?? INQUIRY_STATUS.open).tone }));
 }
 
-export async function loadMyPageData(redirectPath: string = userRoutes.me): Promise<MyPageData> {
+export type MyPageSection = "reservations" | "quotes" | "inquiries" | "wishlist" | "reviews" | "profile";
+
+/**
+ * 마이페이지 데이터를 읽는다. sections를 주면 그 내역만 DB에서 읽고 나머지는 빈 목록으로 둔다
+ * (메뉴 화면은 자기 요약 숫자에 필요한 것만 읽는다). 회원 정보는 항상 읽는다.
+ */
+export async function loadMyPageData(
+  redirectPath: string = userRoutes.me,
+  sections: MyPageSection[] = ["reservations", "quotes", "inquiries", "wishlist", "reviews", "profile"],
+): Promise<MyPageData> {
   if (!hasDatabaseConfig()) return sampleData();
 
   // 회원마다 내용이 다르므로 빌드 때 굳히지 않고 요청마다 읽는다.
@@ -58,13 +67,16 @@ export async function loadMyPageData(redirectPath: string = userRoutes.me): Prom
   if (!user) redirect(`${userRoutes.login}?redirect=${encodeURIComponent(redirectPath)}`);
 
   const today = todayInSeoul();
+  const need = new Set(sections);
+  // 후기 목록의 '작성 가능'은 예약 내역으로 정하므로 예약을 한 번만 읽어 함께 쓴다.
+  const reservationRowsPromise = need.has("reservations") || need.has("reviews") ? listMyReservations(user.id) : Promise.resolve([]);
   const [profile, reservationRows, quotes, inquiries, wishlist, reviews] = await Promise.all([
     readProfile(user.id),
-    listMyReservations(user.id),
-    listMyQuotes(user.id),
-    countInquiries(user.id),
-    listMyWishlist(user.id),
-    listMyReviews(user.id),
+    reservationRowsPromise,
+    need.has("quotes") ? listMyQuotes(user.id) : Promise.resolve([]),
+    need.has("inquiries") ? countInquiries(user.id) : Promise.resolve([]),
+    need.has("wishlist") ? listMyWishlist(user.id) : Promise.resolve([]),
+    need.has("reviews") ? reservationRowsPromise.then((rows) => listMyReviews(user.id, rows)) : Promise.resolve([]),
   ]);
   if (!profile) redirect(`${userRoutes.login}?redirect=${encodeURIComponent(redirectPath)}`);
 
@@ -80,7 +92,20 @@ export async function loadMyPageData(redirectPath: string = userRoutes.me): Prom
   };
 }
 
-/** 체험일이 오늘 이후인 진행 중 예약(취소·이용 완료 제외). */
-export function upcomingReservations(reservations: Reservation[]) {
-  return reservations.filter((item) => item.statusTone === "pending" || item.statusTone === "confirmed");
+/** 체험일이 오늘 이후인 진행 중 예약(취소·이용 완료·날짜가 지난 승인 대기 제외). */
+export function upcomingReservations(reservations: Reservation[], today = todayInSeoul()) {
+  return reservations.filter(
+    (item) => (item.statusTone === "pending" || item.statusTone === "confirmed") && (!item.scheduleDate || item.scheduleDate >= today),
+  );
+}
+
+/** 다가오는 예약 중 가장 가까운 체험일(MM.DD). 연도까지 비교한다. */
+export function nearestScheduleLabel(reservations: Reservation[]) {
+  const dates = upcomingReservations(reservations)
+    .map((item) => item.scheduleDate ?? item.schedule.match(/(\d{4})\.(\d{2})\.(\d{2})/)?.slice(1, 4).join("-"))
+    .filter((value): value is string => Boolean(value))
+    .sort();
+  if (!dates[0]) return null;
+  const [, month, day] = dates[0].split("-");
+  return `${month}.${day}`;
 }

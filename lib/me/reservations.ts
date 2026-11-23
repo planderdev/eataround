@@ -1,6 +1,7 @@
 import "server-only";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool } from "@/lib/db";
+import { formatPrefixedId, parsePrefixedId } from "@/lib/ids";
 import { experiencePath } from "@/lib/routes";
 import type { ApiTone, Reservation } from "@/types/api";
 
@@ -42,15 +43,12 @@ export function todayInSeoul() {
 }
 
 export function formatReservationId(id: number) {
-  return `R-${id.toString().padStart(6, "0")}`;
+  return formatPrefixedId("R", id);
 }
 
 /** "R-000012" 또는 "12"를 예약 번호로 바꾼다. 형식이 틀리면 null. */
 export function parseReservationId(value: string) {
-  const match = /^(?:R-)?0*(\d{1,12})$/.exec(decodeURIComponent(value).trim());
-  if (!match) return null;
-  const id = Number(match[1]);
-  return Number.isSafeInteger(id) && id > 0 ? id : null;
+  return parsePrefixedId("R", value);
 }
 
 function formatSchedule(date: string | null, label: string | null) {
@@ -86,6 +84,9 @@ function describeStatus(row: MyReservationRow, today: string): { label: string; 
   if (row.status === "confirmed") {
     return { label: "예약 확정", tone: "confirmed", next: "예약이 확정되었습니다. 결제는 운영팀이 따로 안내합니다.", step: 2 };
   }
+  if (row.schedule_date && row.schedule_date < today) {
+    return { label: "승인 대기", tone: "pending", next: "체험일이 지났지만 아직 확정되지 않았습니다. 운영팀에 문의해 주세요.", step: 1 };
+  }
   if (row.reservation_type === "inquiry") {
     return { label: "문의 접수", tone: "pending", next: "운영팀이 가능 여부를 확인해 연락드립니다.", step: 1 };
   }
@@ -114,6 +115,7 @@ export function rowToReservation(row: MyReservationRow, today = todayInSeoul()):
     status: status.label,
     statusTone: status.tone,
     schedule: formatSchedule(row.schedule_date, row.schedule_label),
+    scheduleDate: row.schedule_date ?? undefined,
     people: `${row.people}명`,
     reservationType: TYPE_LABEL[row.reservation_type] ?? "승인 후 확정",
     amount: `${row.total_amount.toLocaleString("ko-KR")}원`,

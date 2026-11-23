@@ -196,7 +196,8 @@ export default async function MeSectionPage({ params }: PageProps) {
   const page = pageMap[sectionKey];
   const Icon = page.icon;
   const detailId = slug[1];
-  const data = await loadMyPageData(`${userRoutes.me}/${slug.map(encodeURIComponent).join("/")}`);
+  // 이 메뉴의 요약 숫자에 필요한 내역만 읽는다(예약 요약의 '후기 가능'은 후기 목록에서 센다).
+  const data = await loadMyPageData(`${userRoutes.me}/${slug.map(encodeURIComponent).join("/")}`, sectionKey === "reservations" ? ["reservations", "reviews"] : [sectionKey]);
   const stats = buildSectionStats(sectionKey, data);
   const experiences = sectionKey === "wishlist" || sectionKey === "reviews" ? await getExperiences() : [];
 

@@ -38,8 +38,9 @@ export async function listMyWishlist(userId: number): Promise<WishlistItem[]> {
 /** 찜 저장·해제. 없는 상품이면 null. */
 export async function setWishlist(userId: number, slug: string, saved: boolean): Promise<boolean | null> {
   const pool = getPool();
+  // 저장은 노출 중인 상품만, 해제는 나중에 숨긴 상품도 할 수 있어야 한다.
   const [products] = await pool.query<(RowDataPacket & { id: number })[]>(
-    "select id from products where slug = ? and is_visible = 1 limit 1",
+    saved ? "select id from products where slug = ? and is_visible = 1 limit 1" : "select id from products where slug = ? limit 1",
     [slug],
   );
   const product = products[0];

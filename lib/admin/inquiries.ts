@@ -1,6 +1,7 @@
 import "server-only";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
+import { formatPrefixedId } from "@/lib/ids";
 import { inquiryHistory } from "@/lib/mypage-data";
 
 // 관리자 고객 문의. 상품 상세·고객센터에서 남긴 문의를 읽고 답변·상태를 저장한다.
@@ -82,7 +83,7 @@ export async function getAdminInquiries(): Promise<AdminInquiry[]> {
   );
   return rows.map((row) => ({
     id: row.id,
-    code: `I-${row.id.toString().padStart(6, "0")}`,
+    code: formatPrefixedId("I", row.id),
     title: row.title,
     typeLabel: INQUIRY_TYPE_LABEL[row.inquiry_type] ?? "일반 문의",
     statusCode: row.status,

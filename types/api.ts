@@ -21,6 +21,8 @@ export type Reservation = {
   href: string;
   nextAction: string;
   timeline: string[];
+  /** 체험일(YYYY-MM-DD, DB 연결 환경). 다가오는 예약을 가를 때 쓴다. */
+  scheduleDate?: string;
   /** 진행 단계 표시 위치(0부터). 없으면 상태 색으로 정한다. */
   timelineStep?: number;
   /** 회원이 직접 취소할 수 있는 예약인지(DB 연결 환경). */

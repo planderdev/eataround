@@ -19,6 +19,16 @@ create unique index if not exists uq_product_reviews_reservation on product_revi
 alter table inquiries add column if not exists answer text;
 alter table inquiries add column if not exists answered_at timestamptz;
 
--- 로그인: 연속 실패 횟수와 잠금 해제 시각(5회 실패 시 30분 잠금).
-alter table users add column if not exists failed_login_count integer not null default 0;
-alter table users add column if not exists locked_until timestamptz;
+-- 로그인 실패 잠금: 이메일과 접속 주소(IP) 묶음마다 연속 실패를 센다(5회 실패 시 30분 잠금).
+-- 계정 단위로 잠그면 남이 관리자 이메일로 일부러 틀려 관리자를 잠글 수 있어 접속 주소까지 묶는다.
+-- 없는 이메일도 똑같이 세어, 응답으로 가입 여부를 알 수 없게 한다.
+create table if not exists login_attempts (
+  email varchar(190) not null,
+  client_key varchar(64) not null,
+  failed_count integer not null default 0,
+  locked_until timestamptz,
+  updated_at timestamptz not null default now(),
+  primary key (email, client_key)
+);
+create index if not exists idx_login_attempts_updated on login_attempts (updated_at);
+alter table login_attempts enable row level security;

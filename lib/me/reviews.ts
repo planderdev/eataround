@@ -1,6 +1,7 @@
 import "server-only";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool } from "@/lib/db";
+import { formatPrefixedId, parsePrefixedId } from "@/lib/ids";
 import { formatReservationId, isCompleted, listMyReservations, todayInSeoul } from "@/lib/me/reservations";
 import { experiencePath, userRoutes } from "@/lib/routes";
 import type { ApiTone, Review } from "@/types/api";
@@ -36,12 +37,11 @@ function formatDate(value: Date) {
 }
 
 export function formatReviewId(id: number) {
-  return `V-${id.toString().padStart(6, "0")}`;
+  return formatPrefixedId("V", id);
 }
 
 export function parseReviewId(value: unknown) {
-  const match = /^(?:V-)?0*(\d{1,12})$/.exec(String(value ?? "").trim());
-  return match ? Number(match[1]) : null;
+  return parsePrefixedId("V", value);
 }
 
 function rowToReview(row: MyReviewRow): Review {
@@ -73,10 +73,10 @@ async function readMyReview(userId: number, reviewId: number) {
 }
 
 /** 작성할 수 있는 후기(이용 완료·후기 없음)와 내가 쓴 후기를 함께 돌려준다. */
-export async function listMyReviews(userId: number): Promise<Review[]> {
+export async function listMyReviews(userId: number, reservationRows?: Awaited<ReturnType<typeof listMyReservations>>): Promise<Review[]> {
   const today = todayInSeoul();
   const [reservations, [written]] = await Promise.all([
-    listMyReservations(userId),
+    reservationRows ?? listMyReservations(userId),
     getPool().query<MyReviewRow[]>(
       `select pr.id, pr.reservation_id, pr.rating, pr.body, pr.status, pr.created_at, pr.updated_at, p.title, p.slug
          from product_reviews pr

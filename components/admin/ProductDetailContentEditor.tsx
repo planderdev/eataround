@@ -31,7 +31,7 @@ export function ProductDetailContentEditor({ productId }: { productId?: number }
   const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error" | "sample">("idle");
   const [items, setItems] = useState<Draft[]>([]);
   const [fields, setFields] = useState<ProductTextFields>({});
-  const [saved, setSaved] = useState<{ items: string; fields: string }>({ items: "[]", fields: "{}" });
+  const [saved, setSaved] = useState<{ items: string; fields: ProductTextFields; version: string }>({ items: "[]", fields: {}, version: "" });
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -43,7 +43,13 @@ export function ProductDetailContentEditor({ productId }: { productId?: number }
     setStatus("loading");
     fetch(withBasePath(`/api/admin/products/${productId}/details`))
       .then(async (response) => {
-        const data = (await response.json().catch(() => ({}))) as { live?: boolean; items?: DetailItem[]; fields?: ProductTextFields; message?: string };
+        const data = (await response.json().catch(() => ({}))) as {
+          live?: boolean;
+          items?: DetailItem[];
+          fields?: ProductTextFields;
+          version?: string;
+          message?: string;
+        };
         if (!response.ok) throw new Error(data.message);
         if (!data.live) {
           setStatus("sample");
@@ -52,13 +58,15 @@ export function ProductDetailContentEditor({ productId }: { productId?: number }
         const loaded = (data.items ?? []).map(withKey);
         setItems(loaded);
         setFields(data.fields ?? {});
-        setSaved({ items: serializeItems(loaded), fields: JSON.stringify(data.fields ?? {}) });
+        setSaved({ items: serializeItems(loaded), fields: data.fields ?? {}, version: data.version ?? "" });
         setStatus("ready");
       })
       .catch(() => setStatus("error"));
   }, [open, productId, status]);
 
-  const dirty = serializeItems(items) !== saved.items || JSON.stringify(fields) !== saved.fields;
+  const changedFields = FIELD_KEYS.filter((key) => (fields[key] ?? "") !== (saved.fields[key] ?? ""));
+  const itemsChanged = serializeItems(items) !== saved.items;
+  const dirty = itemsChanged || changedFields.length > 0;
 
   function update(key: number, patch: Partial<DetailItem>) {
     setItems((current) => current.map((item) => (item.key === key ? { ...item, ...patch } : item)));
@@ -82,17 +90,27 @@ export function ProductDetailContentEditor({ productId }: { productId?: number }
       const response = await fetch(withBasePath(`/api/admin/products/${productId}/details`), {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
+        // 바뀐 것만 보낸다. version은 편집기를 연 때의 내용 지문으로, 그사이 다른 저장이 있었으면 서버가 409로 막는다.
         body: JSON.stringify({
-          items: items.map(({ key: _key, ...item }) => item),
-          fields,
+          version: saved.version,
+          items: itemsChanged ? items.map(({ key: _key, ...item }) => item) : undefined,
+          fields: changedFields.length ? Object.fromEntries(changedFields.map((key) => [key, fields[key] ?? ""])) : undefined,
         }),
       });
-      const data = (await response.json().catch(() => ({}))) as { ok?: boolean; message?: string };
+      const data = (await response.json().catch(() => ({}))) as {
+        ok?: boolean;
+        message?: string;
+        version?: string;
+        items?: DetailItem[];
+        fields?: ProductTextFields;
+      };
       if (response.ok && data.ok !== false) {
         notifyAdminToast(data.message ?? "상세 내용을 저장했습니다.", "success");
-        const cleaned = items.filter((item) => item.body.trim() || item.label?.trim());
-        setItems(cleaned);
-        setSaved({ items: serializeItems(cleaned), fields: JSON.stringify(fields) });
+        // 서버가 저장한 내용(빈 줄 제외·정리된 값)과 새 지문으로 다시 맞춘다.
+        const fresh = (data.items ?? []).map(withKey);
+        setItems(fresh);
+        setFields(data.fields ?? fields);
+        setSaved({ items: serializeItems(fresh), fields: data.fields ?? fields, version: data.version ?? "" });
         router.refresh();
         return;
       }

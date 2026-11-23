@@ -29,8 +29,8 @@ export async function POST(request: Request) {
   // DB가 연결된 환경에서는 users.role = 'admin' 계정만 통과시킨다.
   // DB가 없는 샘플 모드에서는 실제 데이터가 없으므로 화면 확인용으로 통과시킨다.
   if (hasDatabaseConfig()) {
-    // 비밀번호를 5번 연속 틀리면 30분 동안 잠근다(회원 로그인과 같은 규칙).
-    const result = await checkLogin(payload.email, payload.password, (user) => user.role === "admin");
+    // 같은 접속 주소에서 비밀번호를 5번 연속 틀리면 30분 동안 잠근다(회원 로그인과 같은 규칙).
+    const result = await checkLogin(request, payload.email, payload.password, (user) => user.role === "admin");
     if (!result.ok) return NextResponse.json({ ok: false, message: result.message }, { status: result.status });
     const user = result.user;
 

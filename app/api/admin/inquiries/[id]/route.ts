@@ -41,7 +41,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   if (answer !== null && answer.length > ANSWER_MAX_LENGTH) {
     return adminError(`답변은 ${ANSWER_MAX_LENGTH}자 이내로 입력해 주세요.`, 400);
   }
-  const status = hasStatus ? payload.status : answer ? "answered" : null;
+  // 상태를 따로 주지 않으면 답변을 쓰면 '답변 완료', 답변을 지우면 '답변 대기'로 맞춘다.
+  const status = hasStatus ? payload.status : answer !== null ? (answer ? "answered" : "open") : null;
   if (status === "answered" && hasAnswer && !answer) return adminError("답변 완료로 바꾸려면 답변을 입력해 주세요.", 400);
 
   const updates: string[] = [];

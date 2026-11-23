@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { adminOk } from "@/lib/admin/api-data";
 import { adminError, parseRowId, requireAdmin } from "@/lib/admin/guard";
@@ -30,25 +31,18 @@ type DetailRow = RowDataPacket & {
 
 const FIELD_ENTRIES = Object.entries(PRODUCT_TEXT_FIELDS) as [ProductTextKey, (typeof PRODUCT_TEXT_FIELDS)[ProductTextKey]][];
 
-/** 상품 상세 항목과 소개 칸을 읽는다(편집기가 열릴 때). */
-export async function GET(request: Request, { params }: RouteContext) {
-  const { id } = await params;
-  if (!hasDatabaseConfig()) return NextResponse.json({ ok: true, live: false, items: [], fields: {} });
+type Queryable = Pick<ReturnType<typeof getPool>, "query">;
 
-  const denied = await requireAdmin(request);
-  if (denied) return denied;
-  const productId = parseRowId(id);
-  if (!productId) return adminError("상품 번호가 올바르지 않습니다.", 400);
-
-  const pool = getPool();
-  const [products] = await pool.query<(RowDataPacket & Record<string, string | null>)[]>(
+/** 상품의 소개 칸과 상세 항목을 읽는다. 없는 상품이면 null. */
+async function readDetailState(db: Queryable, productId: number) {
+  const [products] = await db.query<(RowDataPacket & Record<string, string | null>)[]>(
     `select ${FIELD_ENTRIES.map(([, spec]) => spec.column).join(", ")} from products where id = ? limit 1`,
     [productId],
   );
   const product = products[0];
-  if (!product) return adminError("상품을 찾을 수 없습니다.", 404);
+  if (!product) return null;
 
-  const [rows] = await pool.query<DetailRow[]>(
+  const [rows] = await db.query<DetailRow[]>(
     `select content_type, label, body, meta, note
        from product_detail_items
       where product_id = ?
@@ -67,13 +61,33 @@ export async function GET(request: Request, { params }: RouteContext) {
       meta: row.meta ?? undefined,
       note: row.note ?? undefined,
     }));
-  return NextResponse.json({ ok: true, live: true, items, fields });
+  return { items, fields, version: versionOf(items, fields) };
+}
+
+/** 편집기가 연 뒤 다른 관리자가 고쳤는지 알기 위한 내용 지문. */
+function versionOf(items: DetailItem[], fields: ProductTextFields) {
+  return createHash("sha256").update(JSON.stringify({ items, fields })).digest("hex").slice(0, 16);
+}
+
+/** 상품 상세 항목과 소개 칸을 읽는다(편집기가 열릴 때). */
+export async function GET(request: Request, { params }: RouteContext) {
+  const { id } = await params;
+  if (!hasDatabaseConfig()) return NextResponse.json({ ok: true, live: false, items: [], fields: {} });
+
+  const denied = await requireAdmin(request);
+  if (denied) return denied;
+  const productId = parseRowId(id);
+  if (!productId) return adminError("상품 번호가 올바르지 않습니다.", 400);
+
+  const state = await readDetailState(getPool(), productId);
+  if (!state) return adminError("상품을 찾을 수 없습니다.", 404);
+  return NextResponse.json({ ok: true, live: true, ...state });
 }
 
 /** 상세 항목 전체를 받은 목록으로 바꾸고(순서 포함), 보낸 소개 칸만 고친다. */
 export async function PUT(request: Request, { params }: RouteContext) {
   const { id } = await params;
-  const payload = ((await request.json().catch(() => ({}))) ?? {}) as { items?: unknown; fields?: unknown };
+  const payload = ((await request.json().catch(() => ({}))) ?? {}) as { items?: unknown; fields?: unknown; version?: unknown };
 
   const items = payload.items === undefined ? undefined : normalizeDetailItems(payload.items);
   if (typeof items === "string") return adminError(items, 400);
@@ -96,6 +110,12 @@ export async function PUT(request: Request, { params }: RouteContext) {
     if (!locked[0]) {
       await connection.rollback();
       return adminError("상품을 찾을 수 없습니다.", 404);
+    }
+    // 편집기를 연 뒤 다른 관리자가 먼저 저장했으면 덮어쓰지 않는다.
+    const current = await readDetailState(connection, productId);
+    if (typeof payload.version !== "string" || !current || current.version !== payload.version) {
+      await connection.rollback();
+      return adminError("편집기를 연 뒤 다른 곳에서 상세 내용이 바뀌었습니다. 편집기를 닫았다가 다시 열어 최신 내용으로 고쳐 주세요.", 409);
     }
 
     const keys = Object.keys(fields) as ProductTextKey[];
@@ -129,5 +149,11 @@ export async function PUT(request: Request, { params }: RouteContext) {
   }
 
   revalidateSite();
-  return NextResponse.json(adminOk("상세 내용을 저장했습니다. 상품 상세 화면에 바로 반영됩니다.", { id: productId }));
+  const saved = await readDetailState(getPool(), productId);
+  return NextResponse.json({
+    ...adminOk("상세 내용을 저장했습니다. 상품 상세 화면에 바로 반영됩니다.", { id: productId }),
+    version: saved?.version,
+    items: saved?.items,
+    fields: saved?.fields,
+  });
 }

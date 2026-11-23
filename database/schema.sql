@@ -26,9 +26,6 @@ create table users (
   -- 기업회원 반려 사유. 값이 있으면 반려 상태, 승인하면 null로 되돌린다.
   company_rejected_reason varchar(300),
   role text not null default 'user' check (role in ('user', 'admin')),
-  -- 연속 로그인 실패 횟수와 잠금 해제 시각(5회 실패 시 30분 잠금)
-  failed_login_count integer not null default 0,
-  locked_until timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -284,6 +281,16 @@ create table product_reviews (
   updated_at timestamptz not null default now()
 );
 
+-- 로그인 실패 잠금: 이메일과 접속 주소(IP) 묶음마다 연속 실패를 센다(lib/login-guard.ts).
+create table login_attempts (
+  email varchar(190) not null,
+  client_key varchar(64) not null,
+  failed_count integer not null default 0,
+  locked_until timestamptz,
+  updated_at timestamptz not null default now(),
+  primary key (email, client_key)
+);
+
 -- 찜: 회원 한 명이 상품 하나를 한 번만 저장한다.
 create table wishlists (
   user_id bigint not null references users(id) on delete cascade,
@@ -328,6 +335,7 @@ create index idx_product_reviews_product on product_reviews (product_id);
 create index idx_product_reviews_user on product_reviews (user_id);
 create unique index uq_product_reviews_reservation on product_reviews (reservation_id) where reservation_id is not null;
 create index idx_wishlists_product on wishlists (product_id);
+create index idx_login_attempts_updated on login_attempts (updated_at);
 
 -- updated_at 자동 갱신 (MySQL의 on update current_timestamp 대체)
 create trigger trg_users_updated_at before update on users for each row execute function public.set_updated_at();
@@ -360,3 +368,4 @@ alter table product_reviews enable row level security;
 alter table coupons enable row level security;
 alter table host_settlements enable row level security;
 alter table wishlists enable row level security;
+alter table login_attempts enable row level security;

@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   let userRole: "user" | "admin" = "user";
 
   if (hasDatabaseConfig()) {
-    const result = await checkLogin(payload.email, payload.password);
+    const result = await checkLogin(request, payload.email, payload.password);
     if (!result.ok) return NextResponse.json({ ok: false, message: result.message }, { status: result.status });
     const user = result.user;
 

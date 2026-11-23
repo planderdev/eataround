@@ -17,6 +17,17 @@ import type { ApiSuccess, Inquiry, Profile, ProfilePayload, Quote, Reservation, 
 
 const useMock = process.env.NEXT_PUBLIC_USE_MOCK !== "false";
 
+/** 서버가 거절한 요청. status로 로그인 필요(401)와 다른 실패를 가른다. */
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
 async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(withBasePath(path), {
     ...init,
@@ -29,7 +40,7 @@ async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
   if (!response.ok) {
     // 서버가 알려 준 이유가 있으면 그 문구로 실패를 알린다.
     const body = (await response.json().catch(() => null)) as { message?: string } | null;
-    throw new Error(body?.message ?? `요청을 처리하지 못했습니다. (${response.status})`);
+    throw new ApiError(body?.message ?? `요청을 처리하지 못했습니다. (${response.status})`, response.status);
   }
 
   return response.json() as Promise<T>;

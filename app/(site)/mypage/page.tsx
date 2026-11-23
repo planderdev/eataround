@@ -13,7 +13,7 @@ import {
 } from "@remixicon/react";
 import { MypageHistoryCarousel, type MypageHistoryCardItem } from "@/components/MypageHistoryCarousel";
 import { SectionHeader } from "@/components/SectionHeader";
-import { loadMyPageData, upcomingReservations, type MyPageData } from "@/lib/me/overview";
+import { loadMyPageData, nearestScheduleLabel, upcomingReservations, type MyPageData } from "@/lib/me/overview";
 import { userRoutes } from "@/lib/routes";
 
 export const metadata: Metadata = {
@@ -64,10 +64,7 @@ function buildSummaryItems(data: MyPageData) {
   const upcoming = upcomingReservations(data.reservations);
   const openQuotes = data.quotes.filter((item) => item.statusTone === "pending" || item.statusTone === "received");
   const receivedQuotes = data.quotes.filter((item) => item.statusTone === "received").length;
-  const nearest = upcoming
-    .map((item) => item.schedule.match(/\d{4}\.(\d{2}\.\d{2})/)?.[1])
-    .filter(Boolean)
-    .sort()[0];
+  const nearest = nearestScheduleLabel(data.reservations);
 
   const common = [
     { label: "다가오는 예약", value: `${upcoming.length}건`, note: nearest ? `가장 가까운 일정 ${nearest}` : "예정된 일정 없음" },

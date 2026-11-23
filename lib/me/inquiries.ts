@@ -1,6 +1,7 @@
 import "server-only";
 import type { RowDataPacket } from "@/lib/db";
 import { getPool } from "@/lib/db";
+import { formatPrefixedId, parsePrefixedId } from "@/lib/ids";
 import { userRoutes } from "@/lib/routes";
 import type { ApiTone, Inquiry } from "@/types/api";
 
@@ -16,7 +17,8 @@ type InquiryRow = RowDataPacket & {
   created_at: Date;
 };
 
-const STATUS_LABEL: Record<InquiryRow["status"], { label: string; tone: ApiTone }> = {
+/** 문의 상태의 화면 이름과 색. 마이페이지 요약 숫자(lib/me/overview.ts)도 이 표를 쓴다. */
+export const INQUIRY_STATUS: Record<InquiryRow["status"], { label: string; tone: ApiTone }> = {
   open: { label: "답변 대기", tone: "pending" },
   answered: { label: "답변 완료", tone: "received" },
   closed: { label: "상담 완료", tone: "done" },
@@ -27,8 +29,8 @@ function formatDateTime(value: Date) {
 }
 
 function rowToInquiry(row: InquiryRow, full: boolean): Inquiry {
-  const status = STATUS_LABEL[row.status] ?? STATUS_LABEL.open;
-  const id = `I-${row.id.toString().padStart(6, "0")}`;
+  const status = INQUIRY_STATUS[row.status] ?? INQUIRY_STATUS.open;
+  const id = formatPrefixedId("I", row.id);
   // 본문 앞줄은 연락처·희망일정 같은 접수 정보라(app/api/inquiry) 목록 미리보기에서는 문의 내용 첫 줄을 보여 준다.
   const lines = row.body.split("\n").map((line) => line.trim()).filter(Boolean);
   const message = lines.find((line) => !/^(연락처|희망일정|인원|상품):/.test(line)) ?? lines[0] ?? "";
@@ -46,8 +48,7 @@ function rowToInquiry(row: InquiryRow, full: boolean): Inquiry {
 }
 
 export function parseInquiryId(value: string) {
-  const match = /^(?:I-)?0*(\d{1,12})$/.exec(decodeURIComponent(value).trim());
-  return match ? Number(match[1]) : null;
+  return parsePrefixedId("I", value);
 }
 
 export async function listMyInquiries(userId: number) {
