@@ -1784,6 +1784,11 @@
   margin-top: var(--space-8);
   font-size: var(--font-size-xl);
 }
+.mypage-panel-empty {
+  margin: var(--space-16) 0 0;
+  color: var(--color-muted);
+  font-size: var(--font-size-sm);
+}
 .mypage-panel-head a,
 .me-review-bottom a:not(.primary-button):not(.secondary-button) {
   display: inline-flex;

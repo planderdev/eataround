@@ -10,7 +10,6 @@ import { workflowCopy } from "@/lib/admin/route-meta";
 
 // 이 화면들은 입력 양식만 있고 저장 대상이 정해지지 않았다. 저장된 것처럼 보이지 않게 이유를 함께 안내한다.
 const UNLINKED_REASON: Record<string, string> = {
-  "members/general/export": "엑셀·CSV 파일을 만들어 내려받는 기능이 없습니다.",
   "members/corporate/approval": "기업·단체회원 목록에서 행별 승인·반려 또는 상단 일괄 처리(승인 처리)를 이용해 주세요.",
   "members/corporate/quote-share": "메일·알림 발송 수단이 없습니다.",
   "products/bulk-visibility": "상품 목록 상단의 일괄 처리(노출 ON/OFF)를 이용해 주세요.",

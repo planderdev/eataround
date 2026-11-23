@@ -47,8 +47,8 @@ export function AdminInvitePage() {
       <aside className="admin-creation-side">
         <article className="admin-preview-stack">
           <span>보안 안내</span>
-          <strong>SUPER_ADMIN만 계정과 정책 메뉴를 수정할 수 있습니다.</strong>
-          <p>초대 수락 전에는 비활성 상태로 표시되고, 모든 권한 변경은 감사 로그로 남습니다.</p>
+          <strong>관리자 권한 등급은 아직 나뉘어 있지 않습니다.</strong>
+          <p>초대 메일은 아직 보낼 수 없습니다. 관리자 계정은 일반 가입 후 DB에서 권한을 올려 만듭니다.</p>
         </article>
       </aside>
     </section>

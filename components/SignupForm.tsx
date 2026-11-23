@@ -159,7 +159,7 @@ export function SignupForm({ initialMemberType = "personal", lockMemberType = fa
   }
 
   return (
-    <form className="signup-form" onSubmit={submit}>
+    <form method="post" className="signup-form" onSubmit={submit}>
       <div className="signup-form-head">
         <span className="eyebrow">Account</span>
         <h2>회원 정보 입력</h2>

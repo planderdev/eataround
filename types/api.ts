@@ -21,6 +21,13 @@ export type Reservation = {
   href: string;
   nextAction: string;
   timeline: string[];
+  /** 체험일(YYYY-MM-DD, DB 연결 환경). 다가오는 예약을 가를 때 쓴다. */
+  scheduleDate?: string;
+  /** 진행 단계 표시 위치(0부터). 없으면 상태 색으로 정한다. */
+  timelineStep?: number;
+  /** 회원이 직접 취소할 수 있는 예약인지(DB 연결 환경). */
+  canCancel?: boolean;
+  memo?: string;
 };
 
 export type Quote = {
@@ -39,6 +46,8 @@ export type Quote = {
 };
 
 export type WishlistItem = {
+  /** DB 연결 환경에서 상품 주소. 예시 데이터에는 없을 수 있다. */
+  slug?: string;
   title: string;
   region: string;
   price: string;
@@ -55,6 +64,9 @@ export type Review = {
   rating: number | null;
   text: string;
   href: string;
+  /** DB 연결 환경: 후기를 쓸 예약 번호(R-000001)와 작성한 후기 번호. */
+  reservationId?: string;
+  reviewId?: string;
 };
 
 export type Profile = {

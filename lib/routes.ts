@@ -56,3 +56,13 @@ export function normalizeUserHref(href?: string | null) {
 
   return href;
 }
+
+/**
+ * 로그인 뒤 돌아갈 주소. 같은 사이트 안의 경로("/"로 시작)만 허용하고,
+ * 다른 사이트로 보내는 주소("//example.com", "https://…", "/\\example.com")는 기본 경로로 바꾼다.
+ */
+export function safeRedirectPath(value: string | null | undefined, fallback: string) {
+  if (!value || !value.startsWith("/") || value.startsWith("//") || value.startsWith("/\\")) return fallback;
+  if (/[\u0000-\u001f]/.test(value)) return fallback;
+  return value;
+}

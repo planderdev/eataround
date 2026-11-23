@@ -4,13 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { StatusBadge } from "@/components/Badge";
 import { MetaItem, SectionError, SectionSkeleton, Timeline } from "@/components/mypage/MypageCommon";
-import { fetchMyReservation } from "@/lib/api/me";
+import { cancelMyReservation, fetchMyReservation } from "@/lib/api/me";
 import { userRoutes } from "@/lib/routes";
 import type { Reservation } from "@/types/api";
 
 export function ReservationDetailSection({ id }: { id: string }) {
   const [reservation, setReservation] = useState<Reservation | null>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [cancelling, setCancelling] = useState(false);
+  const [message, setMessage] = useState("");
 
   function load() {
     setStatus("loading");
@@ -23,6 +25,21 @@ export function ReservationDetailSection({ id }: { id: string }) {
   }
 
   useEffect(load, [id]);
+
+  async function handleCancel() {
+    if (!reservation || cancelling) return;
+    if (!window.confirm("이 예약을 취소할까요? 취소한 예약은 되돌릴 수 없습니다.")) return;
+    setCancelling(true);
+    setMessage("");
+    try {
+      setReservation(await cancelMyReservation(reservation.id));
+      setMessage("예약을 취소했습니다.");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "예약을 취소하지 못했습니다.");
+    } finally {
+      setCancelling(false);
+    }
+  }
 
   if (status === "loading") return <SectionSkeleton count={1} />;
   if (status === "error" || !reservation) return <SectionError onRetry={load} />;
@@ -47,11 +64,24 @@ export function ReservationDetailSection({ id }: { id: string }) {
         <MetaItem label="다음 액션" value={reservation.nextAction} />
       </dl>
       <p className="me-detail-alert">{reservation.nextAction}</p>
-      <Timeline items={reservation.timeline} activeIndex={reservation.statusTone === "pending" ? 1 : reservation.statusTone === "done" ? 3 : 2} />
+      <Timeline
+        items={reservation.timeline}
+        activeIndex={reservation.timelineStep ?? (reservation.statusTone === "pending" ? 1 : reservation.statusTone === "done" ? 3 : 2)}
+      />
+      {message ? (
+        <p className="me-detail-alert" role="status">
+          {message}
+        </p>
+      ) : null}
       <div className="me-history-actions">
         <Link className="secondary-button" href={`${userRoutes.me}/reservations`}>
           목록으로
         </Link>
+        {reservation.canCancel ? (
+          <button className="secondary-button" disabled={cancelling} type="button" onClick={handleCancel}>
+            {cancelling ? "취소 중" : "예약 취소"}
+          </button>
+        ) : null}
         <Link className="primary-button" href={reservation.href}>
           상품 보기
         </Link>

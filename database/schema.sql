@@ -237,6 +237,8 @@ create table inquiries (
   title varchar(190) not null,
   body text not null,
   status text not null default 'open' check (status in ('open', 'answered', 'closed')),
+  answer text,
+  answered_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -273,8 +275,28 @@ create table product_reviews (
   rating smallint not null default 5 check (rating between 1 and 5),
   body text not null,
   status text not null default 'pending' check (status in ('pending', 'approved', 'hidden')),
+  -- 어떤 예약의 후기인지(예약 한 건에 후기 한 개)
+  reservation_id bigint references reservations(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
+);
+
+-- 로그인 실패 잠금: 이메일과 접속 주소(IP) 묶음마다 연속 실패를 센다(lib/login-guard.ts).
+create table login_attempts (
+  email varchar(190) not null,
+  client_key varchar(64) not null,
+  failed_count integer not null default 0,
+  locked_until timestamptz,
+  updated_at timestamptz not null default now(),
+  primary key (email, client_key)
+);
+
+-- 찜: 회원 한 명이 상품 하나를 한 번만 저장한다.
+create table wishlists (
+  user_id bigint not null references users(id) on delete cascade,
+  product_id bigint not null references products(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, product_id)
 );
 
 create table coupons (
@@ -311,6 +333,9 @@ create index idx_quote_requests_user on quote_requests (user_id);
 create index idx_inquiries_user on inquiries (user_id);
 create index idx_product_reviews_product on product_reviews (product_id);
 create index idx_product_reviews_user on product_reviews (user_id);
+create unique index uq_product_reviews_reservation on product_reviews (reservation_id) where reservation_id is not null;
+create index idx_wishlists_product on wishlists (product_id);
+create index idx_login_attempts_updated on login_attempts (updated_at);
 
 -- updated_at 자동 갱신 (MySQL의 on update current_timestamp 대체)
 create trigger trg_users_updated_at before update on users for each row execute function public.set_updated_at();
@@ -342,3 +367,5 @@ alter table product_images enable row level security;
 alter table product_reviews enable row level security;
 alter table coupons enable row level security;
 alter table host_settlements enable row level security;
+alter table wishlists enable row level security;
+alter table login_attempts enable row level security;

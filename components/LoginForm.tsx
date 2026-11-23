@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { RiBuilding2Line, RiLock2Line, RiMailLine, RiUser3Line } from "@remixicon/react";
 import { withBasePath } from "@/lib/paths";
-import { userRoutes } from "@/lib/routes";
+import { safeRedirectPath, userRoutes } from "@/lib/routes";
+import { syncWishlistCache } from "@/lib/api/me";
 import { notifySessionChanged } from "@/lib/useSession";
 
 type LoginMode = "personal" | "company";
@@ -72,7 +73,9 @@ export function LoginForm() {
       }
 
       notifySessionChanged();
-      const redirectTo = searchParams.get("redirect") ?? userRoutes.me;
+      // 이 브라우저에 남은 다른 회원의 찜 표시를 지우고 내 찜으로 맞춘다.
+      void syncWishlistCache(true);
+      const redirectTo = safeRedirectPath(searchParams.get("redirect"), userRoutes.me);
       router.push(redirectTo);
       router.refresh();
     } catch {
@@ -104,7 +107,7 @@ export function LoginForm() {
         {content.note}
       </p>
 
-      <form className="auth-form" onSubmit={submit}>
+      <form method="post" className="auth-form" onSubmit={submit}>
         <input name="memberType" type="hidden" value={loginMode} />
         <div className="field">
           <label className="field-label" htmlFor="login-email">

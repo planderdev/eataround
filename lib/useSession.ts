@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { syncWishlistCache } from "@/lib/api/me";
 import { withBasePath } from "@/lib/paths";
 
 export type ClientSessionUser = {
@@ -66,6 +67,7 @@ export function useSession(): SessionState {
     });
     setUser(null);
     setStatus("anonymous");
+    void syncWishlistCache(false);
     window.dispatchEvent(new Event(SESSION_EVENT));
   }, []);
 
