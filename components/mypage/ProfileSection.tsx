@@ -206,7 +206,7 @@ export function ProfileSection() {
       </div>
 
       <Modal isOpen={isPasswordOpen} label="비밀번호 변경" onClose={() => setIsPasswordOpen(false)}>
-        <form className="me-password-modal" onSubmit={submitPassword}>
+        <form method="post" className="me-password-modal" onSubmit={submitPassword}>
           <header>
             <h2>비밀번호 변경</h2>
             <p>현재 비밀번호 확인 후 새 비밀번호를 저장합니다.</p>

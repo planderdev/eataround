@@ -107,7 +107,7 @@ export function LoginForm() {
         {content.note}
       </p>
 
-      <form className="auth-form" onSubmit={submit}>
+      <form method="post" className="auth-form" onSubmit={submit}>
         <input name="memberType" type="hidden" value={loginMode} />
         <div className="field">
           <label className="field-label" htmlFor="login-email">

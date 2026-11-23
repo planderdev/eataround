@@ -5724,19 +5724,25 @@
   display: grid;
   gap: 8px;
   grid-template-columns: minmax(0, 1fr);
+  padding-bottom: var(--admin-space-12);
+  border-bottom: 1px dashed var(--admin-line);
 }
 
-@media (min-width: 900px) {
-  .admin-detail-content-row {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) auto;
-    align-items: start;
-  }
-}
 
 .admin-detail-content-row input,
 .admin-detail-content-row textarea {
   width: 100%;
   min-width: 0;
+  border: 1px solid var(--admin-line);
+  border-radius: var(--admin-radius-control);
+  background: var(--admin-surface);
+  color: var(--admin-color-ink);
+  padding: var(--admin-space-12);
+  font: inherit;
+}
+
+.admin-detail-content-row textarea {
+  resize: vertical;
 }
 
 .admin-detail-content-row-actions {

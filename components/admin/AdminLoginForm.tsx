@@ -46,7 +46,7 @@ export function AdminLoginForm() {
   }
 
   return (
-    <form className="admin-login-form" onSubmit={submit}>
+    <form method="post" className="admin-login-form" onSubmit={submit}>
       <label>
         <span>이메일</span>
         <input autoComplete="email" defaultValue="hello@eataround.co.kr" name="email" required type="email" />
