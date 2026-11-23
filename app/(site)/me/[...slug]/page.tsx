@@ -27,6 +27,8 @@ import { ReservationListSection } from "@/components/mypage/ReservationListSecti
 import { ReviewSection as MypageReviewSection } from "@/components/mypage/ReviewSection";
 import { WishlistSection as MypageWishlistSection } from "@/components/mypage/WishlistSection";
 import { getExperiences } from "@/lib/content";
+import { hasDatabaseConfig } from "@/lib/db";
+import { loadMyPageData, upcomingReservations, type MyPageData } from "@/lib/me/overview";
 import {
   inquiryHistory,
   myProfile,
@@ -92,40 +94,86 @@ const sectionActions: Record<PageKey, { href: string; label: string }> = {
   profile: { href: userRoutes.help, label: "고객센터 문의" },
 };
 
-const sectionStats: Record<PageKey, { label: string; value: string; note: string }[]> = {
-  reservations: [
-    { label: "전체 예약", value: `${reservationHistory.length}건`, note: "최근 예약순" },
-    { label: "다가오는 일정", value: `${reservationHistory.filter((item) => item.statusTone !== "done").length}건`, note: "확정/승인 대기 포함" },
-    { label: "후기 가능", value: `${reservationHistory.filter((item) => item.statusTone === "done").length}건`, note: "쿠폰 지급 대상" },
-  ],
-  quotes: [
-    { label: "전체 견적", value: `${quoteHistory.length}건`, note: "요청 기준" },
-    { label: "검토 중", value: `${quoteHistory.filter((item) => item.statusTone === "pending").length}건`, note: "담당자 확인 중" },
-    { label: "견적서 수신", value: `${quoteHistory.filter((item) => item.statusTone === "received").length}건`, note: "승인 대기" },
-  ],
-  inquiries: [
-    { label: "전체 문의", value: `${inquiryHistory.length}건`, note: "접수 기준" },
-    { label: "답변 대기", value: `${inquiryHistory.filter((item) => item.statusTone === "pending").length}건`, note: "호스트 확인 중" },
-    { label: "답변 완료", value: `${inquiryHistory.filter((item) => item.statusTone === "received" || item.statusTone === "done").length}건`, note: "최신 회신순" },
-  ],
-  wishlist: [
-    { label: "관심 체험", value: `${wishlistItems.length}개`, note: "저장된 체험" },
-    { label: "가족 추천", value: "1개", note: "아이 동반 가능" },
-    { label: "프리미엄", value: "1개", note: "호스트 특화" },
-  ],
-  reviews: [
-    { label: "전체 후기", value: `${reviewHistory.length}건`, note: "작성 가능 포함" },
-    { label: "작성 가능", value: `${reviewHistory.filter((item) => item.statusTone === "pending").length}건`, note: "쿠폰 지급 대상" },
-    { label: "평균 별점", value: "5.0", note: "작성 완료 기준" },
-  ],
-  profile: [
-    { label: "회원 유형", value: myProfile.memberType, note: "B2B 견적 가능" },
-    { label: "쿠폰", value: `${myProfile.couponCount}장`, note: "보유 쿠폰" },
-    { label: "포인트", value: myProfile.point, note: "결제 사용 가능" },
-  ],
-};
+type StatCard = { label: string; value: string; note: string };
+
+function buildSectionStats(sectionKey: PageKey, data: MyPageData): StatCard[] {
+  const { reservations, quotes, inquiries, wishlist, reviews, profile } = data;
+  const writableReviews = reviews.filter((item) => item.status === "작성 가능");
+  const writtenReviews = reviews.filter((item) => item.rating);
+
+  switch (sectionKey) {
+    case "reservations":
+      return [
+        { label: "전체 예약", value: `${reservations.length}건`, note: "최근 예약순" },
+        { label: "다가오는 일정", value: `${upcomingReservations(reservations).length}건`, note: "확정/승인 대기 포함" },
+        data.live
+          ? { label: "후기 가능", value: `${writableReviews.length}건`, note: "이용을 마친 예약" }
+          : { label: "후기 가능", value: `${reservations.filter((item) => item.statusTone === "done").length}건`, note: "쿠폰 지급 대상" },
+      ];
+    case "quotes":
+      return [
+        { label: "전체 견적", value: `${quotes.length}건`, note: "요청 기준" },
+        { label: "검토 중", value: `${quotes.filter((item) => item.statusTone === "pending").length}건`, note: "담당자 확인 중" },
+        { label: "견적서 수신", value: `${quotes.filter((item) => item.statusTone === "received").length}건`, note: "승인 대기" },
+      ];
+    case "inquiries":
+      return [
+        { label: "전체 문의", value: `${inquiries.length}건`, note: "접수 기준" },
+        { label: "답변 대기", value: `${inquiries.filter((item) => item.statusTone === "pending").length}건`, note: data.live ? "운영팀 확인 중" : "호스트 확인 중" },
+        {
+          label: "답변 완료",
+          value: `${inquiries.filter((item) => item.statusTone === "received" || item.statusTone === "done").length}건`,
+          note: "최신 회신순",
+        },
+      ];
+    case "wishlist": {
+      if (!data.live) {
+        return [
+          { label: "관심 체험", value: `${wishlist.length}개`, note: "저장된 체험" },
+          { label: "가족 추천", value: "1개", note: "아이 동반 가능" },
+          { label: "프리미엄", value: "1개", note: "호스트 특화" },
+        ];
+      }
+      const prices = wishlist.map((item) => Number(item.price.replace(/[^0-9]/g, ""))).filter((value) => value > 0);
+      return [
+        { label: "관심 체험", value: `${wishlist.length}개`, note: "저장된 체험" },
+        { label: "지역", value: `${new Set(wishlist.map((item) => item.region)).size}곳`, note: "저장한 체험의 지역" },
+        { label: "최저가", value: prices.length ? `${Math.min(...prices).toLocaleString("ko-KR")}원` : "-", note: "1인 기본가 기준" },
+      ];
+    }
+    case "reviews": {
+      const average = writtenReviews.length
+        ? (writtenReviews.reduce((sum, item) => sum + (item.rating ?? 0), 0) / writtenReviews.length).toFixed(1)
+        : "-";
+      return [
+        { label: "전체 후기", value: `${data.live ? writtenReviews.length : reviews.length}건`, note: data.live ? "작성한 후기" : "작성 가능 포함" },
+        { label: "작성 가능", value: `${writableReviews.length}건`, note: data.live ? "이용을 마친 예약" : "쿠폰 지급 대상" },
+        { label: "평균 별점", value: data.live ? average : "5.0", note: "작성 완료 기준" },
+      ];
+    }
+    default:
+      if (!data.live) {
+        return [
+          { label: "회원 유형", value: profile.memberType, note: "B2B 견적 가능" },
+          { label: "쿠폰", value: `${profile.couponCount}장`, note: "보유 쿠폰" },
+          { label: "포인트", value: profile.point, note: "결제 사용 가능" },
+        ];
+      }
+      return [
+        { label: "회원 유형", value: profile.memberType, note: profile.memberType === "기업회원" ? "B2B 견적 가능" : "개인 예약" },
+        { label: "가입일", value: profile.joinedAt || "-", note: "이더라운드 회원" },
+        {
+          label: "기업 승인",
+          value: profile.memberType === "기업회원" ? (data.companyApproved ? "승인 완료" : "승인 대기") : "해당 없음",
+          note: "기업·단체회원 기준",
+        },
+      ];
+  }
+}
 
 export function generateStaticParams() {
+  // DB 연결 환경의 상세 번호는 회원마다 다르므로 요청 때 만든다. 예시 데이터일 때만 상세 화면까지 미리 만든다.
+  if (hasDatabaseConfig()) return tabs.map((item) => ({ slug: [item.key] }));
   return [
     ...tabs.map((item) => ({ slug: [item.key] })),
     ...reservationHistory.map((item) => ({ slug: ["reservations", item.id] })),
@@ -148,6 +196,8 @@ export default async function MeSectionPage({ params }: PageProps) {
   const page = pageMap[sectionKey];
   const Icon = page.icon;
   const detailId = slug[1];
+  const data = await loadMyPageData(`${userRoutes.me}/${slug.map(encodeURIComponent).join("/")}`);
+  const stats = buildSectionStats(sectionKey, data);
   const experiences = sectionKey === "wishlist" || sectionKey === "reviews" ? await getExperiences() : [];
 
   return (
@@ -190,7 +240,7 @@ export default async function MeSectionPage({ params }: PageProps) {
       </section>
 
       <div className="me-section-stat-grid">
-        {sectionStats[sectionKey].map((item) => (
+        {stats.map((item) => (
           <article className="me-section-stat-card" key={item.label}>
             <span>{item.label}</span>
             <strong>{item.value}</strong>

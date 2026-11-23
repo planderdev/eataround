@@ -67,15 +67,43 @@ export async function fetchMyInquiry(id: string): Promise<Inquiry> {
 
 export async function fetchMyWishlist(): Promise<WishlistItem[]> {
   if (useMock) return getMockWishlist();
-  return fetchJson<WishlistItem[]>("/api/me/wishlist");
+  const items = await fetchJson<WishlistItem[]>("/api/me/wishlist");
+  // 하트 표시는 브라우저 캐시를 보므로 서버 목록으로 맞춘다.
+  writeWishlistCache(new Set(items.map((item) => item.slug).filter((slug): slug is string => Boolean(slug))));
+  return items;
 }
 
 export async function toggleWishlist(slug: string): Promise<{ saved: boolean }> {
   if (useMock) return toggleMockWishlist(slug);
   const current = readWishlistCache().has(slug);
-  return fetchJson<{ saved: boolean }>(`/api/me/wishlist/${slug}`, {
+  const result = await fetchJson<{ saved: boolean }>(`/api/me/wishlist/${encodeURIComponent(slug)}`, {
     method: current ? "DELETE" : "POST",
   });
+  const cache = readWishlistCache();
+  if (result.saved) cache.add(slug);
+  else cache.delete(slug);
+  writeWishlistCache(cache);
+  return result;
+}
+
+/** 로그인·로그아웃 때 이전 회원의 찜 표시가 남지 않게 서버 목록으로 다시 맞춘다. */
+export async function syncWishlistCache(authenticated: boolean) {
+  if (useMock || typeof window === "undefined") return;
+  if (!authenticated) {
+    writeWishlistCache(new Set());
+    return;
+  }
+  await fetchMyWishlist().catch(() => undefined);
+}
+
+function writeWishlistCache(slugs: Set<string>) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem("wishlist:slugs", JSON.stringify(Array.from(slugs)));
+  } catch {
+    // 저장소를 쓸 수 없는 브라우저는 표시만 못 한다.
+  }
+  window.dispatchEvent(new Event("wishlist:changed"));
 }
 
 export async function fetchMyReviews(): Promise<Review[]> {
@@ -124,6 +152,18 @@ export async function confirmReservation(id: string): Promise<Reservation> {
   return fetchJson<Reservation>(`/api/me/reservations/${id}`, {
     method: "PATCH",
     body: JSON.stringify({ status: "requested" }),
+  });
+}
+
+/** 회원이 자기 예약을 취소한다. DB 연결 환경에서는 회차 좌석도 되돌린다. */
+export async function cancelMyReservation(id: string): Promise<Reservation> {
+  if (useMock) {
+    const reservation = await getMockReservation(id);
+    return { ...reservation, status: "예약 취소", statusTone: "cancelled", canCancel: false };
+  }
+  return fetchJson<Reservation>(`/api/me/reservations/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status: "cancelled" }),
   });
 }
 

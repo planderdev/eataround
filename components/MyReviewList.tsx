@@ -28,6 +28,9 @@ export type MyReviewItem = {
   statusTone: BadgeTone;
   text: string;
   title: string;
+  /** DB 연결 환경: 후기를 쓸 예약 번호와 작성한 후기 번호. */
+  reservationId?: string;
+  reviewId?: string;
 };
 
 type SubmittedReview = {
@@ -35,7 +38,15 @@ type SubmittedReview = {
   images: string[];
   rating: number;
   text: string;
+  status: string;
+  statusTone: BadgeTone;
+  reviewId?: string;
 };
+
+/** 같은 상품을 여러 번 이용할 수 있어 예약·후기 번호를 먼저 키로 쓴다. */
+function itemKey(item: MyReviewItem) {
+  return item.reviewId ?? item.reservationId ?? item.title;
+}
 
 const ratingOptions = [1, 2, 3, 4, 5];
 
@@ -88,28 +99,44 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
     }
 
     setIsSubmitting(true);
+    const key = itemKey(activeItem);
+    const reviewId = submittedReviews[key]?.reviewId ?? activeItem.reviewId;
+    let errorMessage = "";
     const review = await submitMyReview({
-      reservationId: activeItem.title,
+      reservationId: activeItem.reservationId ?? activeItem.title,
+      reviewId,
       rating: draftRating,
       text: draftText.trim(),
       images: draftImages,
-    }).catch(() => null).finally(() => setIsSubmitting(false));
+    })
+      .catch((error: unknown) => {
+        errorMessage = error instanceof Error ? error.message : "";
+        return null;
+      })
+      .finally(() => setIsSubmitting(false));
 
     if (!review) {
-      setMessage("후기 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
+      setMessage(errorMessage || "후기 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
       return;
     }
 
     setSubmittedReviews((current) => ({
       ...current,
-      [activeItem.title]: {
+      [key]: {
         date: review.date,
         images: draftImages,
         rating: review.rating ?? draftRating,
         text: review.text,
+        status: review.status,
+        statusTone: review.statusTone,
+        reviewId: review.reviewId ?? reviewId,
       },
     }));
-    setMessage(`${activeItem.title} 후기가 등록되었습니다.`);
+    setMessage(
+      review.statusTone === "pending"
+        ? `${activeItem.title} 후기를 저장했습니다. 운영팀 검수 후 상품 상세에 보입니다.`
+        : `${activeItem.title} 후기가 등록되었습니다.`,
+    );
     closeModal();
   }
 
@@ -118,15 +145,15 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
       <div className="me-review-list">
         {message ? <p className="me-review-feedback">{message}</p> : null}
         {items.map((item) => {
-          const submitted = submittedReviews[item.title];
+          const submitted = submittedReviews[itemKey(item)];
           const displayRating = submitted?.rating ?? item.rating;
           const displayText = submitted?.text ?? item.text;
           const displayDate = submitted?.date ?? item.date;
-          const displayStatus = submitted ? "작성 완료" : item.status;
-          const displayTone: BadgeTone = submitted ? "done" : item.status === "작성 가능" ? "primary" : item.statusTone;
+          const displayStatus = submitted?.status ?? item.status;
+          const displayTone: BadgeTone = submitted?.statusTone ?? (item.status === "작성 가능" ? "primary" : item.statusTone);
 
           return (
-            <article className="me-review-card" key={item.title}>
+            <article className="me-review-card" key={itemKey(item)}>
               {item.product ? (
                 <Link className="me-review-thumb" href={item.product.href} aria-label={`${item.product.title} 상세보기`}>
                   <img src={item.product.image} alt={item.product.title} loading="lazy" />
@@ -150,9 +177,15 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
                         후기 보기
                         <RiArrowRightSLine size={16} />
                       </Link>
-                      <button className="secondary-button" onClick={() => openModal({ ...item, rating: displayRating, text: displayText })} type="button">
-                        수정
-                      </button>
+                      {displayStatus !== "비공개" ? (
+                        <button
+                          className="secondary-button"
+                          onClick={() => openModal({ ...item, rating: displayRating, text: displayText, reviewId: submitted?.reviewId ?? item.reviewId })}
+                          type="button"
+                        >
+                          수정
+                        </button>
+                      ) : null}
                       </div>
                     </>
                   ) : (
@@ -231,6 +264,8 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
               </FormField>
               <p className="review-write-helper">{draftText.length}/500 · 최소 20자</p>
 
+              {/* 사진은 아직 저장할 곳이 없어 DB 연결 환경(예약 번호가 있는 후기)에서는 받지 않는다. */}
+              {activeItem.reservationId ? null : (
               <label className="review-write-upload">
                 <span>
                   <strong>사진 첨부</strong>
@@ -238,7 +273,8 @@ export function MyReviewList({ items }: { items: MyReviewItem[] }) {
                 </span>
                 <input accept="image/*" multiple onChange={handleImageChange} type="file" />
               </label>
-              {draftImages.length ? (
+              )}
+              {!activeItem.reservationId && draftImages.length ? (
                 <div className="review-write-preview-grid">
                   {draftImages.map((image, index) => (
                     <img alt={`첨부 이미지 ${index + 1}`} key={image} src={image} loading="lazy" decoding="async" />

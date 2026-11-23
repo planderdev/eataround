@@ -26,6 +26,9 @@ create table users (
   -- 기업회원 반려 사유. 값이 있으면 반려 상태, 승인하면 null로 되돌린다.
   company_rejected_reason varchar(300),
   role text not null default 'user' check (role in ('user', 'admin')),
+  -- 연속 로그인 실패 횟수와 잠금 해제 시각(5회 실패 시 30분 잠금)
+  failed_login_count integer not null default 0,
+  locked_until timestamptz,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -237,6 +240,8 @@ create table inquiries (
   title varchar(190) not null,
   body text not null,
   status text not null default 'open' check (status in ('open', 'answered', 'closed')),
+  answer text,
+  answered_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -273,8 +278,18 @@ create table product_reviews (
   rating smallint not null default 5 check (rating between 1 and 5),
   body text not null,
   status text not null default 'pending' check (status in ('pending', 'approved', 'hidden')),
+  -- 어떤 예약의 후기인지(예약 한 건에 후기 한 개)
+  reservation_id bigint references reservations(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
+);
+
+-- 찜: 회원 한 명이 상품 하나를 한 번만 저장한다.
+create table wishlists (
+  user_id bigint not null references users(id) on delete cascade,
+  product_id bigint not null references products(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (user_id, product_id)
 );
 
 create table coupons (
@@ -311,6 +326,8 @@ create index idx_quote_requests_user on quote_requests (user_id);
 create index idx_inquiries_user on inquiries (user_id);
 create index idx_product_reviews_product on product_reviews (product_id);
 create index idx_product_reviews_user on product_reviews (user_id);
+create unique index uq_product_reviews_reservation on product_reviews (reservation_id) where reservation_id is not null;
+create index idx_wishlists_product on wishlists (product_id);
 
 -- updated_at 자동 갱신 (MySQL의 on update current_timestamp 대체)
 create trigger trg_users_updated_at before update on users for each row execute function public.set_updated_at();
@@ -342,3 +359,4 @@ alter table product_images enable row level security;
 alter table product_reviews enable row level security;
 alter table coupons enable row level security;
 alter table host_settlements enable row level security;
+alter table wishlists enable row level security;
