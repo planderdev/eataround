@@ -1,7 +1,10 @@
+import { requireAdminWhenConnected } from "@/lib/admin/guard";
 import { NextResponse } from "next/server";
 import { getEvents, getExperiences, getJournals } from "@/lib/content";
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = await requireAdminWhenConnected(request);
+  if (denied) return denied;
   const [experiences, events, journals] = await Promise.all([getExperiences(), getEvents(), getJournals()]);
 
   return NextResponse.json({

@@ -65,7 +65,7 @@ export function QuotesPage({ data }: { data: AdminData }) {
       <AdminDataTable
         actions={(row) => (
           <>
-            <Link className="admin-action-button ghost" href={`/admin/quotes/${encodeURIComponent(row.org)}/preview`}>
+            <Link className="admin-action-button ghost" href={`/admin/quotes/${quotePreviewKey(row, data.quoteRequests)}/preview`}>
               PDF 미리보기
             </Link>
             <small>견적서 메일 발송과 예약 전환은 아직 연결되지 않았습니다. 금액·상태·메모는 위에서 저장합니다.</small>
@@ -91,7 +91,7 @@ export function QuotesPage({ data }: { data: AdminData }) {
                 quoteId={row.id ? String(row.id) : `sample-${row.org}`}
                 statusCode={row.statusCode}
               />
-              <Link className="admin-action-button info" href={`/admin/quotes/${encodeURIComponent(row.org)}/preview`}>
+              <Link className="admin-action-button info" href={`/admin/quotes/${quotePreviewKey(row, data.quoteRequests)}/preview`}>
                 견적서 HTML 미리보기
               </Link>
             </div>
@@ -103,4 +103,9 @@ export function QuotesPage({ data }: { data: AdminData }) {
       />
     </ListFrame>
   );
+}
+
+/** 견적 미리보기 주소의 키. DB 견적은 행 id, 샘플 견적은 sample-순번(lib/content.ts getAdminQuoteRequest와 같은 규칙). */
+function quotePreviewKey(row: { id?: number }, rows: { id?: number }[]) {
+  return row.id ? String(row.id) : `sample-${rows.indexOf(row) + 1}`;
 }

@@ -54,17 +54,25 @@ export function ProfileSection() {
   async function saveField() {
     if (!editingField) return;
     const nextValue = draftValue.trim();
-    const nextProfile = await updateProfile({ [editingField]: nextValue });
-    setProfile((current) => ({ ...current, ...nextProfile, [editingField]: nextValue }));
-    setEditingField(null);
-    setFeedback(`${fieldLabels[editingField]} 정보가 저장되었습니다.`);
+    try {
+      const nextProfile = await updateProfile({ [editingField]: nextValue });
+      setProfile((current) => ({ ...current, ...nextProfile, [editingField]: nextValue }));
+      setEditingField(null);
+      setFeedback(`${fieldLabels[editingField]} 정보가 저장되었습니다.`);
+    } catch (error) {
+      setFeedback(errorMessage(error, `${fieldLabels[editingField]} 정보를 저장하지 못했습니다.`));
+    }
   }
 
   async function toggleMarketing() {
     const marketing = !profile.marketing;
-    await updateProfile({ marketing });
-    setProfile((current) => ({ ...current, marketing }));
-    setFeedback(marketing ? "마케팅 수신에 동의했습니다." : "마케팅 수신 동의를 해제했습니다.");
+    try {
+      await updateProfile({ marketing });
+      setProfile((current) => ({ ...current, marketing }));
+      setFeedback(marketing ? "마케팅 수신에 동의했습니다." : "마케팅 수신 동의를 해제했습니다.");
+    } catch (error) {
+      setFeedback(errorMessage(error, "마케팅 수신 동의를 저장하지 못했습니다."));
+    }
   }
 
   async function submitPassword(event: FormEvent<HTMLFormElement>) {
@@ -75,17 +83,21 @@ export function ProfileSection() {
     const confirmPassword = String(formData.get("confirmPassword") ?? "");
 
     if (nextPassword.length < 10 || nextPassword !== confirmPassword) {
-      setPasswordMessage("새 비밀번호는 8자 이상이며 확인 값과 같아야 합니다.");
+      setPasswordMessage("새 비밀번호는 10자 이상이며 확인 값과 같아야 합니다.");
       return;
     }
 
-    await updatePassword({
-      currentPassword,
-      nextPassword,
-    });
-    setPasswordMessage("");
-    setIsPasswordOpen(false);
-    setFeedback("비밀번호 변경 요청이 접수되었습니다.");
+    try {
+      await updatePassword({
+        currentPassword,
+        nextPassword,
+      });
+      setPasswordMessage("");
+      setIsPasswordOpen(false);
+      setFeedback("비밀번호가 변경되었습니다.");
+    } catch (error) {
+      setPasswordMessage(errorMessage(error, "비밀번호를 바꾸지 못했습니다."));
+    }
   }
 
   if (loadStatus === "loading") return <SectionSkeleton count={2} />;
@@ -279,4 +291,8 @@ function ProfileField({
       </dd>
     </div>
   );
+}
+
+function errorMessage(error: unknown, fallback: string) {
+  return error instanceof Error && error.message ? error.message : fallback;
 }

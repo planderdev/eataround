@@ -1,7 +1,7 @@
 import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminApiData, adminOk, paginated } from "@/lib/admin/api-data";
-import { adminError, requireAdmin, trimmed } from "@/lib/admin/guard";
+import { adminError, requireAdmin, trimmed, requireAdminWhenConnected } from "@/lib/admin/guard";
 import { isDateString } from "@/lib/admin/patch";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import type { AdminSchedule } from "@/types/api";
@@ -23,6 +23,8 @@ function schedules(): AdminSchedule[] {
 }
 
 export async function GET(request: Request) {
+  const denied = await requireAdminWhenConnected(request);
+  if (denied) return denied;
   const { searchParams } = new URL(request.url);
   const productSlug = searchParams.get("productSlug");
   const date = searchParams.get("date");

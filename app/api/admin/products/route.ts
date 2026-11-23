@@ -1,3 +1,4 @@
+import { requireAdminWhenConnected } from "@/lib/admin/guard";
 import { revalidateSite } from "@/lib/admin/revalidate";
 import { NextResponse } from "next/server";
 import { adminApiData, paginated } from "@/lib/admin/api-data";
@@ -38,6 +39,8 @@ function normalize(value: unknown) {
 }
 
 export async function GET(request: Request) {
+  const denied = await requireAdminWhenConnected(request);
+  if (denied) return denied;
   const products = await getExperiences();
   return NextResponse.json({
     ...paginated(request, adminApiData.products),

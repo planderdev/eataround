@@ -1,3 +1,4 @@
+import { requireAdminWhenConnected } from "@/lib/admin/guard";
 import { NextResponse } from "next/server";
 import { getPool, hasDatabaseConfig } from "@/lib/db";
 import type { AdminNotification } from "@/types/api";
@@ -27,11 +28,15 @@ async function loadNotifications(): Promise<AdminNotification[]> {
   return items;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const denied = await requireAdminWhenConnected(request);
+  if (denied) return denied;
   return NextResponse.json(await loadNotifications());
 }
 
-export async function PATCH() {
+export async function PATCH(request: Request) {
+  const denied = await requireAdminWhenConnected(request);
+  if (denied) return denied;
   const notifications = await loadNotifications();
   return NextResponse.json({
     ok: true,

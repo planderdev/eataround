@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { QuotePrintButton } from "@/components/admin/QuotePrintButton";
-import { getAdminQuoteRequests } from "@/lib/content";
+import { requireAdminPage } from "@/lib/admin/data";
+import { withStrictDatabase } from "@/lib/db-strict";
+import { getAdminQuoteRequest } from "@/lib/content";
 import { formatWon } from "@/lib/format";
 import { withBasePath } from "@/lib/paths";
 
@@ -13,24 +15,22 @@ export const metadata: Metadata = {
   title: "견적서 미리보기 | 이더라운드 관리자",
 };
 
-export async function generateStaticParams() {
-  const quotes = await getAdminQuoteRequests();
-  return quotes.map((quote) => ({ id: encodeURIComponent(quote.org) }));
-}
-
 export default async function AdminQuotePreviewPage({ params }: PageProps) {
+  // 저장한 금액·상태가 바로 반영되도록 요청마다 DB에서 읽는다.
+  await requireAdminPage();
   const { id } = await params;
-  const quotes = await getAdminQuoteRequests();
-  const quote = quotes.find((item) => encodeURIComponent(item.org) === id || item.org === decodeURIComponent(id));
+  const quote = await withStrictDatabase(() => getAdminQuoteRequest(decodeURIComponent(id)));
 
   if (!quote) {
     notFound();
   }
 
-  const programs = quote.program.split("+").map((program) => program.trim()).filter(Boolean);
-  const subtotal = quote.estimatedTotal ?? quote.people * 68000;
-  const optionFee = quote.options ? Math.round(subtotal * 0.08) : 0;
-  const total = subtotal + optionFee;
+  const programs = quote.program
+    .split(/[+,]/)
+    .map((program) => program.trim())
+    .filter(Boolean);
+  // 금액은 관리자가 저장한 견적 금액만 쓴다. 저장된 금액이 없으면 임의로 만들지 않는다.
+  const total = quote.estimatedTotal && quote.estimatedTotal > 0 ? quote.estimatedTotal : null;
 
   return (
     <main className="admin-quote-preview-page">
@@ -100,42 +100,28 @@ export default async function AdminQuotePreviewPage({ params }: PageProps) {
             </tr>
           </thead>
           <tbody>
-            {programs.map((program, index) => {
-              const amount = Math.round(subtotal / programs.length);
-              return (
-                <tr key={program}>
-                  <td>
-                    <strong>{program}</strong>
-                    <span>현장 운영, 호스트 섭외, 기본 안내 포함</span>
-                  </td>
-                  <td>{quote.people}명</td>
-                  <td>{formatWon(Math.round(amount / quote.people))}</td>
-                  <td>{formatWon(amount)}</td>
-                </tr>
-              );
-            })}
-            {optionFee ? (
-              <tr>
-                <td>
-                  <strong>선택 옵션</strong>
-                  <span>{quote.options}</span>
-                </td>
-                <td>1식</td>
-                <td>{formatWon(optionFee)}</td>
-                <td>{formatWon(optionFee)}</td>
-              </tr>
-            ) : null}
+            <tr>
+              <td>
+                <strong>{programs.length ? programs.join(", ") : "프로그램 미선택"}</strong>
+                <span>현장 운영, 호스트 섭외, 기본 안내 포함</span>
+                {quote.options ? <span>선택 옵션: {quote.options}</span> : null}
+              </td>
+              <td>{quote.people.toLocaleString("ko-KR")}명</td>
+              <td>{total !== null && quote.people > 0 ? formatWon(Math.round(total / quote.people)) : "-"}</td>
+              <td>{total !== null ? formatWon(total) : "-"}</td>
+            </tr>
           </tbody>
           <tfoot>
             <tr>
               <td colSpan={3}>총 견적 금액</td>
-              <td>{formatWon(total)}</td>
+              <td>{total !== null ? formatWon(total) : "금액 미정"}</td>
             </tr>
           </tfoot>
         </table>
 
         <section className="admin-quote-document-notes">
           <h2>안내사항</h2>
+          {total === null ? <p>견적관리에서 견적 금액을 저장하면 이곳에 표시됩니다.</p> : null}
           <p>상세 일정, 이동 동선, 식사 옵션은 운영팀 검토 후 최종 확정됩니다.</p>
           <p>기관·기업 예약은 인원과 일정에 따라 할인율과 운영 가능 여부가 달라질 수 있습니다.</p>
         </section>

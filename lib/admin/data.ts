@@ -1,5 +1,9 @@
 import "server-only";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
+import { hasDatabaseConfig } from "@/lib/db";
+import { withStrictDatabase } from "@/lib/db-strict";
+import { getAdminSessionUser } from "@/lib/session";
 import {
   getAdminMembers,
   getAdminQuoteRequests,
@@ -27,9 +31,18 @@ import {
   getAdminSchedules,
 } from "@/lib/admin/content";
 
+/**
+ * 관리자 화면을 그리기 전에 관리자 권한을 DB에서 다시 확인한다(DB 연결 환경만).
+ * proxy.ts는 쿠키의 역할만 보므로, 권한이 내려간 계정은 여기서 로그인 화면으로 보낸다.
+ */
+export async function requireAdminPage() {
+  await connection();
+  if (hasDatabaseConfig() && !(await getAdminSessionUser())) redirect("/admin/login");
+}
+
 export async function loadAdminData() {
   // 관리자 화면은 빌드 시점 결과를 굳히지 않고 요청마다 최신 데이터를 읽는다.
-  await connection();
+  await requireAdminPage();
   const [
     experiences,
     events,
@@ -52,7 +65,7 @@ export async function loadAdminData() {
     adminReviews,
     adminJournals,
     adminCategories,
-  ] = await Promise.all([
+  ] = await withStrictDatabase(() => Promise.all([
     getExperiences(),
     getEvents(),
     getJournals(),
@@ -74,8 +87,10 @@ export async function loadAdminData() {
     getAdminReviews(),
     getAdminJournals(),
     getAdminCategories(),
-  ]);
-  const productReviews = await Promise.all(experiences.slice(0, 4).map((experience) => getProductReviews(experience.slug)));
+  ]));
+  const productReviews = await withStrictDatabase(() =>
+    Promise.all(experiences.slice(0, 4).map((experience) => getProductReviews(experience.slug))),
+  );
 
   return {
     // 관리자 목록 전용(비노출·마감 포함, DB 행 id 포함)
